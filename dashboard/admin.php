@@ -937,47 +937,133 @@ try {
 
         async function loadDoctorsForAppointment() {
             try {
+                console.log('Loading doctors for appointment...');
                 const response = await fetch('../api/doctors.php?action=list');
+                console.log('Doctors API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const result = await response.json();
+                console.log('Doctors API result:', result);
                 
                 if (result.success) {
-                    const select = document.querySelector('#addAppointmentModal select[name="doctor_id"]');
+                    const select = document.getElementById('doctorSelect');
                     if (select) {
                         select.innerHTML = '<option value="">Select Doctor</option>';
+                        
+                        // Store all doctors for search functionality
+                        window.allDoctors = result.data;
                         
                         result.data.forEach(doctor => {
                             const option = document.createElement('option');
                             option.value = doctor.id;
                             option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.specialization})`;
+                            option.dataset.searchText = `dr ${doctor.first_name} ${doctor.last_name} ${doctor.specialization}`.toLowerCase();
                             select.appendChild(option);
                         });
+                        
+                        // Add search functionality
+                        const searchInput = document.getElementById('doctorSearch');
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function() {
+                                const searchTerm = this.value.toLowerCase();
+                                const options = select.querySelectorAll('option');
+                                
+                                options.forEach(option => {
+                                    if (option.value === '') {
+                                        option.style.display = 'block'; // Always show "Select Doctor"
+                                    } else {
+                                        const searchText = option.dataset.searchText || '';
+                                        if (searchText.includes(searchTerm)) {
+                                            option.style.display = 'block';
+                                        } else {
+                                            option.style.display = 'none';
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                        
+                        console.log('Doctors loaded successfully with search functionality');
+                    } else {
+                        console.error('Doctor select element not found');
+                        showNotification('Error: Doctor select element not found', 'error');
                     }
+                } else {
+                    console.error('Doctors API error:', result.message);
+                    showNotification('Error loading doctors: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading doctors:', error);
+                showNotification('Error loading doctors: ' + error.message, 'error');
             }
         }
 
         async function loadPatientsForAppointment() {
             try {
+                console.log('Loading patients for appointment...');
                 const response = await fetch('../api/patients.php?action=list');
+                console.log('Patients API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const result = await response.json();
+                console.log('Patients API result:', result);
                 
                 if (result.success) {
-                    const select = document.querySelector('#addAppointmentModal select[name="patient_id"]');
+                    const select = document.getElementById('patientSelect');
                     if (select) {
                         select.innerHTML = '<option value="">Select Patient</option>';
+                        
+                        // Store all patients for search functionality
+                        window.allPatients = result.data;
                         
                         result.data.forEach(patient => {
                             const option = document.createElement('option');
                             option.value = patient.id;
-                            option.textContent = `${patient.first_name} ${patient.last_name} (${patient.patient_code})`;
+                            option.textContent = `${patient.first_name} ${patient.last_name}`;
+                            option.dataset.searchText = `${patient.first_name} ${patient.last_name}`.toLowerCase();
                             select.appendChild(option);
                         });
+                        
+                        // Add search functionality
+                        const searchInput = document.getElementById('patientSearch');
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function() {
+                                const searchTerm = this.value.toLowerCase();
+                                const options = select.querySelectorAll('option');
+                                
+                                options.forEach(option => {
+                                    if (option.value === '') {
+                                        option.style.display = 'block'; // Always show "Select Patient"
+                                    } else {
+                                        const searchText = option.dataset.searchText || '';
+                                        if (searchText.includes(searchTerm)) {
+                                            option.style.display = 'block';
+                                        } else {
+                                            option.style.display = 'none';
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                        
+                        console.log('Patients loaded successfully with search functionality');
+                    } else {
+                        console.error('Patient select element not found');
+                        showNotification('Error: Patient select element not found', 'error');
                     }
+                } else {
+                    console.error('Patients API error:', result.message);
+                    showNotification('Error loading patients: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading patients:', error);
+                showNotification('Error loading patients: ' + error.message, 'error');
             }
         }
 
@@ -1054,16 +1140,22 @@ try {
                 <form id="addAppointmentForm" class="p-6 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Patient</label>
-                        <select name="patient_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select Patient</option>
-                        </select>
+                        <div class="relative">
+                            <input type="text" id="patientSearch" placeholder="Search patients..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white mb-2">
+                            <select name="patient_id" id="patientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">Select Patient</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Doctor</label>
-                        <select name="doctor_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select Doctor</option>
-                        </select>
+                        <div class="relative">
+                            <input type="text" id="doctorSearch" placeholder="Search doctors..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white mb-2">
+                            <select name="doctor_id" id="doctorSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                <option value="">Select Doctor</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div>
