@@ -14,6 +14,11 @@ class ApiBase {
     protected $allowed_roles = [];
     
     public function __construct($required_roles = []) {
+        // Start session if not already started
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         // Clean any previous output
         if (ob_get_level()) {
             ob_clean();

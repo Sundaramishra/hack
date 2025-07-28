@@ -416,11 +416,23 @@ class AppointmentsApi extends ApiBase {
 // Clean any unwanted output
 ob_clean();
 
+// Log the request for debugging
+$log_data = [
+    'timestamp' => date('Y-m-d H:i:s'),
+    'method' => $_SERVER['REQUEST_METHOD'],
+    'input' => file_get_contents('php://input'),
+    'session' => session_id()
+];
+file_put_contents(__DIR__ . '/appointments_debug.log', json_encode($log_data) . "\n", FILE_APPEND);
+
 // Initialize and handle the request
 try {
     $api = new AppointmentsApi();
     $api->handleRequest();
 } catch (Exception $e) {
+    // Log the error
+    file_put_contents(__DIR__ . '/appointments_debug.log', "ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
+    
     // Clean output buffer and send error
     ob_clean();
     header('Content-Type: application/json');
