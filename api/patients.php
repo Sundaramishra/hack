@@ -55,10 +55,11 @@ try {
                 }
 
                 $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
-                         CONCAT(d.first_name, ' ', d.last_name) as assigned_doctor
+                         CONCAT(du.first_name, ' ', du.last_name) as assigned_doctor
                          FROM patients p
                          JOIN users u ON p.user_id = u.id
-                         LEFT JOIN doctors d ON p.assigned_doctor_id = d.id
+                         LEFT JOIN doctors d ON p.assigned_doctor_id = d.doctor_id
+                         LEFT JOIN users du ON d.user_id = du.id
                          WHERE p.patient_id = :patient_id";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':patient_id', $patient_id);

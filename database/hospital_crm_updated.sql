@@ -104,6 +104,7 @@ CREATE TABLE `patients` (
   `allergies` text DEFAULT NULL,
   `current_medications` text DEFAULT NULL,
   `insurance_number` varchar(50) DEFAULT NULL,
+  `assigned_doctor_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -437,7 +438,8 @@ ALTER TABLE `doctor_patient_assignments`
 -- Constraints for table `patients`
 --
 ALTER TABLE `patients`
-  ADD CONSTRAINT `patients_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `patients_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `patients_ibfk_2` FOREIGN KEY (`assigned_doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `patient_vitals`
