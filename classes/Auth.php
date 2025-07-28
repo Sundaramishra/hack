@@ -1,5 +1,6 @@
 <?php
-// Database config path will be included by the calling file
+// Include database configuration
+require_once __DIR__ . '/../config/database.php';
 
 class Auth {
     private $conn;
