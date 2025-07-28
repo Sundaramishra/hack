@@ -68,6 +68,9 @@ $user = $auth->getCurrentUser();
             <a href="#" onclick="showSection('vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-heartbeat mr-3"></i>Vitals
             </a>
+            <a href="#" onclick="showSection('prescriptions')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-prescription-bottle-alt mr-3"></i>Prescriptions
+            </a>
             <a href="#" onclick="showSection('custom-vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-plus-circle mr-3"></i>Custom Vitals
             </a>
@@ -242,6 +245,32 @@ $user = $auth->getCurrentUser();
                 <!-- Vitals content here -->
             </div>
             
+            <!-- Prescriptions Section -->
+            <div id="prescriptionsSection" class="section hidden">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Prescriptions Management</h2>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prescription #</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doctor</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Diagnosis</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminPrescriptionsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
             <div id="custom-vitalsSection" class="section hidden">
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Custom Vitals Management</h2>
                 <!-- Custom vitals content here -->
@@ -369,6 +398,7 @@ $user = $auth->getCurrentUser();
                 'patients': 'Patients Management',
                 'appointments': 'Appointments Management',
                 'vitals': 'Vitals Management',
+                'prescriptions': 'Prescriptions Management',
                 'custom-vitals': 'Custom Vitals Management'
             };
             
@@ -392,6 +422,9 @@ $user = $auth->getCurrentUser();
                     break;
                 case 'users':
                     loadUsers();
+                    break;
+                case 'prescriptions':
+                    loadAdminPrescriptions();
                     break;
                 // Add other cases as needed
             }
@@ -489,6 +522,169 @@ $user = $auth->getCurrentUser();
         
         function closeUserModal() {
             document.getElementById('userModal').classList.add('hidden');
+        }
+        
+        // Admin prescriptions management
+        async function loadAdminPrescriptions() {
+            try {
+                const response = await fetch('../handlers/prescriptions.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('adminPrescriptionsTable');
+                    tbody.innerHTML = result.data.map(prescription => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_number}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.patient_name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.doctor_name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_date}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${prescription.diagnosis || 'N/A'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${prescription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${prescription.status}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                <button onclick="viewAdminPrescription(${prescription.id})" class="text-blue-600 hover:text-blue-800" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-800" title="Print">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                                <button onclick="deletePrescription(${prescription.id})" class="text-red-600 hover:text-red-800" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+            }
+        }
+        
+        async function viewAdminPrescription(prescriptionId) {
+            try {
+                const response = await fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const prescription = result.data;
+                    let medicinesHtml = '';
+                    
+                    if (prescription.medicines && prescription.medicines.length > 0) {
+                        medicinesHtml = prescription.medicines.map(medicine => `
+                            <div class="border-b border-gray-200 dark:border-gray-600 pb-3 mb-3 last:border-b-0">
+                                <div class="font-medium text-gray-900 dark:text-white">${medicine.medicine_name}</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    <span class="inline-block mr-4"><strong>Dosage:</strong> ${medicine.dosage}</span>
+                                    <span class="inline-block mr-4"><strong>Frequency:</strong> ${medicine.frequency}</span>
+                                    <span class="inline-block mr-4"><strong>Duration:</strong> ${medicine.duration}</span>
+                                    <span class="inline-block"><strong>Quantity:</strong> ${medicine.quantity}</span>
+                                </div>
+                                ${medicine.instructions ? `<div class="text-sm text-gray-500 dark:text-gray-400 mt-1"><strong>Instructions:</strong> ${medicine.instructions}</div>` : ''}
+                            </div>
+                        `).join('');
+                    }
+                    
+                    const modalHtml = `
+                        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Prescription Details - ${prescription.prescription_number}</h3>
+                                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                            <i class="fas fa-times text-xl"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Patient Information</label>
+                                                <div class="text-gray-900 dark:text-white">
+                                                    <div><strong>Name:</strong> ${prescription.patient_name}</div>
+                                                    <div><strong>Code:</strong> ${prescription.patient_code}</div>
+                                                    <div><strong>Blood Group:</strong> ${prescription.blood_group || 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Doctor Information</label>
+                                                <div class="text-gray-900 dark:text-white">
+                                                    <div><strong>Name:</strong> ${prescription.doctor_name}</div>
+                                                    <div><strong>Specialization:</strong> ${prescription.specialization}</div>
+                                                    <div><strong>License:</strong> ${prescription.license_number}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prescription Details</label>
+                                                <div class="text-gray-900 dark:text-white">
+                                                    <div><strong>Number:</strong> ${prescription.prescription_number}</div>
+                                                    <div><strong>Date:</strong> ${prescription.prescription_date}</div>
+                                                    <div><strong>Status:</strong> ${prescription.status}</div>
+                                                    ${prescription.follow_up_date ? `<div><strong>Follow-up:</strong> ${prescription.follow_up_date}</div>` : ''}
+                                                </div>
+                                            </div>
+                                            
+                                            ${prescription.allergies ? `
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Allergies</label>
+                                                    <div class="text-red-600 dark:text-red-400">${prescription.allergies}</div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Diagnosis</label>
+                                            <div class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">${prescription.diagnosis || 'N/A'}</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prescribed Medicines</label>
+                                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                                ${medicinesHtml || '<p class="text-gray-500 dark:text-gray-400">No medicines prescribed</p>'}
+                                            </div>
+                                        </div>
+                                        
+                                        ${prescription.notes ? `
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Additional Notes</label>
+                                                <div class="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">${prescription.notes}</div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    <div class="flex justify-end mt-6 space-x-3">
+                                        <button onclick="printPrescription(${prescription.id})" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200">
+                                            <i class="fas fa-print mr-1"></i>Print
+                                        </button>
+                                        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                }
+            } catch (error) {
+                console.error('Error loading prescription details:', error);
+                alert('Error loading prescription details');
+            }
+        }
+        
+        function printPrescription(prescriptionId) {
+            alert('Print functionality will be implemented');
+        }
+        
+        function deletePrescription(prescriptionId) {
+            if (confirm('Are you sure you want to delete this prescription?')) {
+                alert('Delete functionality will be implemented');
+            }
         }
         
         // Utility functions

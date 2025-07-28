@@ -526,9 +526,189 @@ $doctorId = $_SESSION['doctor_id'];
             return colors[status] || 'bg-gray-100 text-gray-800';
         }
         
+        // Prescription functions
+        let medicineCounter = 0;
+        
+        function loadPrescriptions() {
+            fetch('../handlers/prescriptions.php')
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const tbody = document.getElementById('prescriptionsTable');
+                        tbody.innerHTML = result.data.map(prescription => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_number}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.patient_name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_date}</td>
+                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${prescription.diagnosis || 'N/A'}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${prescription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${prescription.status}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                    <button onclick="viewPrescription(${prescription.id})" class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-800">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                    }
+                })
+                .catch(error => console.error('Error loading prescriptions:', error));
+        }
+        
+        function openPrescriptionModal(appointmentId = null, patientId = null, patientName = '', appointmentDate = '') {
+            document.getElementById('prescriptionModal').classList.remove('hidden');
+            document.getElementById('prescriptionAppointmentId').value = appointmentId || '';
+            document.getElementById('prescriptionPatientId').value = patientId || '';
+            document.getElementById('prescriptionPatientName').value = patientName;
+            document.getElementById('prescriptionAppointmentDate').value = appointmentDate;
+            
+            // Clear form
+            document.getElementById('prescriptionDiagnosis').value = '';
+            document.getElementById('prescriptionNotes').value = '';
+            document.getElementById('prescriptionFollowUp').value = '';
+            document.getElementById('medicinesContainer').innerHTML = '';
+            medicineCounter = 0;
+            
+            // Add first medicine row
+            addMedicine();
+        }
+        
+        function closePrescriptionModal() {
+            document.getElementById('prescriptionModal').classList.add('hidden');
+        }
+        
+        function addMedicine() {
+            medicineCounter++;
+            const container = document.getElementById('medicinesContainer');
+            const medicineDiv = document.createElement('div');
+            medicineDiv.className = 'medicine-entry p-4 border border-gray-200 dark:border-gray-600 rounded-lg';
+            medicineDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Medicine Name</label>
+                        <input type="text" name="medicine_name_${medicineCounter}" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., Paracetamol">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dosage</label>
+                        <input type="text" name="medicine_dosage_${medicineCounter}" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., 500mg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frequency</label>
+                        <select name="medicine_frequency_${medicineCounter}" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select frequency</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Four times daily">Four times daily</option>
+                            <option value="As needed">As needed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration</label>
+                        <input type="text" name="medicine_duration_${medicineCounter}" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., 7 days">
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                        <input type="number" name="medicine_quantity_${medicineCounter}" min="1" value="1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Instructions</label>
+                        <input type="text" name="medicine_instructions_${medicineCounter}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., Take with food">
+                    </div>
+                </div>
+                <div class="mt-2 flex justify-end">
+                    <button type="button" onclick="removeMedicine(this)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                        <i class="fas fa-trash mr-1"></i>Remove
+                    </button>
+                </div>
+            `;
+            container.appendChild(medicineDiv);
+        }
+        
+        function removeMedicine(button) {
+            button.closest('.medicine-entry').remove();
+        }
+        
+        function createPrescriptionFromAppointment(appointmentId, patientId, patientName, appointmentDate) {
+            openPrescriptionModal(appointmentId, patientId, patientName, appointmentDate);
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboardData();
+            
+            // Prescription form submission
+            document.getElementById('prescriptionForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const medicines = [];
+                
+                // Collect medicine data
+                for (let i = 1; i <= medicineCounter; i++) {
+                    const name = formData.get(`medicine_name_${i}`);
+                    const dosage = formData.get(`medicine_dosage_${i}`);
+                    const frequency = formData.get(`medicine_frequency_${i}`);
+                    const duration = formData.get(`medicine_duration_${i}`);
+                    const quantity = formData.get(`medicine_quantity_${i}`);
+                    const instructions = formData.get(`medicine_instructions_${i}`);
+                    
+                    if (name && dosage && frequency && duration) {
+                        medicines.push({
+                            name: name,
+                            dosage: dosage,
+                            frequency: frequency,
+                            duration: duration,
+                            quantity: parseInt(quantity) || 1,
+                            instructions: instructions
+                        });
+                    }
+                }
+                
+                if (medicines.length === 0) {
+                    alert('Please add at least one medicine');
+                    return;
+                }
+                
+                const prescriptionData = {
+                    appointment_id: document.getElementById('prescriptionAppointmentId').value,
+                    patient_id: document.getElementById('prescriptionPatientId').value,
+                    diagnosis: document.getElementById('prescriptionDiagnosis').value,
+                    notes: document.getElementById('prescriptionNotes').value,
+                    follow_up_date: document.getElementById('prescriptionFollowUp').value || null,
+                    medicines: medicines
+                };
+                
+                try {
+                    const response = await fetch('../handlers/prescriptions.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(prescriptionData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Prescription created successfully!');
+                        closePrescriptionModal();
+                        loadPrescriptions();
+                        loadDashboardData(); // Refresh dashboard stats
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error creating prescription:', error);
+                    alert('Error creating prescription. Please try again.');
+                }
+            });
             
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(event) {

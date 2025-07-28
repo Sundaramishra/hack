@@ -62,6 +62,9 @@ $patientId = $_SESSION['patient_id'];
             <a href="#" onclick="showSection('vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-heartbeat mr-3"></i>My Vitals
             </a>
+            <a href="#" onclick="showSection('prescriptions')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-prescription-bottle-alt mr-3"></i>My Prescriptions
+            </a>
             <a href="#" onclick="showSection('profile')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user mr-3"></i>Profile
             </a>
@@ -238,10 +241,53 @@ $patientId = $_SESSION['patient_id'];
                 </div>
             </div>
             
-            <!-- Other sections will be implemented similarly -->
+            <!-- Appointments Section -->
             <div id="appointmentsSection" class="section hidden">
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">My Appointments</h2>
-                <!-- Appointments content here -->
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date & Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doctor</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allAppointmentsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prescriptions Section -->
+            <div id="prescriptionsSection" class="section hidden">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">My Prescriptions</h2>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prescription #</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doctor</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Diagnosis</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientPrescriptionsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
             <div id="vitalsSection" class="section hidden">
@@ -316,6 +362,7 @@ $patientId = $_SESSION['patient_id'];
                 'appointments': 'My Appointments',
                 'book-appointment': 'Book Appointment',
                 'vitals': 'My Vitals',
+                'prescriptions': 'My Prescriptions',
                 'profile': 'Profile'
             };
             
@@ -339,6 +386,12 @@ $patientId = $_SESSION['patient_id'];
                     break;
                 case 'book-appointment':
                     loadDoctors();
+                    break;
+                case 'appointments':
+                    loadAllAppointments();
+                    break;
+                case 'prescriptions':
+                    loadPatientPrescriptions();
                     break;
             }
         }
@@ -445,6 +498,176 @@ $patientId = $_SESSION['patient_id'];
                 'no_show': 'bg-gray-100 text-gray-800'
             };
             return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // Load all appointments
+        async function loadAllAppointments() {
+            try {
+                const response = await fetch('../handlers/patient_appointments.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('allAppointmentsTable');
+                    tbody.innerHTML = result.data.map(apt => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${apt.appointment_date} ${apt.appointment_time}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${apt.doctor_name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${apt.appointment_type}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(apt.status)}">${apt.status}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                <button onclick="viewAppointmentDetails(${apt.id})" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${apt.status === 'completed' && apt.diagnosis ? `<button onclick="viewPrescription(${apt.id})" class="text-green-600 hover:text-green-800" title="View Prescription"><i class="fas fa-prescription-bottle-alt"></i></button>` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+        
+        // Load patient prescriptions
+        async function loadPatientPrescriptions() {
+            try {
+                const response = await fetch('../handlers/prescriptions.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('patientPrescriptionsTable');
+                    tbody.innerHTML = result.data.map(prescription => `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_number}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.doctor_name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${prescription.prescription_date}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${prescription.diagnosis || 'N/A'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${prescription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${prescription.status}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                <button onclick="viewPrescriptionDetails(${prescription.id})" class="text-blue-600 hover:text-blue-800" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-800" title="Print">
+                                    <i class="fas fa-print"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+            }
+        }
+        
+        // View prescription details
+        async function viewPrescriptionDetails(prescriptionId) {
+            try {
+                const response = await fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const prescription = result.data;
+                    let medicinesHtml = '';
+                    
+                    if (prescription.medicines && prescription.medicines.length > 0) {
+                        medicinesHtml = prescription.medicines.map(medicine => `
+                            <div class="border-b border-gray-200 dark:border-gray-600 pb-3 mb-3 last:border-b-0">
+                                <div class="font-medium text-gray-900 dark:text-white">${medicine.medicine_name}</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    <span class="inline-block mr-4"><strong>Dosage:</strong> ${medicine.dosage}</span>
+                                    <span class="inline-block mr-4"><strong>Frequency:</strong> ${medicine.frequency}</span>
+                                    <span class="inline-block mr-4"><strong>Duration:</strong> ${medicine.duration}</span>
+                                    <span class="inline-block"><strong>Quantity:</strong> ${medicine.quantity}</span>
+                                </div>
+                                ${medicine.instructions ? `<div class="text-sm text-gray-500 dark:text-gray-400 mt-1"><strong>Instructions:</strong> ${medicine.instructions}</div>` : ''}
+                            </div>
+                        `).join('');
+                    }
+                    
+                    const modalHtml = `
+                        <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Prescription Details</h3>
+                                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                            <i class="fas fa-times text-xl"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prescription #</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.prescription_number}</div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.prescription_date}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Doctor</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.doctor_name}</div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.specialization}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Diagnosis</label>
+                                            <div class="text-gray-900 dark:text-white">${prescription.diagnosis || 'N/A'}</div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Medicines</label>
+                                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                                ${medicinesHtml || '<p class="text-gray-500 dark:text-gray-400">No medicines prescribed</p>'}
+                                            </div>
+                                        </div>
+                                        
+                                        ${prescription.notes ? `
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Additional Notes</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.notes}</div>
+                                            </div>
+                                        ` : ''}
+                                        
+                                        ${prescription.follow_up_date ? `
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Follow-up Date</label>
+                                                <div class="text-gray-900 dark:text-white">${prescription.follow_up_date}</div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    
+                                    <div class="flex justify-end mt-6">
+                                        <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                }
+            } catch (error) {
+                console.error('Error loading prescription details:', error);
+                alert('Error loading prescription details');
+            }
+        }
+        
+        // Print prescription (placeholder)
+        function printPrescription(prescriptionId) {
+            alert('Print functionality will be implemented');
         }
         
         // Event listeners
