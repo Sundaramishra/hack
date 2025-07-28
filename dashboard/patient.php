@@ -1290,7 +1290,7 @@ $stats = [
     <!-- Book Appointment Modal -->
     <div id="bookAppointmentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Book Appointment</h3>
                     <button onclick="closeBookAppointmentModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
@@ -1298,54 +1298,92 @@ $stats = [
                     </button>
                 </div>
                 
-                <form id="bookAppointmentForm" class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Doctor</label>
-                        <select name="doctor_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select Doctor</option>
-                        </select>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left Column - Form -->
+                        <div class="space-y-4">
+                            <form id="bookAppointmentForm">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Doctor</label>
+                                    <select name="doctor_id" id="doctorSelect" required onchange="loadDoctorAvailability()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="">Select Doctor</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                                    <input type="date" name="appointment_date" id="appointmentDate" required min="<?php echo date('Y-m-d'); ?>" onchange="loadTimeSlots()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Available Time Slots</label>
+                                    <div id="timeSlots" class="grid grid-cols-3 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                                        <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
+                                            Select a doctor and date to view available slots
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="appointment_time" id="selectedTime" required>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason</label>
+                                    <input type="text" name="reason" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Brief reason for appointment">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                                    <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Any additional notes..."></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Right Column - Doctor Info & Availability Chart -->
+                        <div class="space-y-4">
+                            <div id="doctorInfo" class="hidden">
+                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Doctor Information</h4>
+                                    <div id="doctorDetails" class="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                                        <!-- Doctor details will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Weekly Availability Chart -->
+                            <div id="availabilityChart" class="hidden">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Weekly Availability</h4>
+                                <div class="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                    <div id="weeklyChart" class="grid grid-cols-7 gap-1 text-xs">
+                                        <!-- Weekly chart will be populated here -->
+                                    </div>
+                                    <div class="flex justify-center mt-4 space-x-4 text-xs">
+                                        <div class="flex items-center">
+                                            <div class="w-3 h-3 bg-green-500 rounded mr-1"></div>
+                                            <span class="text-gray-600 dark:text-gray-400">Available</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="w-3 h-3 bg-red-500 rounded mr-1"></div>
+                                            <span class="text-gray-600 dark:text-gray-400">Booked</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <div class="w-3 h-3 bg-gray-300 rounded mr-1"></div>
+                                            <span class="text-gray-600 dark:text-gray-400">Unavailable</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                        <input type="date" name="appointment_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
-                        <input type="time" name="appointment_time" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                        <select name="appointment_type" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Select Type</option>
-                            <option value="consultation">Consultation</option>
-                            <option value="follow-up">Follow-up</option>
-                            <option value="emergency">Emergency</option>
-                            <option value="routine">Routine Check</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason</label>
-                        <input type="text" name="reason" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Brief reason for appointment">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-                        <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Any additional notes..."></textarea>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3 pt-4">
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
                         <button type="button" onclick="closeBookAppointmentModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
                             Cancel
                         </button>
                         <button type="button" onclick="submitBookAppointment()" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-calendar-plus mr-2"></i>
                             Book Appointment
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
