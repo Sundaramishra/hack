@@ -1366,6 +1366,8 @@ $stats = [
         let selectedDoctor = null;
         let currentDuration = 30; // Default 30 minutes
         let bookedSlots = [];
+        
+        console.log('Global variables initialized:', { selectedDoctor, currentDuration, bookedSlots });
 
         // Update duration based on appointment type
         function updateDuration() {
@@ -1430,6 +1432,7 @@ $stats = [
                 
                 if (result.success) {
                     selectedDoctor = result.data;
+                    console.log('selectedDoctor set to:', selectedDoctor);
                     
                     // Show doctor information
                     doctorDetails.innerHTML = `
@@ -1448,7 +1451,7 @@ $stats = [
                     
                     // Load time slots if date is selected
                     if (document.getElementById('appointmentDate').value) {
-                        loadTimeSlots();
+                        await loadTimeSlots();
                     }
                 } else {
                     showNotification('Error loading doctor information: ' + result.message, 'error');
@@ -1556,6 +1559,8 @@ $stats = [
             const appointmentDate = document.getElementById('appointmentDate').value;
             const timeSlotsContainer = document.getElementById('timeSlots');
             
+            console.log('loadTimeSlots called with:', { doctorId, appointmentDate, selectedDoctor });
+            
             if (!doctorId || !appointmentDate) {
                 timeSlotsContainer.innerHTML = `
                     <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
@@ -1586,26 +1591,49 @@ $stats = [
                             duration: apt.duration || 30 // Default 30 minutes if not specified
                         }));
                     
-                    generateTimeSlots();
+                    await generateTimeSlots();
                 } else {
                     // If no appointments or error, still generate slots
                     bookedSlots = [];
-                    generateTimeSlots();
+                    await generateTimeSlots();
                 }
             } catch (error) {
                 console.error('Error loading appointments:', error);
                 bookedSlots = [];
-                generateTimeSlots();
+                await generateTimeSlots();
             }
         }
 
         // Generate time slots based on doctor availability and current bookings
-        function generateTimeSlots() {
+        async function generateTimeSlots() {
             const timeSlotsContainer = document.getElementById('timeSlots');
+            
+            console.log('generateTimeSlots called, selectedDoctor:', selectedDoctor);
+            console.log('currentDuration:', currentDuration);
+            console.log('bookedSlots:', bookedSlots);
+            
+            // If selectedDoctor is null, try to get it from the select element
+            if (!selectedDoctor) {
+                const doctorId = document.getElementById('doctorSelect').value;
+                if (doctorId) {
+                    try {
+                        const response = await fetch(getApiPath(`doctors.php?action=get&id=${doctorId}`));
+                        const result = await response.json();
+                        if (result.success) {
+                            selectedDoctor = result.data;
+                            console.log('Fetched selectedDoctor in generateTimeSlots:', selectedDoctor);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching doctor in generateTimeSlots:', error);
+                    }
+                }
+            }
             
             // Default working hours (can be customized per doctor)
             const startTime = selectedDoctor?.available_time_start || '09:00';
             const endTime = selectedDoctor?.available_time_end || '17:00';
+            
+            console.log('Working hours:', startTime, 'to', endTime);
             
             const slots = [];
             const slotInterval = 30; // 30-minute intervals for better visualization
@@ -1615,6 +1643,8 @@ $stats = [
             const endMinutes = timeToMinutes(endTime);
             
             // Generate all possible slots
+            console.log('Generating slots from', startMinutes, 'to', endMinutes, 'with interval', slotInterval);
+            
             for (let minutes = startMinutes; minutes < endMinutes; minutes += slotInterval) {
                 const timeStr = minutesToTime(minutes);
                 const isAvailable = isSlotAvailable(minutes, currentDuration);
@@ -1625,11 +1655,29 @@ $stats = [
                     return Math.abs(bookedStart - minutes) < slotInterval;
                 });
                 
+                console.log('Generated slot:', { timeStr, minutes, isAvailable, isBooked });
+                
                 slots.push({
                     time: timeStr,
                     minutes: minutes,
                     available: isAvailable,
                     booked: isBooked
+                });
+            }
+            
+            console.log('Total slots generated:', slots.length);
+            
+            // If no slots generated, create some basic ones for testing
+            if (slots.length === 0) {
+                console.log('No slots generated, creating basic ones');
+                const basicTimes = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+                basicTimes.forEach(time => {
+                    slots.push({
+                        time: time,
+                        minutes: timeToMinutes(time),
+                        available: true,
+                        booked: false
+                    });
                 });
             }
             
@@ -1670,10 +1718,12 @@ $stats = [
                         <i class="fas fa-calendar-times text-2xl mb-2"></i>
                         <div>No available slots for selected date</div>
                         <div class="text-xs mt-1">Doctor may be unavailable or fully booked</div>
+                        <div class="text-xs mt-2">Debug: startTime=${startTime}, endTime=${endTime}</div>
                     </div>
                 `;
             }
             
+            console.log('Generated slots HTML:', slotsHTML);
             timeSlotsContainer.innerHTML = slotsHTML;
         }
 
