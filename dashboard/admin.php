@@ -164,16 +164,39 @@ $user = $auth->getCurrentUser();
                 </div>
             </div>
             
-            <!-- Users Section -->
-            <div id="usersSection" class="section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Users Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <p class="text-gray-600 dark:text-gray-400">Users management section loaded!</p>
-                    <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-plus mr-2"></i>Add User
-                    </button>
-                </div>
-            </div>
+                         <!-- Users Section -->
+             <div id="usersSection" class="section hidden">
+                 <div class="flex justify-between items-center mb-6">
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Users Management</h2>
+                     <button onclick="openUserModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                         <i class="fas fa-plus mr-2"></i>Add User
+                     </button>
+                 </div>
+                 
+                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                     <div class="overflow-x-auto">
+                         <table class="w-full">
+                             <thead class="bg-gray-50 dark:bg-gray-700">
+                                 <tr>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="usersTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                 <tr>
+                                     <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                         <i class="fas fa-users text-4xl mb-4"></i>
+                                         <p>Loading users...</p>
+                                     </td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+             </div>
             
             <!-- Doctors Section -->
             <div id="doctorsSection" class="section hidden">
@@ -301,11 +324,11 @@ $user = $auth->getCurrentUser();
             
             // Show selected section
             const targetSection = document.getElementById(sectionName + 'Section');
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-                console.log('Section shown:', sectionName);
-                showInfo('Loaded ' + sectionName + ' section');
-            } else {
+                         if (targetSection) {
+                 targetSection.classList.remove('hidden');
+                 console.log('Section shown:', sectionName);
+                 // Remove automatic section load notifications
+             } else {
                 console.error('Section not found:', sectionName + 'Section');
                 showError('Section not found: ' + sectionName);
                 return;
@@ -341,12 +364,182 @@ $user = $auth->getCurrentUser();
             const pageTitle = document.getElementById('pageTitle');
             pageTitle.textContent = titles[sectionName] || 'Dashboard';
             
-            // Hide user menu if open
-            const userMenu = document.getElementById('userMenu');
-            if (userMenu && !userMenu.classList.contains('hidden')) {
-                userMenu.classList.add('hidden');
-            }
-        }
+                         // Hide user menu if open
+             const userMenu = document.getElementById('userMenu');
+             if (userMenu && !userMenu.classList.contains('hidden')) {
+                 userMenu.classList.add('hidden');
+             }
+             
+             // Load section-specific data
+             loadSectionData(sectionName);
+         }
+         
+         // Load section-specific data
+         function loadSectionData(sectionName) {
+             console.log('Loading data for section:', sectionName);
+             
+             switch(sectionName) {
+                 case 'users':
+                     loadUsers();
+                     break;
+                 case 'doctors':
+                     loadDoctors();
+                     break;
+                 case 'patients':
+                     loadPatients();
+                     break;
+                 case 'appointments':
+                     loadAppointments();
+                     break;
+                 case 'prescriptions':
+                     loadPrescriptions();
+                     break;
+                 case 'vitals':
+                     loadVitals();
+                     break;
+                 case 'profile':
+                     loadProfile();
+                     break;
+                 case 'settings':
+                     loadSettings();
+                     break;
+                 default:
+                     console.log('No specific data loading for section:', sectionName);
+             }
+         }
+         
+         // Data loading functions
+         async function loadUsers() {
+             console.log('Loading users...');
+             try {
+                 const response = await fetch('../handlers/admin_users.php?action=list');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayUsers(result.data);
+                 } else {
+                     showError('Error loading users: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading users:', error);
+                 showError('Error loading users');
+             }
+         }
+         
+         function displayUsers(users) {
+             const tbody = document.getElementById('usersTable');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (users.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-users text-4xl mb-4"></i>
+                             <p>No users found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             users.forEach(user => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">${user.first_name} ${user.last_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${user.username}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${user.email}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}">
+                             ${user.role}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.is_active)}">
+                             ${user.is_active ? 'Active' : 'Inactive'}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="editUser(${user.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         function getRoleColor(role) {
+             const colors = {
+                 'admin': 'bg-red-100 text-red-800',
+                 'doctor': 'bg-blue-100 text-blue-800',
+                 'patient': 'bg-green-100 text-green-800'
+             };
+             return colors[role] || 'bg-gray-100 text-gray-800';
+         }
+         
+         function getStatusColor(isActive) {
+             return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+         }
+         
+         // Placeholder functions for other sections
+         function loadDoctors() {
+             console.log('Loading doctors...');
+             showInfo('Doctors section functionality coming soon');
+         }
+         
+         function loadPatients() {
+             console.log('Loading patients...');
+             showInfo('Patients section functionality coming soon');
+         }
+         
+         function loadAppointments() {
+             console.log('Loading appointments...');
+             showInfo('Appointments section functionality coming soon');
+         }
+         
+         function loadPrescriptions() {
+             console.log('Loading prescriptions...');
+             showInfo('Prescriptions section functionality coming soon');
+         }
+         
+         function loadVitals() {
+             console.log('Loading vitals...');
+             showInfo('Vitals section functionality coming soon');
+         }
+         
+         function loadProfile() {
+             console.log('Loading profile...');
+             showInfo('Profile section functionality coming soon');
+         }
+         
+         function loadSettings() {
+             console.log('Loading settings...');
+             showInfo('Settings section functionality coming soon');
+         }
+         
+         // Modal functions
+         function openUserModal() {
+             showInfo('User creation modal coming soon');
+         }
+         
+         function editUser(userId) {
+             showInfo('Edit user functionality coming soon');
+         }
+         
+         function deleteUser(userId) {
+             if (confirm('Are you sure you want to delete this user?')) {
+                 showInfo('Delete user functionality coming soon');
+             }
+         }
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -380,8 +573,8 @@ $user = $auth->getCurrentUser();
                 }
             });
             
-            console.log('Admin dashboard initialized successfully');
-            showSuccess('Admin dashboard loaded successfully!');
+                         console.log('Admin dashboard initialized successfully');
+             // Remove the automatic success notification
         });
     </script>
 </body>
