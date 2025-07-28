@@ -44,9 +44,35 @@ A comprehensive Hospital Customer Relationship Management (CRM) system built wit
 
 ### Prerequisites
 - PHP 7.4 or higher
-- MySQL 5.7 or higher
+- MySQL 5.7 or higher (MariaDB 10.4+ also supported)
 - Web server (Apache/Nginx)
 - Composer (optional)
+
+### Database Setup
+1. Create a MySQL database named `hospital_crm`
+2. Import the database structure using either:
+   - `database/schema.sql` (basic structure)
+   - `database/hospital_crm_updated.sql` (complete structure with sample data)
+
+### Default Login Credentials
+After setting up the database with sample data, you can use these credentials:
+
+**Admin Account:**
+- Username: `admin`
+- Email: `admin11@hospital.com`
+- Password: `password123` (default password for all sample accounts)
+
+**Doctor Accounts:**
+- Username: `john.smith` | Email: `john.smith@hospital.com` | Specialization: Cardiology
+- Username: `sarah.johnson` | Email: `sarah.johnson@hospital.com` | Specialization: Neurology  
+- Username: `michael.brown` | Email: `michael.brown@hospital.com` | Specialization: Pediatrics
+
+**Patient Accounts:**
+- Username: `alice.wilson` | Email: `alice.wilson@email.com`
+- Username: `bob.davis` | Email: `bob.davis@email.com`
+- Username: `carol.miller` | Email: `carol.miller@email.com`
+- Username: `david.garcia` | Email: `david.garcia@email.com`
+- Username: `emma.taylor` | Email: `emma.taylor@email.com`
 
 ### Step 1: Clone Repository
 ```bash
