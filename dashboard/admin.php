@@ -1220,6 +1220,11 @@ try {
     </div>
 
     <script>
+        // Global variables for admin appointment booking
+        let adminSelectedDoctor = null;
+        let adminBookedSlots = [];
+        let adminCurrentDuration = 30; // Default 30 minutes
+
         function getApiPath(apiFile) {
             let path = window.location.pathname;
             let base = path.split('/dashboard')[0];
