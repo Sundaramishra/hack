@@ -1182,7 +1182,7 @@ try {
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Available Time Slots</label>
-                        <div id="adminTimeSlots" class="grid grid-cols-4 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                        <div id="adminTimeSlots" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                             <div class="col-span-4 text-center text-gray-500 dark:text-gray-400 py-4">
                                 Select a doctor and date to view available slots
                             </div>
@@ -1230,6 +1230,178 @@ try {
             let base = path.split('/dashboard')[0];
             if (!base.endsWith('/')) base += '/';
             return base + 'api/' + apiFile;
+        }
+
+        // Load time slots for admin appointment booking
+        async function loadAdminTimeSlots() {
+            const doctorId = document.getElementById('doctorSelect').value;
+            const appointmentDate = document.querySelector('input[name="appointment_date"]').value;
+            const timeSlotsContainer = document.getElementById('adminTimeSlots');
+            
+            if (!doctorId || !appointmentDate) {
+                timeSlotsContainer.innerHTML = `
+                    <div class="col-span-4 text-center text-gray-500 dark:text-gray-400 py-4">
+                        Select a doctor and date to view available slots
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show loading
+            timeSlotsContainer.innerHTML = `
+                <div class="col-span-4 text-center text-gray-500 dark:text-gray-400 py-4">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Loading available slots...
+                </div>
+            `;
+            
+            try {
+                // Get existing appointments for this doctor and date
+                const response = await fetch(getApiPath('appointments.php?action=list'));
+                const result = await response.json();
+                
+                if (result.success) {
+                    adminBookedSlots = result.data
+                        .filter(apt => apt.doctor_id == doctorId && apt.appointment_date === appointmentDate && apt.status !== 'cancelled')
+                        .map(apt => ({
+                            time: apt.appointment_time,
+                            duration: apt.duration || 30
+                        }));
+                } else {
+                    adminBookedSlots = [];
+                }
+                
+                await generateAdminTimeSlots();
+                
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                adminBookedSlots = [];
+                await generateAdminTimeSlots();
+            }
+        }
+
+        // Generate time slots for admin
+        async function generateAdminTimeSlots() {
+            const timeSlotsContainer = document.getElementById('adminTimeSlots');
+            
+            // Default working hours
+            const startTime = '09:00';
+            const endTime = '17:00';
+            const slotInterval = 30; // 30-minute intervals
+            
+            const startMinutes = timeToMinutes(startTime);
+            const endMinutes = timeToMinutes(endTime);
+            
+            const slots = [];
+            
+            // Generate all possible slots
+            for (let minutes = startMinutes; minutes < endMinutes; minutes += slotInterval) {
+                const timeStr = minutesToTime(minutes);
+                const isAvailable = isAdminSlotAvailable(minutes, adminCurrentDuration);
+                
+                // Check if this slot is currently booked
+                const isBooked = adminBookedSlots.some(bookedSlot => {
+                    const bookedStart = timeToMinutes(bookedSlot.time);
+                    return Math.abs(bookedStart - minutes) < slotInterval;
+                });
+                
+                slots.push({
+                    time: timeStr,
+                    minutes: minutes,
+                    available: isAvailable && !isBooked,
+                    booked: isBooked
+                });
+            }
+            
+            // Render slots with visual indicators
+            let slotsHTML = '';
+            slots.forEach(slot => {
+                let buttonClass, iconClass, statusText, clickable;
+                
+                if (slot.booked) {
+                    buttonClass = 'bg-red-100 text-red-800 border-red-300 cursor-not-allowed opacity-60 dark:bg-red-900 dark:text-red-200 dark:border-red-700';
+                    iconClass = 'fas fa-times';
+                    statusText = 'Booked';
+                    clickable = false;
+                } else if (slot.available) {
+                    buttonClass = 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 hover:border-green-400 cursor-pointer transform hover:scale-105 transition-all dark:bg-green-800 dark:hover:bg-green-700 dark:text-green-100 dark:border-green-600';
+                    iconClass = 'fas fa-check';
+                    statusText = 'Available';
+                    clickable = true;
+                } else {
+                    buttonClass = 'bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed opacity-50 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600';
+                    iconClass = 'fas fa-clock';
+                    statusText = 'Unavailable';
+                    clickable = false;
+                }
+                
+                slotsHTML += `
+                    <button type="button" 
+                            class="p-3 text-sm border-2 rounded-lg ${buttonClass} flex flex-col items-center space-y-1 min-h-[80px]"
+                            ${clickable ? `onclick="selectAdminTimeSlot('${slot.time}')"` : 'disabled'}
+                            title="${statusText} - ${slot.time}">
+                        <i class="${iconClass} text-xs"></i>
+                        <span class="font-medium text-xs">${slot.time}</span>
+                        <span class="text-xs opacity-75">${statusText}</span>
+                    </button>
+                `;
+            });
+            
+            if (slots.length === 0) {
+                slotsHTML = `
+                    <div class="col-span-4 text-center text-gray-500 dark:text-gray-400 py-8">
+                        <i class="fas fa-calendar-times text-2xl mb-2"></i>
+                        <div>No available slots for selected date</div>
+                    </div>
+                `;
+            }
+            
+            timeSlotsContainer.innerHTML = slotsHTML;
+        }
+
+        // Check if admin slot is available
+        function isAdminSlotAvailable(startMinutes, duration) {
+            const endMinutes = startMinutes + duration;
+            
+            for (let bookedSlot of adminBookedSlots) {
+                const bookedStart = timeToMinutes(bookedSlot.time);
+                const bookedEnd = bookedStart + bookedSlot.duration;
+                
+                if ((startMinutes < bookedEnd) && (endMinutes > bookedStart)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Select time slot in admin panel
+        function selectAdminTimeSlot(time) {
+            // Remove previous selection
+            document.querySelectorAll('#adminTimeSlots button').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50', 'bg-blue-100', 'dark:bg-blue-800', 'border-blue-400');
+            });
+            
+            // Add selection to clicked button
+            const clickedButton = event.target.closest('button');
+            clickedButton.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50', 'bg-blue-100', 'dark:bg-blue-800', 'border-blue-400');
+            
+            // Set selected time
+            document.getElementById('adminSelectedTime').value = time;
+            
+            // Show confirmation
+            showNotification(`Selected time slot: ${time}`, 'success');
+        }
+
+        // Utility functions
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
         }
     </script>
 </body>

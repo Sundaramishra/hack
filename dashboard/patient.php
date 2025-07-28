@@ -1383,6 +1383,22 @@ $stats = [
         
         console.log('Global variables initialized:', { selectedDoctor, currentDuration, bookedSlots });
 
+        // Mobile sidebar toggle
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.getElementById('sidebar-toggle');
+            
+            if (window.innerWidth < 1024 && !sidebar.contains(event.target) && !toggle.contains(event.target)) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
         // Update duration based on appointment type
         function updateDuration() {
             const appointmentType = document.getElementById('appointmentType');
@@ -1795,7 +1811,7 @@ $stats = [
     <!-- Book Appointment Modal -->
     <div id="bookAppointmentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[90vh] overflow-y-auto mx-4">
                 <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Book Appointment</h3>
                     <button onclick="closeBookAppointmentModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
@@ -1804,7 +1820,7 @@ $stats = [
                 </div>
                 
                 <div class="p-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                         <!-- Left Column - Form -->
                         <div class="space-y-4">
                             <form id="bookAppointmentForm">
@@ -1822,7 +1838,7 @@ $stats = [
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Available Time Slots</label>
-                                    <div id="timeSlots" class="grid grid-cols-3 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                                    <div id="timeSlots" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                                         <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
                                             Select a doctor and date to view available slots
                                         </div>
