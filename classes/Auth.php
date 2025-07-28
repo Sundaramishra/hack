@@ -102,7 +102,9 @@ class Auth {
     
     // Check if user is logged in
     public function isLoggedIn() {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         if (isset($_SESSION['user_id']) && isset($_SESSION['session_token'])) {
             // Verify session in database
             $query = "SELECT * FROM user_sessions WHERE user_id = :user_id AND session_token = :token 
@@ -140,7 +142,9 @@ class Auth {
     
     // Logout
     public function logout() {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         if (isset($_SESSION['session_token'])) {
             // Deactivate session in database
             $query = "UPDATE user_sessions SET is_active = 0 WHERE session_token = :token";
@@ -155,7 +159,9 @@ class Auth {
     
     // Check user role
     public function hasRole($role) {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         return isset($_SESSION['role']) && $_SESSION['role'] === $role;
     }
     

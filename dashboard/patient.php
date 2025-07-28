@@ -582,19 +582,47 @@ $stats = [
             <!-- Other sections placeholders -->
             <div id="prescriptions-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Prescriptions</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-prescription-bottle-alt text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Prescriptions Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">This feature will be available in the next update.</p>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Date</th>
+                                    <th class="px-6 py-3">Doctor</th>
+                                    <th class="px-6 py-3">Medication</th>
+                                    <th class="px-6 py-3">Dosage</th>
+                                    <th class="px-6 py-3">Duration</th>
+                                    <th class="px-6 py-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptionsTableBody">
+                                <!-- Prescriptions data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="medical-history-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Medical History</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-file-medical text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Medical History Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">This feature will be available in the next update.</p>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Date</th>
+                                    <th class="px-6 py-3">Visit Type</th>
+                                    <th class="px-6 py-3">Doctor</th>
+                                    <th class="px-6 py-3">Diagnosis</th>
+                                    <th class="px-6 py-3">Treatment</th>
+                                    <th class="px-6 py-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medicalHistoryTableBody">
+                                <!-- Medical history data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

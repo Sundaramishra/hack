@@ -351,38 +351,118 @@ try {
 
             <!-- Other sections -->
             <div id="doctors-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Doctors Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-user-md text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Doctors Section Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Advanced doctor management features will be available in the next update.</p>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Doctors Management</h2>
+                    <button onclick="openModal('addDoctorModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Doctor
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Name</th>
+                                    <th class="px-6 py-3">Specialization</th>
+                                    <th class="px-6 py-3">Email</th>
+                                    <th class="px-6 py-3">Phone</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doctorsTableBody">
+                                <!-- Doctors data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="patients-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Patients Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-user-injured text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Patients Section Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Advanced patient management features will be available in the next update.</p>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Patients Management</h2>
+                    <button onclick="openModal('addPatientModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Patient
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Patient ID</th>
+                                    <th class="px-6 py-3">Name</th>
+                                    <th class="px-6 py-3">Age</th>
+                                    <th class="px-6 py-3">Gender</th>
+                                    <th class="px-6 py-3">Phone</th>
+                                    <th class="px-6 py-3">Assigned Doctor</th>
+                                    <th class="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTableBody">
+                                <!-- Patients data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="appointments-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Appointments Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-calendar-alt text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Appointments Section Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Advanced appointment management features will be available in the next update.</p>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Appointments Management</h2>
+                    <button onclick="openModal('addAppointmentModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Schedule Appointment
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Patient</th>
+                                    <th class="px-6 py-3">Doctor</th>
+                                    <th class="px-6 py-3">Date & Time</th>
+                                    <th class="px-6 py-3">Type</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <!-- Appointments data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div id="vitals-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Vital Types Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
-                    <i class="fas fa-heartbeat text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Vital Types Section Coming Soon</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Vital types management features will be available in the next update.</p>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Vital Types Management</h2>
+                    <button onclick="openModal('addVitalTypeModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Add Vital Type
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                <tr>
+                                    <th class="px-6 py-3">Vital Type</th>
+                                    <th class="px-6 py-3">Unit</th>
+                                    <th class="px-6 py-3">Normal Range</th>
+                                    <th class="px-6 py-3">Description</th>
+                                    <th class="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vitalTypesTableBody">
+                                <!-- Vital types data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </main>
