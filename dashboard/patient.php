@@ -1247,29 +1247,70 @@ $stats = [
             const form = document.getElementById('bookAppointmentForm');
             const formData = new FormData(form);
             
+            // Validate required fields
+            if (!formData.get('doctor_id')) {
+                showNotification('Please select a doctor', 'error');
+                return;
+            }
+            
+            if (!formData.get('appointment_date')) {
+                showNotification('Please select an appointment date', 'error');
+                return;
+            }
+            
+            if (!document.getElementById('selectedTime').value) {
+                showNotification('Please select a time slot', 'error');
+                return;
+            }
+            
+            if (!formData.get('appointment_type')) {
+                showNotification('Please select appointment type', 'error');
+                return;
+            }
+            
+            // Get duration based on appointment type
+            let duration = currentDuration;
+            if (formData.get('appointment_type') === 'custom') {
+                duration = parseInt(formData.get('custom_duration')) || 30;
+            }
+            
             try {
-                const response = await fetch(getApiPath('appointments.php') + '?action=add', {
+                const appointmentData = {
+                    patient_id: <?php echo $current_user['patient_id'] ?? 1; ?>,
+                    doctor_id: formData.get('doctor_id'),
+                    appointment_date: formData.get('appointment_date'),
+                    appointment_time: document.getElementById('selectedTime').value,
+                    appointment_type: formData.get('appointment_type'),
+                    duration: duration,
+                    reason: formData.get('reason'),
+                    notes: formData.get('notes')
+                };
+                
+                console.log('Submitting appointment:', appointmentData);
+                
+                const response = await fetch(getApiPath('appointments.php'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        patient_id: <?php echo $current_user['patient_id'] ?? 1; ?>,
-                        doctor_id: formData.get('doctor_id'),
-                        appointment_date: formData.get('appointment_date'),
-                        appointment_time: formData.get('appointment_time'),
-                        appointment_type: formData.get('appointment_type'),
-                        reason: formData.get('reason'),
-                        notes: formData.get('notes')
-                    })
+                    body: JSON.stringify(appointmentData)
                 });
                 
                 const result = await response.json();
+                console.log('Appointment result:', result);
                 
                 if (result.success) {
-                    showNotification('Appointment booked successfully!', 'success');
+                    showNotification(`Appointment booked successfully for ${duration} minutes!`, 'success');
                     closeBookAppointmentModal();
                     location.reload(); // Refresh the page to show new appointment
+                    
+                    // Reset form
+                    form.reset();
+                    document.getElementById('selectedTime').value = '';
+                    document.getElementById('durationInfo').classList.add('hidden');
+                    document.getElementById('customDurationDiv').classList.add('hidden');
+                    document.getElementById('doctorInfo').classList.add('hidden');
+                    document.getElementById('availabilityChart').classList.add('hidden');
                 } else {
                     showNotification('Error: ' + result.message, 'error');
                 }
@@ -1284,6 +1325,298 @@ $stats = [
             let base = path.split('/dashboard')[0];
             if (!base.endsWith('/')) base += '/';
             return base + 'api/' + apiFile;
+        }
+
+        // Global variables for appointment booking
+        let selectedDoctor = null;
+        let currentDuration = 30; // Default 30 minutes
+        let bookedSlots = [];
+
+        // Update duration based on appointment type
+        function updateDuration() {
+            const appointmentType = document.getElementById('appointmentType');
+            const customDurationDiv = document.getElementById('customDurationDiv');
+            const durationInfo = document.getElementById('durationInfo');
+            const selectedDurationSpan = document.getElementById('selectedDuration');
+            
+            if (appointmentType.value === 'custom') {
+                customDurationDiv.classList.remove('hidden');
+                currentDuration = parseInt(document.getElementById('customDuration').value) || 30;
+            } else {
+                customDurationDiv.classList.add('hidden');
+                const selectedOption = appointmentType.options[appointmentType.selectedIndex];
+                currentDuration = parseInt(selectedOption.getAttribute('data-duration')) || 30;
+            }
+            
+            selectedDurationSpan.textContent = currentDuration;
+            durationInfo.classList.remove('hidden');
+            
+            // Reload time slots if date and doctor are selected
+            if (selectedDoctor && document.getElementById('appointmentDate').value) {
+                loadTimeSlots();
+            }
+        }
+
+        // Handle custom duration change
+        document.addEventListener('DOMContentLoaded', function() {
+            const customDuration = document.getElementById('customDuration');
+            if (customDuration) {
+                customDuration.addEventListener('change', function() {
+                    if (document.getElementById('appointmentType').value === 'custom') {
+                        currentDuration = parseInt(this.value);
+                        document.getElementById('selectedDuration').textContent = currentDuration;
+                        
+                        // Reload time slots
+                        if (selectedDoctor && document.getElementById('appointmentDate').value) {
+                            loadTimeSlots();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Load doctor availability information
+        async function loadDoctorAvailability() {
+            const doctorSelect = document.getElementById('doctorSelect');
+            const doctorInfo = document.getElementById('doctorInfo');
+            const availabilityChart = document.getElementById('availabilityChart');
+            const doctorDetails = document.getElementById('doctorDetails');
+            
+            if (!doctorSelect.value) {
+                doctorInfo.classList.add('hidden');
+                availabilityChart.classList.add('hidden');
+                selectedDoctor = null;
+                return;
+            }
+            
+            try {
+                const response = await fetch(getApiPath(`doctors.php?action=get&id=${doctorSelect.value}`));
+                const result = await response.json();
+                
+                if (result.success) {
+                    selectedDoctor = result.data;
+                    
+                    // Show doctor information
+                    doctorDetails.innerHTML = `
+                        <div><strong>Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}</strong></div>
+                        <div>Specialization: ${selectedDoctor.specialization || 'General'}</div>
+                        <div>Experience: ${selectedDoctor.experience_years || 0} years</div>
+                        <div>Department: ${selectedDoctor.department || 'General'}</div>
+                        ${selectedDoctor.consultation_fee ? `<div>Consultation Fee: ₹${selectedDoctor.consultation_fee}</div>` : ''}
+                    `;
+                    
+                    doctorInfo.classList.remove('hidden');
+                    
+                    // Load weekly availability chart
+                    await loadWeeklyAvailability();
+                    availabilityChart.classList.remove('hidden');
+                    
+                    // Load time slots if date is selected
+                    if (document.getElementById('appointmentDate').value) {
+                        loadTimeSlots();
+                    }
+                } else {
+                    showNotification('Error loading doctor information: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error loading doctor availability:', error);
+                showNotification('Error loading doctor information', 'error');
+            }
+        }
+
+        // Load weekly availability chart
+        async function loadWeeklyAvailability() {
+            if (!selectedDoctor) return;
+            
+            const weeklyChart = document.getElementById('weeklyChart');
+            const today = new Date();
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            // Get current week dates
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            let chartHTML = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = days[i];
+                const isToday = date.toDateString() === today.toDateString();
+                
+                // Check if doctor is available on this day
+                const availableDays = selectedDoctor.available_days ? 
+                    JSON.parse(selectedDoctor.available_days) : 
+                    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                
+                const dayLower = dayName.toLowerCase();
+                const isAvailable = availableDays.includes(dayLower) || availableDays.includes(dayName.toLowerCase());
+                
+                chartHTML += `
+                    <div class="text-center p-2 rounded ${isToday ? 'bg-blue-100 dark:bg-blue-800' : ''}">
+                        <div class="font-semibold text-xs mb-1">${dayName}</div>
+                        <div class="text-xs mb-2">${date.getDate()}</div>
+                        <div class="h-8 flex items-center justify-center">
+                            ${isAvailable ? 
+                                '<div class="w-full h-2 bg-green-500 rounded"></div>' : 
+                                '<div class="w-full h-2 bg-gray-300 rounded"></div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            }
+            
+            weeklyChart.innerHTML = chartHTML;
+        }
+
+        // Load available time slots for selected date
+        async function loadTimeSlots() {
+            const doctorId = document.getElementById('doctorSelect').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            
+            if (!doctorId || !appointmentDate) {
+                timeSlotsContainer.innerHTML = `
+                    <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
+                        Select a doctor and date to view available slots
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show loading
+            timeSlotsContainer.innerHTML = `
+                <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>Loading available slots...
+                </div>
+            `;
+            
+            try {
+                // Get existing appointments for this doctor and date
+                const response = await fetch(getApiPath(`appointments.php?action=list`));
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Filter appointments for selected doctor and date
+                    bookedSlots = result.data
+                        .filter(apt => apt.doctor_id == doctorId && apt.appointment_date === appointmentDate)
+                        .map(apt => ({
+                            time: apt.appointment_time,
+                            duration: apt.duration || 30 // Default 30 minutes if not specified
+                        }));
+                    
+                    generateTimeSlots();
+                } else {
+                    // If no appointments or error, still generate slots
+                    bookedSlots = [];
+                    generateTimeSlots();
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                bookedSlots = [];
+                generateTimeSlots();
+            }
+        }
+
+        // Generate time slots based on doctor availability and current bookings
+        function generateTimeSlots() {
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            
+            // Default working hours (can be customized per doctor)
+            const startTime = selectedDoctor?.available_time_start || '09:00';
+            const endTime = selectedDoctor?.available_time_end || '17:00';
+            
+            const slots = [];
+            const slotInterval = 15; // 15-minute intervals
+            
+            // Convert time strings to minutes
+            const startMinutes = timeToMinutes(startTime);
+            const endMinutes = timeToMinutes(endTime);
+            
+            // Generate all possible slots
+            for (let minutes = startMinutes; minutes < endMinutes; minutes += slotInterval) {
+                const timeStr = minutesToTime(minutes);
+                const isAvailable = isSlotAvailable(minutes, currentDuration);
+                
+                slots.push({
+                    time: timeStr,
+                    minutes: minutes,
+                    available: isAvailable
+                });
+            }
+            
+            // Render slots
+            let slotsHTML = '';
+            slots.forEach(slot => {
+                const buttonClass = slot.available ? 
+                    'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 dark:bg-green-800 dark:hover:bg-green-700 dark:text-green-100 dark:border-green-600' :
+                    'bg-red-100 text-red-800 border-red-300 cursor-not-allowed dark:bg-red-800 dark:text-red-100 dark:border-red-600';
+                
+                slotsHTML += `
+                    <button type="button" 
+                            class="p-2 text-sm border rounded-lg transition-colors ${buttonClass}"
+                            ${slot.available ? `onclick="selectTimeSlot('${slot.time}')"` : 'disabled'}
+                            title="${slot.available ? 'Available' : 'Not available'}">
+                        ${slot.time}
+                    </button>
+                `;
+            });
+            
+            if (slots.length === 0) {
+                slotsHTML = `
+                    <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
+                        No available slots for selected date
+                    </div>
+                `;
+            }
+            
+            timeSlotsContainer.innerHTML = slotsHTML;
+        }
+
+        // Check if a time slot is available
+        function isSlotAvailable(startMinutes, duration) {
+            const endMinutes = startMinutes + duration;
+            
+            // Check against all booked slots
+            for (let bookedSlot of bookedSlots) {
+                const bookedStart = timeToMinutes(bookedSlot.time);
+                const bookedEnd = bookedStart + bookedSlot.duration;
+                
+                // Check for overlap
+                if ((startMinutes < bookedEnd) && (endMinutes > bookedStart)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Select a time slot
+        function selectTimeSlot(time) {
+            // Remove previous selection
+            document.querySelectorAll('#timeSlots button').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-200', 'dark:bg-blue-700');
+            });
+            
+            // Add selection to clicked button
+            event.target.classList.add('ring-2', 'ring-blue-500', 'bg-blue-200', 'dark:bg-blue-700');
+            
+            // Set selected time
+            document.getElementById('selectedTime').value = time;
+        }
+
+        // Utility functions
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
         }
     </script>
 
@@ -1326,7 +1659,49 @@ $stats = [
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason</label>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appointment Type & Duration</label>
+                                    <select name="appointment_type" id="appointmentType" required onchange="updateDuration()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="">Select Appointment Type</option>
+                                        <option value="consultation" data-duration="30">Consultation (30 min)</option>
+                                        <option value="follow-up" data-duration="15">Follow-up (15 min)</option>
+                                        <option value="routine-checkup" data-duration="20">Routine Checkup (20 min)</option>
+                                        <option value="emergency" data-duration="45">Emergency (45 min)</option>
+                                        <option value="procedure" data-duration="60">Minor Procedure (60 min)</option>
+                                        <option value="therapy" data-duration="45">Therapy Session (45 min)</option>
+                                        <option value="custom" data-duration="0">Custom Duration</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="customDurationDiv" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Custom Duration (minutes)</label>
+                                    <select name="custom_duration" id="customDuration" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                        <option value="10">10 minutes</option>
+                                        <option value="15">15 minutes</option>
+                                        <option value="20">20 minutes</option>
+                                        <option value="30">30 minutes</option>
+                                        <option value="45">45 minutes</option>
+                                        <option value="60">60 minutes</option>
+                                        <option value="90">90 minutes</option>
+                                        <option value="120">120 minutes</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="durationInfo" class="hidden">
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-clock text-blue-500 mr-2"></i>
+                                            <span class="text-sm text-blue-700 dark:text-blue-300">
+                                                Duration: <span id="selectedDuration">0</span> minutes
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                            This will affect available time slots
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for Visit</label>
                                     <input type="text" name="reason" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Brief reason for appointment">
                                 </div>
                                 

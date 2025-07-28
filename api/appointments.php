@@ -251,8 +251,8 @@ class AppointmentsApi extends ApiBase {
             }
             
             // Create appointment
-            $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, notes, created_by_user_id, status)
-                     VALUES (:patient_id, :doctor_id, :appointment_date, :appointment_time, :reason, :notes, :created_by_user_id, 'scheduled')";
+            $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, notes, created_by_user_id, status, duration, appointment_type)
+                     VALUES (:patient_id, :doctor_id, :appointment_date, :appointment_time, :reason, :notes, :created_by_user_id, 'scheduled', :duration, :appointment_type)";
             $stmt = $this->conn->prepare($query);
             
             $stmt->bindParam(':patient_id', $data['patient_id']);
@@ -262,6 +262,8 @@ class AppointmentsApi extends ApiBase {
             $stmt->bindParam(':reason', $data['reason'] ?? null);
             $stmt->bindParam(':notes', $data['notes'] ?? null);
             $stmt->bindParam(':created_by_user_id', $this->getCurrentUserId());
+            $stmt->bindParam(':duration', $data['duration'] ?? 30);
+            $stmt->bindParam(':appointment_type', $data['appointment_type'] ?? 'consultation');
             $stmt->execute();
             
             $appointment_id = $this->conn->lastInsertId();

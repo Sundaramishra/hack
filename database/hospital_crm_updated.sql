@@ -34,6 +34,8 @@ CREATE TABLE `appointments` (
   `appointment_date` date NOT NULL,
   `appointment_time` time NOT NULL,
   `status` enum('scheduled','completed','cancelled','no_show') DEFAULT 'scheduled',
+  `duration` int(11) DEFAULT 30,
+  `appointment_type` varchar(50) DEFAULT 'consultation',
   `reason` varchar(255) DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `created_by_user_id` int(11) NOT NULL,
@@ -271,7 +273,9 @@ ALTER TABLE `appointments`
   ADD KEY `created_by_user_id` (`created_by_user_id`),
   ADD KEY `idx_appointments_date` (`appointment_date`),
   ADD KEY `idx_appointments_doctor` (`doctor_id`),
-  ADD KEY `idx_appointments_patient` (`patient_id`);
+  ADD KEY `idx_appointments_patient` (`patient_id`),
+  ADD KEY `idx_appointments_duration` (`duration`),
+  ADD KEY `idx_appointments_type` (`appointment_type`);
 
 --
 -- Indexes for table `doctors`
