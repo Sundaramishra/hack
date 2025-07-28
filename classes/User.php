@@ -1,6 +1,5 @@
 <?php
-require_once 'config/database.php';
-require_once 'classes/Auth.php';
+// Database config and Auth class will be included by the calling file
 
 class User {
     private $conn;

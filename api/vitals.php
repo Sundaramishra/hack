@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 session_start();
 
+require_once '../config/database.php';
 require_once '../classes/Auth.php';
 require_once '../classes/Vitals.php';
 
