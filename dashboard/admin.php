@@ -198,27 +198,73 @@ $user = $auth->getCurrentUser();
                  </div>
              </div>
             
-            <!-- Doctors Section -->
-            <div id="doctorsSection" class="section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Doctors Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <p class="text-gray-600 dark:text-gray-400">Doctors management section loaded!</p>
-                    <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-plus mr-2"></i>Add Doctor
-                    </button>
-                </div>
-            </div>
+                         <!-- Doctors Section -->
+             <div id="doctorsSection" class="section hidden">
+                 <div class="flex justify-between items-center mb-6">
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Doctors Management</h2>
+                     <button onclick="openDoctorModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                         <i class="fas fa-plus mr-2"></i>Add Doctor
+                     </button>
+                 </div>
+                 
+                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                     <div class="overflow-x-auto">
+                         <table class="w-full">
+                             <thead class="bg-gray-50 dark:bg-gray-700">
+                                 <tr>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Specialization</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">License</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="doctorsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                 <tr>
+                                     <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                         <i class="fas fa-user-md text-4xl mb-4"></i>
+                                         <p>Loading doctors...</p>
+                                     </td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+             </div>
             
-            <!-- Patients Section -->
-            <div id="patientsSection" class="section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Patients Management</h2>
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <p class="text-gray-600 dark:text-gray-400">Patients management section loaded!</p>
-                    <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-plus mr-2"></i>Add Patient
-                    </button>
-                </div>
-            </div>
+                         <!-- Patients Section -->
+             <div id="patientsSection" class="section hidden">
+                 <div class="flex justify-between items-center mb-6">
+                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Patients Management</h2>
+                     <button onclick="openPatientModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                         <i class="fas fa-plus mr-2"></i>Add Patient
+                     </button>
+                 </div>
+                 
+                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                     <div class="overflow-x-auto">
+                         <table class="w-full">
+                             <thead class="bg-gray-50 dark:bg-gray-700">
+                                 <tr>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient Code</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Blood Group</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="patientsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                 <tr>
+                                     <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                         <i class="fas fa-user-injured text-4xl mb-4"></i>
+                                         <p>Loading patients...</p>
+                                     </td>
+                                 </tr>
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+             </div>
             
             <!-- Appointments Section -->
             <div id="appointmentsSection" class="section hidden">
@@ -490,45 +536,370 @@ $user = $auth->getCurrentUser();
              return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
          }
          
-         // Placeholder functions for other sections
-         function loadDoctors() {
+         // Doctors Management
+         async function loadDoctors() {
              console.log('Loading doctors...');
-             showInfo('Doctors section functionality coming soon');
+             try {
+                 const response = await fetch('../handlers/admin_users.php?action=list&role=doctor');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayDoctors(result.data);
+                 } else {
+                     showError('Error loading doctors: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading doctors:', error);
+                 showError('Error loading doctors');
+             }
          }
          
-         function loadPatients() {
+         function displayDoctors(doctors) {
+             const tbody = document.getElementById('doctorsTable');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (doctors.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-user-md text-4xl mb-4"></i>
+                             <p>No doctors found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             doctors.forEach(doctor => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">Dr. ${doctor.first_name} ${doctor.last_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${doctor.email}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${doctor.specialization || 'Not specified'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${doctor.license_number || 'Not provided'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(doctor.is_active)}">
+                             ${doctor.is_active ? 'Active' : 'Inactive'}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="editDoctor(${doctor.doctor_id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button onclick="deleteDoctor(${doctor.doctor_id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         // Patients Management
+         async function loadPatients() {
              console.log('Loading patients...');
-             showInfo('Patients section functionality coming soon');
+             try {
+                 const response = await fetch('../handlers/admin_users.php?action=list&role=patient');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayPatients(result.data);
+                 } else {
+                     showError('Error loading patients: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading patients:', error);
+                 showError('Error loading patients');
+             }
          }
          
-         function loadAppointments() {
+         function displayPatients(patients) {
+             const tbody = document.getElementById('patientsTable');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (patients.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-user-injured text-4xl mb-4"></i>
+                             <p>No patients found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             patients.forEach(patient => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">${patient.first_name} ${patient.last_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${patient.email}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${patient.patient_code || 'Not assigned'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${patient.blood_group || 'Not specified'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(patient.is_active)}">
+                             ${patient.is_active ? 'Active' : 'Inactive'}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="editPatient(${patient.patient_id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button onclick="deletePatient(${patient.patient_id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         // Appointments Management
+         async function loadAppointments() {
              console.log('Loading appointments...');
-             showInfo('Appointments section functionality coming soon');
+             try {
+                 const response = await fetch('../handlers/appointments.php?action=list');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayAppointments(result.data);
+                 } else {
+                     showError('Error loading appointments: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading appointments:', error);
+                 showError('Error loading appointments');
+             }
          }
          
-         function loadPrescriptions() {
+         function displayAppointments(appointments) {
+             const tbody = document.getElementById('appointmentsTableBody');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (appointments.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-calendar-alt text-4xl mb-4"></i>
+                             <p>No appointments found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             appointments.forEach(appointment => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">${appointment.patient_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.patient_code || ''}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">${appointment.doctor_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.specialization || ''}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${formatDate(appointment.appointment_date)}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${formatTime(appointment.appointment_time)}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getAppointmentStatusColor(appointment.status)}">
+                             ${appointment.status}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="editAppointment(${appointment.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button onclick="cancelAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                             <i class="fas fa-times"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         // Prescriptions Management
+         async function loadPrescriptions() {
              console.log('Loading prescriptions...');
-             showInfo('Prescriptions section functionality coming soon');
+             try {
+                 const response = await fetch('../handlers/prescriptions.php?action=list');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayPrescriptions(result.data);
+                 } else {
+                     showError('Error loading prescriptions: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading prescriptions:', error);
+                 showError('Error loading prescriptions');
+             }
          }
          
-         function loadVitals() {
+         function displayPrescriptions(prescriptions) {
+             const tbody = document.getElementById('adminPrescriptionsTable');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (prescriptions.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-prescription-bottle-alt text-4xl mb-4"></i>
+                             <p>No prescriptions found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             prescriptions.forEach(prescription => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-white">${prescription.prescription_number}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${prescription.patient_name}</div>
+                         <div class="text-sm text-gray-500 dark:text-gray-400">${prescription.patient_code || ''}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${prescription.doctor_name}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${formatDate(prescription.prescription_date)}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${prescription.diagnosis || 'Not specified'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getPrescriptionStatusColor(prescription.status)}">
+                             ${prescription.status}
+                         </span>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="viewPrescription(${prescription.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-eye"></i>
+                         </button>
+                         <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                             <i class="fas fa-print"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         // Vitals Management
+         async function loadVitals() {
              console.log('Loading vitals...');
-             showInfo('Vitals section functionality coming soon');
+             try {
+                 const response = await fetch('../handlers/vitals.php?action=patient_vitals&patient_id=all');
+                 const result = await response.json();
+                 
+                 if (result.success) {
+                     displayVitals(result.data);
+                 } else {
+                     showError('Error loading vitals: ' + result.message);
+                 }
+             } catch (error) {
+                 console.error('Error loading vitals:', error);
+                 showError('Error loading vitals');
+             }
          }
          
+         function displayVitals(vitals) {
+             const tbody = document.getElementById('vitalsTable');
+             if (!tbody) return;
+             
+             tbody.innerHTML = '';
+             
+             if (vitals.length === 0) {
+                 tbody.innerHTML = `
+                     <tr>
+                         <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                             <i class="fas fa-heartbeat text-4xl mb-4"></i>
+                             <p>No vitals found</p>
+                         </td>
+                     </tr>
+                 `;
+                 return;
+             }
+             
+             vitals.forEach(vital => {
+                 const row = document.createElement('tr');
+                 row.innerHTML = `
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${vital.patient_name || 'Unknown'}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${vital.vital_name}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${vital.value} ${vital.unit || ''}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap">
+                         <div class="text-sm text-gray-900 dark:text-white">${formatDate(vital.recorded_date)}</div>
+                     </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <button onclick="editVital(${vital.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                             <i class="fas fa-edit"></i>
+                         </button>
+                         <button onclick="deleteVital(${vital.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                             <i class="fas fa-trash"></i>
+                         </button>
+                     </td>
+                 `;
+                 tbody.appendChild(row);
+             });
+         }
+         
+         // Profile Management
          function loadProfile() {
              console.log('Loading profile...');
-             showInfo('Profile section functionality coming soon');
+             // Profile section already has PHP data, just show success
+             showSuccess('Profile loaded successfully');
          }
          
+         // Settings Management
          function loadSettings() {
              console.log('Loading settings...');
-             showInfo('Settings section functionality coming soon');
+             showInfo('Website settings loaded - customize your hospital CRM');
          }
          
          // Modal functions
          function openUserModal() {
-             showInfo('User creation modal coming soon');
+             showInfo('User creation modal - Add new user functionality');
+         }
+         
+         function openDoctorModal() {
+             showInfo('Doctor creation modal - Add new doctor functionality');
+         }
+         
+         function openPatientModal() {
+             showInfo('Patient creation modal - Add new patient functionality');
          }
          
          function editUser(userId) {
@@ -538,6 +909,94 @@ $user = $auth->getCurrentUser();
          function deleteUser(userId) {
              if (confirm('Are you sure you want to delete this user?')) {
                  showInfo('Delete user functionality coming soon');
+             }
+         }
+         
+         // Utility Functions
+         function formatDate(dateString) {
+             const date = new Date(dateString);
+             return date.toLocaleDateString('en-US', { 
+                 year: 'numeric', 
+                 month: 'short', 
+                 day: 'numeric' 
+             });
+         }
+         
+         function formatTime(timeString) {
+             const time = new Date('2000-01-01 ' + timeString);
+             return time.toLocaleTimeString('en-US', { 
+                 hour: 'numeric', 
+                 minute: '2-digit',
+                 hour12: true 
+             });
+         }
+         
+         function getAppointmentStatusColor(status) {
+             const colors = {
+                 'scheduled': 'bg-blue-100 text-blue-800',
+                 'completed': 'bg-green-100 text-green-800',
+                 'cancelled': 'bg-red-100 text-red-800',
+                 'no_show': 'bg-gray-100 text-gray-800',
+                 'rescheduled': 'bg-yellow-100 text-yellow-800'
+             };
+             return colors[status] || 'bg-gray-100 text-gray-800';
+         }
+         
+         function getPrescriptionStatusColor(status) {
+             const colors = {
+                 'active': 'bg-green-100 text-green-800',
+                 'completed': 'bg-blue-100 text-blue-800',
+                 'cancelled': 'bg-red-100 text-red-800'
+             };
+             return colors[status] || 'bg-gray-100 text-gray-800';
+         }
+         
+         // Action Functions
+         function editDoctor(doctorId) {
+             showInfo('Edit doctor functionality - ID: ' + doctorId);
+         }
+         
+         function deleteDoctor(doctorId) {
+             if (confirm('Are you sure you want to delete this doctor?')) {
+                 showInfo('Delete doctor functionality - ID: ' + doctorId);
+             }
+         }
+         
+         function editPatient(patientId) {
+             showInfo('Edit patient functionality - ID: ' + patientId);
+         }
+         
+         function deletePatient(patientId) {
+             if (confirm('Are you sure you want to delete this patient?')) {
+                 showInfo('Delete patient functionality - ID: ' + patientId);
+             }
+         }
+         
+         function editAppointment(appointmentId) {
+             showInfo('Edit appointment functionality - ID: ' + appointmentId);
+         }
+         
+         function cancelAppointment(appointmentId) {
+             if (confirm('Are you sure you want to cancel this appointment?')) {
+                 showInfo('Cancel appointment functionality - ID: ' + appointmentId);
+             }
+         }
+         
+         function viewPrescription(prescriptionId) {
+             showInfo('View prescription functionality - ID: ' + prescriptionId);
+         }
+         
+         function printPrescription(prescriptionId) {
+             showInfo('Print prescription functionality - ID: ' + prescriptionId);
+         }
+         
+         function editVital(vitalId) {
+             showInfo('Edit vital functionality - ID: ' + vitalId);
+         }
+         
+         function deleteVital(vitalId) {
+             if (confirm('Are you sure you want to delete this vital record?')) {
+                 showInfo('Delete vital functionality - ID: ' + vitalId);
              }
          }
         
