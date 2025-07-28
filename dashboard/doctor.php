@@ -788,6 +788,138 @@ $stats = [
                 alert('Error: ' + error.message);
             }
         });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            loadPatients();
+            loadAppointments();
+        });
+
+        // Dashboard functions
+        async function loadDashboardData() {
+            try {
+                // Load dashboard statistics
+                const stats = <?php echo json_encode($stats); ?>;
+                updateDashboardStats(stats);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('../api/patients.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('patientsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(patient => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.patient_id}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.first_name} ${patient.last_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.age || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.gender || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.phone || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.assigned_doctor || 'Not assigned'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewPatient(${patient.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        View
+                                    </button>
+                                    <button onclick="recordVitals(${patient.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                        Vitals
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('../api/appointments.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('appointmentsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(appointment => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.patient_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_date} ${appointment.appointment_time}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_type}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${appointment.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 
+                                          appointment.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                          'bg-red-100 text-red-800'}">
+                                        ${appointment.status}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewAppointmentDetails(${appointment.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        View
+                                    </button>
+                                    <button onclick="markCompleted(${appointment.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2">
+                                        Complete
+                                    </button>
+                                    <button onclick="cancelAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        Cancel
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+
+        function updateDashboardStats(stats) {
+            const totalPatientsEl = document.getElementById('totalPatients');
+            const totalAppointmentsEl = document.getElementById('totalAppointments');
+            const todayAppointmentsEl = document.getElementById('todayAppointments');
+            const upcomingAppointmentsEl = document.getElementById('upcomingAppointments');
+            
+            if (totalPatientsEl) totalPatientsEl.textContent = stats.total_patients;
+            if (totalAppointmentsEl) totalAppointmentsEl.textContent = stats.total_appointments;
+            if (todayAppointmentsEl) todayAppointmentsEl.textContent = stats.today_appointments;
+            if (upcomingAppointmentsEl) upcomingAppointmentsEl.textContent = stats.upcoming_appointments;
+        }
     </script>
 </body>
 </html>

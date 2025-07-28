@@ -635,6 +635,237 @@ try {
             }
         }
 
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            loadDoctors();
+            loadPatients();
+            loadAppointments();
+            loadVitalTypes();
+        });
+
+        // Dashboard functions
+        async function loadDashboardData() {
+            try {
+                // Load dashboard statistics
+                const stats = <?php echo json_encode($stats); ?>;
+                updateDashboardStats(stats);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadDoctors() {
+            try {
+                const response = await fetch('../api/doctors.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('doctorsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(doctor => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${doctor.first_name} ${doctor.last_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${doctor.specialization}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${doctor.email}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${doctor.phone || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${doctor.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${doctor.is_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="editDoctor(${doctor.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        Edit
+                                    </button>
+                                    <button onclick="deleteDoctor(${doctor.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        Delete
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('../api/patients.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('patientsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(patient => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.patient_id}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.first_name} ${patient.last_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.age || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.gender || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.phone || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${patient.assigned_doctor || 'Not assigned'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="editPatient(${patient.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        Edit
+                                    </button>
+                                    <button onclick="deletePatient(${patient.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        Delete
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('../api/appointments.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('appointmentsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(appointment => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.patient_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.doctor_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_date} ${appointment.appointment_time}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_type}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${appointment.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 
+                                          appointment.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                          'bg-red-100 text-red-800'}">
+                                        ${appointment.status}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewAppointment(${appointment.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        View
+                                    </button>
+                                    <button onclick="editAppointment(${appointment.id})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2">
+                                        Edit
+                                    </button>
+                                    <button onclick="deleteAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        Delete
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+
+        async function loadVitalTypes() {
+            try {
+                const response = await fetch('../api/vital_types.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('vitalTypesTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(vitalType => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${vitalType.name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${vitalType.unit}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${vitalType.normal_range_min} - ${vitalType.normal_range_max}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${vitalType.description || 'N/A'}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="editVitalType(${vitalType.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        Edit
+                                    </button>
+                                    <button onclick="deleteVitalType(${vitalType.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        Delete
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading vital types:', error);
+            }
+        }
+
+        function updateDashboardStats(stats) {
+            const totalUsersEl = document.getElementById('totalUsers');
+            const totalDoctorsEl = document.getElementById('totalDoctors');
+            const totalPatientsEl = document.getElementById('totalPatients');
+            const totalAppointmentsEl = document.getElementById('totalAppointments');
+            
+            if (totalUsersEl) totalUsersEl.textContent = stats.total_users;
+            if (totalDoctorsEl) totalDoctorsEl.textContent = stats.total_doctors;
+            if (totalPatientsEl) totalPatientsEl.textContent = stats.total_patients;
+            if (totalAppointmentsEl) totalAppointmentsEl.textContent = stats.total_appointments;
+        }
+
         console.log('Admin Dashboard loaded successfully!');
     </script>
 </body>

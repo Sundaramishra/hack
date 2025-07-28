@@ -842,6 +842,179 @@ $stats = [
                 }
             });
         }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            loadAppointments();
+            loadPrescriptions();
+            loadMedicalHistory();
+        });
+
+        // Dashboard functions
+        async function loadDashboardData() {
+            try {
+                // Load dashboard statistics
+                const stats = <?php echo json_encode($stats); ?>;
+                updateDashboardStats(stats);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('../api/appointments.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('appointmentsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(appointment => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.doctor_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_date} ${appointment.appointment_time}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${appointment.appointment_type}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${appointment.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 
+                                          appointment.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                          'bg-red-100 text-red-800'}">
+                                        ${appointment.status}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="viewAppointmentDetails(${appointment.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        View
+                                    </button>
+                                    <button onclick="requestReschedule(${appointment.id})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                        Reschedule
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+            }
+        }
+
+        async function loadPrescriptions() {
+            try {
+                const response = await fetch('../api/prescriptions.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('prescriptionsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(prescription => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${prescription.prescribed_date}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${prescription.doctor_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${prescription.medication}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${prescription.dosage}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${prescription.duration}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${prescription.status === 'active' ? 'bg-green-100 text-green-800' : 
+                                          prescription.status === 'discontinued' ? 'bg-red-100 text-red-800' : 
+                                          'bg-gray-100 text-gray-800'}">
+                                        ${prescription.status}
+                                    </span>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+            }
+        }
+
+        async function loadMedicalHistory() {
+            try {
+                const response = await fetch('../api/medical_history.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('medicalHistoryTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        
+                        result.data.forEach(history => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
+                            row.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.visit_date}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.visit_type}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.doctor_name}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.diagnosis}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.treatment}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${history.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                          'bg-gray-100 text-gray-800'}">
+                                        ${history.status}
+                                    </span>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading medical history:', error);
+            }
+        }
+
+        function updateDashboardStats(stats) {
+            const totalAppointmentsEl = document.getElementById('totalAppointments');
+            const upcomingAppointmentsEl = document.getElementById('upcomingAppointments');
+            const totalPrescriptionsEl = document.getElementById('totalPrescriptions');
+            const recentVitalsEl = document.getElementById('recentVitals');
+            
+            if (totalAppointmentsEl) totalAppointmentsEl.textContent = stats.total_appointments;
+            if (upcomingAppointmentsEl) upcomingAppointmentsEl.textContent = stats.upcoming_appointments;
+            if (totalPrescriptionsEl) totalPrescriptionsEl.textContent = stats.total_prescriptions;
+            if (recentVitalsEl) recentVitalsEl.textContent = stats.recent_vitals;
+        }
     </script>
 </body>
 </html>
