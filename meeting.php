@@ -4,10 +4,36 @@ require_once 'config/database.php';
 require_once 'includes/functions.php';
 
 $meetingId = $_GET['id'] ?? '';
+$persistentLinkId = $_GET['persistent'] ?? '';
 $guestName = $_GET['guest'] ?? '';
 $userId = $_SESSION['user_id'] ?? null;
 
-if (!$meetingId) {
+// Handle persistent link access
+if ($persistentLinkId) {
+    // Check if persistent link exists and is active
+    $stmt = $pdo->prepare("SELECT * FROM persistent_links WHERE link_id = ? AND is_active = 1");
+    $stmt->execute([$persistentLinkId]);
+    $persistentLink = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$persistentLink) {
+        die('Persistent link not found or has been cancelled');
+    }
+    
+    // Create a new meeting session for this persistent link
+    $meetingId = generateMeetingId();
+    $sessionId = 'ps_' . bin2hex(random_bytes(8)) . '_' . time();
+    
+    // Create the meeting
+    $stmt = $pdo->prepare("INSERT INTO meetings (meeting_id, host_id, title, is_active) VALUES (?, ?, ?, 1)");
+    $stmt->execute([$meetingId, $persistentLink['user_id'], $persistentLink['title']]);
+    
+    // Create meeting session record
+    $stmt = $pdo->prepare("INSERT INTO meeting_sessions (session_id, persistent_link_id, meeting_id) VALUES (?, ?, ?)");
+    $stmt->execute([$sessionId, $persistentLinkId, $meetingId]);
+    
+    // Set session variable for persistent link
+    $_SESSION['persistent_session'] = $sessionId;
+} elseif (!$meetingId) {
     header('Location: index.php');
     exit();
 }

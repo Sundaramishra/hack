@@ -102,6 +102,36 @@ CREATE TABLE IF NOT EXISTS meeting_files (
     INDEX (uploaded_by),
     FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
+CREATE TABLE IF NOT EXISTS persistent_links (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    link_id VARCHAR(50) UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cancelled_at TIMESTAMP NULL,
+    INDEX (link_id),
+    INDEX (user_id),
+    INDEX (is_active),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS meeting_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(50) UNIQUE NOT NULL,
+    persistent_link_id VARCHAR(50),
+    meeting_id VARCHAR(20),
+    is_active BOOLEAN DEFAULT TRUE,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP NULL,
+    INDEX (session_id),
+    INDEX (persistent_link_id),
+    INDEX (meeting_id),
+    INDEX (is_active),
+    FOREIGN KEY (persistent_link_id) REFERENCES persistent_links(link_id) ON DELETE CASCADE
+);
 ";
 
 $pdo->exec($sql);

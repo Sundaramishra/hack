@@ -396,3 +396,204 @@ document.addEventListener('DOMContentLoaded', function() {
         document.head.appendChild(styles);
     }
 });
+
+// Persistent Links Management
+async function showPersistentLinksModal() {
+    document.getElementById('persistentLinksModal').style.display = 'block';
+    await loadPersistentLinks();
+}
+
+function showCreatePersistentLinkForm() {
+    document.getElementById('createPersistentLinkForm').classList.remove('hidden');
+    document.getElementById('createPersistentLinkBtn').style.display = 'none';
+}
+
+function hideCreatePersistentLinkForm() {
+    document.getElementById('createPersistentLinkForm').classList.add('hidden');
+    document.getElementById('createPersistentLinkBtn').style.display = 'block';
+    
+    // Clear form
+    document.getElementById('persistentLinkTitle').value = '';
+    document.getElementById('persistentLinkDescription').value = '';
+}
+
+async function createPersistentLink() {
+    const title = document.getElementById('persistentLinkTitle').value.trim();
+    const description = document.getElementById('persistentLinkDescription').value.trim();
+    
+    if (!title) {
+        showToast('Please enter a meeting title', 'error');
+        return;
+    }
+    
+    try {
+        const response = await window.secureAPI.createPersistentLink(title, description);
+        
+        if (response.success || response.data) {
+            const linkData = response.data || response;
+            showToast('Persistent link created successfully!', 'success');
+            hideCreatePersistentLinkForm();
+            await loadPersistentLinks();
+            
+            // Show the new link details
+            showLinkCreatedDetails(linkData);
+        } else {
+            throw new Error(response.message || 'Failed to create persistent link');
+        }
+    } catch (error) {
+        console.error('Create persistent link error:', error);
+        showToast(`Failed to create link: ${error.message}`, 'error');
+    }
+}
+
+async function loadPersistentLinks() {
+    try {
+        const response = await window.secureAPI.getPersistentLinks();
+        
+        if (response.success || response.data) {
+            const data = response.data || response;
+            displayPersistentLinks(data.links || [], data.can_create_more);
+        } else {
+            throw new Error('Failed to load persistent links');
+        }
+    } catch (error) {
+        console.error('Load persistent links error:', error);
+        document.getElementById('persistentLinksList').innerHTML = 
+            '<p class="error-message">Failed to load persistent links</p>';
+    }
+}
+
+function displayPersistentLinks(links, canCreateMore) {
+    const container = document.getElementById('persistentLinksList');
+    const createBtn = document.getElementById('createPersistentLinkBtn');
+    
+    // Update create button visibility
+    if (!canCreateMore) {
+        createBtn.style.display = 'none';
+        const existingMsg = createBtn.parentNode.querySelector('.limit-message');
+        if (!existingMsg) {
+            createBtn.parentNode.insertAdjacentHTML('beforeend', 
+                '<p class="limit-message"><i class="fas fa-info-circle"></i> Maximum 2 persistent links reached</p>');
+        }
+    } else {
+        createBtn.style.display = 'block';
+        const limitMsg = createBtn.parentNode.querySelector('.limit-message');
+        if (limitMsg) limitMsg.remove();
+    }
+    
+    if (links.length === 0) {
+        container.innerHTML = '<p class="no-links-message">No persistent links created yet</p>';
+        return;
+    }
+    
+    const linksHTML = links.map(link => {
+        // Decrypt data if needed (placeholder for now)
+        const title = link.title;
+        const description = link.description;
+        
+        return `
+            <div class="persistent-link-item" data-link-id="${link.link_id}">
+                <div class="link-info">
+                    <div class="link-title">${escapeHtml(title)}</div>
+                    ${description ? `<div class="link-description">${escapeHtml(description)}</div>` : ''}
+                    <div class="link-stats">
+                        <span><i class="fas fa-users"></i> ${link.active_sessions} active</span>
+                        <span><i class="fas fa-history"></i> ${link.total_sessions} total sessions</span>
+                        <span><i class="fas fa-calendar"></i> Created ${formatDate(link.created_at)}</span>
+                    </div>
+                    <div class="link-url">
+                        <i class="fas fa-link"></i>
+                        <span class="url-text">${link.full_url}</span>
+                        <button class="btn-icon copy-btn" onclick="copyLinkToClipboard('${link.full_url}')" title="Copy Link">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="link-actions">
+                    <button class="btn btn-secondary" onclick="openPersistentLink('${link.full_url}')" title="Open Link">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                    <button class="btn btn-danger" onclick="cancelPersistentLink('${link.link_id}', '${escapeHtml(title)}')" title="Cancel Link">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = linksHTML;
+}
+
+async function cancelPersistentLink(linkId, title) {
+    if (!confirm(`Are you sure you want to cancel the persistent link "${title}"?\n\nThis will end all active sessions and make the link unusable.`)) {
+        return;
+    }
+    
+    try {
+        const response = await window.secureAPI.cancelPersistentLink(linkId);
+        
+        if (response.success || response.data) {
+            const data = response.data || response;
+            showToast(`Persistent link cancelled successfully!${data.active_sessions_ended > 0 ? ` ${data.active_sessions_ended} active sessions ended.` : ''}`, 'success');
+            await loadPersistentLinks();
+        } else {
+            throw new Error(response.message || 'Failed to cancel persistent link');
+        }
+    } catch (error) {
+        console.error('Cancel persistent link error:', error);
+        showToast(`Failed to cancel link: ${error.message}`, 'error');
+    }
+}
+
+function copyLinkToClipboard(url) {
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Link copied to clipboard!', 'success');
+    });
+}
+
+function openPersistentLink(url) {
+    window.open(url, '_blank');
+}
+
+function showLinkCreatedDetails(linkData) {
+    const detailsHTML = `
+        <div class="link-created-details">
+            <h4><i class="fas fa-check-circle"></i> Persistent Link Created!</h4>
+            <div class="new-link-info">
+                <p><strong>Title:</strong> ${escapeHtml(linkData.title)}</p>
+                <div class="new-link-url">
+                    <p><strong>Link:</strong></p>
+                    <div class="url-container">
+                        <span class="url-text">${linkData.full_url}</span>
+                        <button class="btn-icon" onclick="copyLinkToClipboard('${linkData.full_url}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <p class="link-note"><i class="fas fa-info-circle"></i> This link can be used multiple times and will create new meeting sessions each time someone joins.</p>
+            </div>
+        </div>
+    `;
+    
+    // Show in a temporary toast-like notification
+    const notification = document.createElement('div');
+    notification.className = 'link-created-notification';
+    notification.innerHTML = detailsHTML;
+    document.body.appendChild(notification);
+    
+    // Auto remove after 10 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 10000);
+}

@@ -314,6 +314,33 @@ class SecureAPIClient {
         });
     }
     
+    // Persistent link methods
+    async createPersistentLink(title, description = '') {
+        return this.makeSecureRequest('create_persistent_link.php', {
+            method: 'POST',
+            data: { 
+                title: title,
+                description: description
+            }
+        });
+    }
+    
+    async getPersistentLinks() {
+        return this.makeSecureRequest('get_persistent_links.php', {
+            method: 'POST',
+            data: {}
+        });
+    }
+    
+    async cancelPersistentLink(linkId) {
+        return this.makeSecureRequest('cancel_persistent_link.php', {
+            method: 'POST',
+            data: { 
+                link_id: linkId
+            }
+        });
+    }
+    
     // File sharing methods
     async uploadFile(meetingId, file, progressCallback = null) {
         // Validate file size (256MB)
