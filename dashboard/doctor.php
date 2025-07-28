@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+// Debug section at top
 echo "<div style='background: #ffebee; border: 2px solid #f44336; padding: 15px; margin: 10px; font-family: Arial;'>";
 echo "<h3 style='color: #d32f2f; margin: 0 0 10px 0;'>🔍 DOCTOR DASHBOARD DEBUG</h3>";
 
@@ -122,12 +123,7 @@ echo "<h4 style='color: #1976d2;'>✅ DEBUG COMPLETE</h4>";
 echo "If you see this, PHP is working!<br>";
 echo "</div>";
 
-// Continue with original code
-require_once '../classes/Auth.php';
-require_once '../classes/User.php';
-require_once '../classes/Appointment.php';
-require_once '../classes/Vitals.php';
-
+// Main dashboard code
 try {
     $auth = new Auth();
     $user_manager = new User();
@@ -215,12 +211,17 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-    <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <!-- Debug Information -->
-        <?php include '../debug_info.php'; ?>
-        
-        <!-- Sidebar -->
-    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Debug Information -->
+    <?php include '../debug_info.php'; ?>
+    
+    <!-- Debug Info (remove in production) -->
+    <div class="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
+        ✅ Doctor Dashboard Loaded | User: <?php echo htmlspecialchars($current_user['first_name'] ?? 'Unknown'); ?>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
         <div class="flex items-center justify-center h-16 bg-primary-500">
             <i class="fas fa-user-md text-white text-2xl mr-3"></i>
             <h1 class="text-white text-xl font-bold">Doctor Portal</h1>
@@ -232,7 +233,7 @@ try {
                 Dashboard
             </a>
             <a href="#patients" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                <i class="fas fa-user-injured mr-3"></i>
+                <i class="fas fa-users mr-3"></i>
                 My Patients
             </a>
             <a href="#appointments" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -243,705 +244,282 @@ try {
                 <i class="fas fa-heartbeat mr-3"></i>
                 Patient Vitals
             </a>
-            <a href="#prescriptions" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                <i class="fas fa-prescription-bottle-alt mr-3"></i>
-                Prescriptions
+            <a href="#profile" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-user mr-3"></i>
+                My Profile
             </a>
-            <a href="#schedule" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                <i class="fas fa-clock mr-3"></i>
-                Schedule
+            <a href="../logout.php" class="flex items-center px-6 py-3 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors duration-200">
+                <i class="fas fa-sign-out-alt mr-3"></i>
+                Logout
             </a>
         </nav>
     </div>
 
-    <!-- Main Content -->
-    <div class="lg:ml-64">
+    <!-- Mobile menu button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Main content -->
+    <div class="lg:ml-64 min-h-screen">
         <!-- Header -->
         <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-between px-6 py-4">
-                <div class="flex items-center">
-                    <button id="sidebar-toggle" class="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                    <h2 class="ml-4 text-xl font-semibold text-gray-800 dark:text-white">
-                        Welcome, Dr. <?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?>
-                    </h2>
-                </div>
-                
                 <div class="flex items-center space-x-4">
-                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <i class="fas fa-moon dark:hidden text-gray-600"></i>
-                        <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Doctor Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="dark-mode-toggle" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-moon text-xl"></i>
                     </button>
-                    
-                    <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                        <i class="fas fa-user-md"></i>
-                        <span><?php echo htmlspecialchars($current_user['specialization'] ?? 'Doctor'); ?></span>
+                    <div class="flex items-center space-x-2">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Profile" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-200"><?php echo htmlspecialchars($current_user['first_name'] ?? 'Doctor'); ?></span>
                     </div>
-                    
-                    <a href="../logout.php" class="flex items-center space-x-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
                 </div>
             </div>
         </header>
 
-        <!-- Content Area -->
+        <!-- Dashboard content -->
         <main class="p-6">
-            <!-- Dashboard Section -->
-            <div id="dashboard-section" class="content-section">
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">My Patients</p>
-                                <p class="text-3xl font-bold text-primary-600"><?php echo $stats['total_patients']; ?></p>
-                            </div>
-                            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-user-injured text-primary-600 text-xl"></i>
-                            </div>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/20">
+                            <i class="fas fa-users text-blue-600 dark:text-blue-400 text-xl"></i>
                         </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Today's Appointments</p>
-                                <p class="text-3xl font-bold text-green-600"><?php echo $stats['today_appointments']; ?></p>
-                            </div>
-                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-calendar-day text-green-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Appointments</p>
-                                <p class="text-3xl font-bold text-blue-600"><?php echo $stats['total_appointments']; ?></p>
-                            </div>
-                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-calendar-alt text-blue-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Upcoming</p>
-                                <p class="text-3xl font-bold text-orange-600"><?php echo $stats['upcoming_appointments']; ?></p>
-                            </div>
-                            <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-clock text-orange-600 text-xl"></i>
-                            </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Patients</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalPatients"><?php echo $stats['total_patients']; ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Today's Schedule and Recent Patients -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Today's Schedule -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                                <i class="fas fa-calendar-day text-primary-500 mr-2"></i>
-                                Today's Schedule
-                            </h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 dark:bg-green-900/20">
+                            <i class="fas fa-calendar-check text-green-600 dark:text-green-400 text-xl"></i>
                         </div>
-                        <div class="p-6">
-                            <?php if (empty($today_appointments)): ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-calendar-times text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500 dark:text-gray-400">No appointments scheduled for today</p>
-                                </div>
-                            <?php else: ?>
-                                <div class="space-y-4">
-                                    <?php foreach ($today_appointments as $appointment): ?>
-                                        <div class="flex items-center justify-between p-4 bg-primary-50 dark:bg-primary-900/30 rounded-lg border border-primary-200 dark:border-primary-800">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-                                                    <i class="fas fa-user text-white"></i>
-                                                </div>
-                                                <div>
-                                                    <p class="font-medium text-gray-900 dark:text-white">
-                                                        <?php echo htmlspecialchars($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']); ?>
-                                                    </p>
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                        <?php echo htmlspecialchars($appointment['reason'] ?? 'General Consultation'); ?>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <p class="text-lg font-semibold text-primary-600">
-                                                    <?php echo date('g:i A', strtotime($appointment['appointment_time'])); ?>
-                                                </p>
-                                                <button onclick="viewPatientDetails(<?php echo $appointment['patient_id']; ?>)" class="text-sm text-primary-500 hover:text-primary-700">
-                                                    View Details
-                                                </button>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Recent Patients -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                                <i class="fas fa-users text-green-500 mr-2"></i>
-                                Recent Patients
-                            </h3>
-                        </div>
-                        <div class="p-6">
-                            <?php if (empty($assigned_patients)): ?>
-                                <div class="text-center py-8">
-                                    <i class="fas fa-user-injured text-gray-400 text-4xl mb-4"></i>
-                                    <p class="text-gray-500 dark:text-gray-400">No patients assigned yet</p>
-                                </div>
-                            <?php else: ?>
-                                <div class="space-y-4">
-                                    <?php foreach (array_slice($assigned_patients, 0, 5) as $patient): ?>
-                                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                                                    <i class="fas fa-user text-green-600"></i>
-                                                </div>
-                                                <div>
-                                                    <p class="font-medium text-gray-900 dark:text-white">
-                                                        <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                                    </p>
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                        ID: <?php echo htmlspecialchars($patient['patient_code']); ?>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <span class="text-sm px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
-                                                    <?php echo htmlspecialchars($patient['blood_group'] ?? 'N/A'); ?>
-                                                </span>
-                                                <div class="mt-1">
-                                                    <button onclick="viewPatientVitals(<?php echo $patient['id']; ?>)" class="text-xs text-blue-500 hover:text-blue-700">
-                                                        View Vitals
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Appointments</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="totalAppointments"><?php echo $stats['total_appointments']; ?></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+                            <i class="fas fa-calendar-day text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Today's Appointments</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="todayAppointments"><?php echo $stats['today_appointments']; ?></p>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <button onclick="showSection('appointments')" class="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
-                                <i class="fas fa-calendar-plus text-blue-600 text-2xl mb-2"></i>
-                                <span class="text-sm font-medium text-blue-700 dark:text-blue-300">View Appointments</span>
-                            </button>
-                            
-                            <button onclick="showSection('patients')" class="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
-                                <i class="fas fa-user-injured text-green-600 text-2xl mb-2"></i>
-                                <span class="text-sm font-medium text-green-700 dark:text-green-300">My Patients</span>
-                            </button>
-                            
-                            <button onclick="showSection('vitals')" class="flex flex-col items-center p-4 bg-red-50 dark:bg-red-900 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition-colors">
-                                <i class="fas fa-heartbeat text-red-600 text-2xl mb-2"></i>
-                                <span class="text-sm font-medium text-red-700 dark:text-red-300">Patient Vitals</span>
-                            </button>
-                            
-                            <button onclick="openModal('addVitalsModal')" class="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors">
-                                <i class="fas fa-plus-circle text-purple-600 text-2xl mb-2"></i>
-                                <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Record Vitals</span>
-                            </button>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 dark:bg-purple-900/20">
+                            <i class="fas fa-calendar-week text-purple-600 dark:text-purple-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Upcoming</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white" id="upcomingAppointments"><?php echo $stats['upcoming_appointments']; ?></p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Patients Section -->
-            <div id="patients-section" class="content-section hidden">
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">My Assigned Patients</h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient ID</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Blood Group</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Emergency Contact</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assigned Date</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                <?php foreach ($assigned_patients as $patient): ?>
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-user text-green-600"></i>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                    <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                                </div>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                    <?php echo htmlspecialchars($patient['gender'] ?? 'N/A'); ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        <?php echo htmlspecialchars($patient['patient_code']); ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                            <?php echo htmlspecialchars($patient['blood_group'] ?? 'N/A'); ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        <div>
-                                            <div class="font-medium"><?php echo htmlspecialchars($patient['emergency_contact_name'] ?? 'N/A'); ?></div>
-                                            <div class="text-gray-500"><?php echo htmlspecialchars($patient['emergency_contact_phone'] ?? 'N/A'); ?></div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        <?php echo date('M j, Y', strtotime($patient['assigned_date'])); ?>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <button onclick="viewPatientDetails(<?php echo $patient['id']; ?>)" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
-                                            <i class="fas fa-eye"></i> View
-                                        </button>
-                                        <button onclick="viewPatientVitals(<?php echo $patient['id']; ?>)" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
-                                            <i class="fas fa-heartbeat"></i> Vitals
-                                        </button>
-                                        <button onclick="recordVitals(<?php echo $patient['id']; ?>)" class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300">
-                                            <i class="fas fa-plus"></i> Record
-                                        </button>
-                                    </td>
-                                </tr>
+            <!-- Content Sections -->
+            <div class="space-y-6">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section" class="content-section">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Recent Appointments -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Appointments</h3>
+                            <div class="space-y-3">
+                                <?php foreach (array_slice($doctor_appointments, 0, 5) as $appointment): ?>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white"><?php echo htmlspecialchars($appointment['patient_name'] ?? 'Unknown Patient'); ?></p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($appointment['appointment_date'] ?? ''); ?> at <?php echo htmlspecialchars($appointment['appointment_time'] ?? ''); ?></p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                        <?php echo $appointment['status'] === 'scheduled' ? 'bg-yellow-100 text-yellow-800' : 
+                                              ($appointment['status'] === 'completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'); ?>">
+                                        <?php echo ucfirst(htmlspecialchars($appointment['status'] ?? 'unknown')); ?>
+                                    </span>
+                                </div>
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                            </div>
+                        </div>
 
-            <!-- Appointments Section -->
-            <div id="appointments-section" class="content-section hidden">
-                <div class="mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 md:mb-0">My Appointments</h2>
-                        <div class="flex space-x-3">
-                            <select id="appointmentFilter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                                <option value="all">All Appointments</option>
-                                <option value="today">Today</option>
-                                <option value="upcoming">Upcoming</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
+                        <!-- Patient Vitals Chart -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Patient Vitals Overview</h3>
+                            <canvas id="vitalsChart" width="400" height="200"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <?php foreach ($doctor_appointments as $appointment): ?>
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 appointment-card" data-status="<?php echo $appointment['status']; ?>" data-date="<?php echo $appointment['appointment_date']; ?>">
-                        <div class="p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full 
-                                    <?php 
-                                    switch($appointment['status']) {
-                                        case 'scheduled': echo 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'; break;
-                                        case 'completed': echo 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'; break;
-                                        case 'cancelled': echo 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'; break;
-                                        default: echo 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-                                    }
-                                    ?>">
-                                    <?php echo ucfirst($appointment['status']); ?>
-                                </span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">
-                                    <?php echo date('M j, Y', strtotime($appointment['appointment_date'])); ?>
-                                </span>
-                            </div>
-                            
-                            <div class="flex items-center mb-3">
-                                <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas fa-user text-primary-600"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-gray-900 dark:text-white">
-                                        <?php echo htmlspecialchars($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']); ?>
-                                    </h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        ID: <?php echo htmlspecialchars($appointment['patient_code']); ?>
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-2 mb-4">
-                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                    <i class="fas fa-clock mr-2 text-primary-500"></i>
-                                    <?php echo date('g:i A', strtotime($appointment['appointment_time'])); ?>
-                                </div>
-                                <?php if ($appointment['reason']): ?>
-                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                                    <i class="fas fa-comment-medical mr-2 text-primary-500"></i>
-                                    <?php echo htmlspecialchars($appointment['reason']); ?>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="flex space-x-2">
-                                <?php if ($appointment['status'] === 'scheduled'): ?>
-                                <button onclick="markCompleted(<?php echo $appointment['id']; ?>)" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
-                                    <i class="fas fa-check mr-1"></i> Complete
-                                </button>
-                                <button onclick="cancelAppointment(<?php echo $appointment['id']; ?>)" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
-                                    <i class="fas fa-times mr-1"></i> Cancel
-                                </button>
-                                <?php endif; ?>
-                                <button onclick="viewAppointmentDetails(<?php echo $appointment['id']; ?>)" class="flex-1 bg-primary-500 hover:bg-primary-600 text-white text-sm py-2 px-3 rounded-lg transition-colors">
-                                    <i class="fas fa-eye mr-1"></i> Details
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                
-                <?php if (empty($doctor_appointments)): ?>
-                <div class="text-center py-12">
-                    <i class="fas fa-calendar-times text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Appointments</h3>
-                    <p class="text-gray-500 dark:text-gray-400">You don't have any appointments yet.</p>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Vitals Section -->
-            <div id="vitals-section" class="content-section hidden">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Patient Vitals Monitoring</h2>
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <select id="patientVitalsFilter" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white mb-4 md:mb-0">
-                            <option value="">Select Patient</option>
-                            <?php foreach ($assigned_patients as $patient): ?>
-                            <option value="<?php echo $patient['id']; ?>">
-                                <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name'] . ' - ' . $patient['patient_code']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button onclick="openModal('addVitalsModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                <!-- Patients Section -->
+                <div id="patients-section" class="content-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Patients</h2>
+                        <button onclick="recordVitals()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
                             <i class="fas fa-plus mr-2"></i>Record Vitals
                         </button>
                     </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                    <tr>
+                                        <th class="px-6 py-3">Patient ID</th>
+                                        <th class="px-6 py-3">Name</th>
+                                        <th class="px-6 py-3">Age</th>
+                                        <th class="px-6 py-3">Gender</th>
+                                        <th class="px-6 py-3">Phone</th>
+                                        <th class="px-6 py-3">Last Visit</th>
+                                        <th class="px-6 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientsTableBody">
+                                    <!-- Patients data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="vitalsDisplay" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        <!-- Vitals cards will be populated by JavaScript -->
+                <!-- Appointments Section -->
+                <div id="appointments-section" class="content-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Appointments</h2>
+                        <button onclick="scheduleAppointment()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Schedule Appointment
+                        </button>
                     </div>
                     
-                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Vitals Trends</h3>
-                        </div>
-                        <div class="p-6">
-                            <canvas id="vitalsChart" height="100"></canvas>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
+                                    <tr>
+                                        <th class="px-6 py-3">Patient</th>
+                                        <th class="px-6 py-3">Date & Time</th>
+                                        <th class="px-6 py-3">Type</th>
+                                        <th class="px-6 py-3">Status</th>
+                                        <th class="px-6 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="appointmentsTableBody">
+                                    <!-- Appointments data will be loaded here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <div id="noPatientSelected" class="text-center py-12">
-                    <i class="fas fa-heartbeat text-gray-400 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Select a Patient</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Choose a patient from the dropdown to view their vital signs.</p>
+                <!-- Vitals Section -->
+                <div id="vitals-section" class="content-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Patient Vitals</h2>
+                        <button onclick="recordVitals()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Record Vitals
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Vital cards will be loaded here -->
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Other sections would go here -->
-            <div id="prescriptions-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Prescriptions Management</h2>
-                <!-- Prescriptions content -->
-            </div>
-
-            <div id="schedule-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Schedule</h2>
-                <!-- Schedule content -->
+                <!-- Profile Section -->
+                <div id="profile-section" class="content-section hidden">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Profile</h2>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Personal Information</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                        <p class="text-gray-900 dark:text-white"><?php echo htmlspecialchars($current_user['first_name'] ?? '') . ' ' . htmlspecialchars($current_user['last_name'] ?? ''); ?></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                                        <p class="text-gray-900 dark:text-white"><?php echo htmlspecialchars($current_user['email'] ?? ''); ?></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
+                                        <p class="text-gray-900 dark:text-white"><?php echo htmlspecialchars($current_user['phone'] ?? ''); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Professional Information</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</label>
+                                        <p class="text-gray-900 dark:text-white"><?php echo htmlspecialchars($current_user['specialization'] ?? 'General Medicine'); ?></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Experience</label>
+                                        <p class="text-gray-900 dark:text-white"><?php echo htmlspecialchars($current_user['experience_years'] ?? '0'); ?> years</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- Add Vitals Modal -->
-    <div id="addVitalsModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Record Patient Vitals</h3>
-                    <button onclick="closeModal('addVitalsModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <form id="addVitalsForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Patient</label>
-                        <select name="patient_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
-                            <option value="">Choose Patient</option>
-                            <?php foreach ($assigned_patients as $patient): ?>
-                            <option value="<?php echo $patient['id']; ?>">
-                                <?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name'] . ' - ' . $patient['patient_code']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4" id="vitalsInputs">
-                        <!-- Dynamic vital inputs will be loaded here -->
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-                        <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"></textarea>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3 pt-4">
-                        <button type="button" onclick="closeModal('addVitalsModal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
-                            Record Vitals
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Theme toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.classList.toggle('dark', savedTheme === 'dark');
-        
-        themeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-
-        // Sidebar toggle
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('sidebar');
-        
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
         });
 
         // Navigation
-        function showSection(sectionName) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            document.getElementById(sectionName + '-section').classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active', 'bg-primary-50', 'dark:bg-gray-700');
-            });
-            
-            const activeLink = document.querySelector(`[href="#${sectionName}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active', 'bg-primary-50', 'dark:bg-gray-700');
-            }
-        }
-
-        // Nav link clicks
         document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+            link.addEventListener('click', function(e) {
                 e.preventDefault();
-                const href = link.getAttribute('href');
-                const sectionName = href.substring(1);
-                showSection(sectionName);
-            });
-        });
-
-        // Modal functions
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-            if (modalId === 'addVitalsModal') {
-                loadVitalTypes();
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        // Close modal on outside click
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.add('hidden');
-                }
-            });
-        });
-
-        // Appointment filtering
-        document.getElementById('appointmentFilter').addEventListener('change', function() {
-            const filter = this.value;
-            const appointments = document.querySelectorAll('.appointment-card');
-            const today = new Date().toISOString().split('T')[0];
-            
-            appointments.forEach(card => {
-                const status = card.dataset.status;
-                const date = card.dataset.date;
-                let show = false;
                 
-                switch(filter) {
-                    case 'all':
-                        show = true;
-                        break;
-                    case 'today':
-                        show = date === today;
-                        break;
-                    case 'upcoming':
-                        show = date >= today && status === 'scheduled';
-                        break;
-                    default:
-                        show = status === filter;
-                }
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 
-                card.style.display = show ? 'block' : 'none';
-            });
-        });
-
-        // Patient functions
-        function viewPatientDetails(patientId) {
-            // Implementation for viewing patient details
-            alert('View patient details - ID: ' + patientId);
-        }
-
-        function viewPatientVitals(patientId) {
-            document.getElementById('patientVitalsFilter').value = patientId;
-            showSection('vitals');
-            loadPatientVitals(patientId);
-        }
-
-        function recordVitals(patientId) {
-            openModal('addVitalsModal');
-            document.querySelector('[name="patient_id"]').value = patientId;
-        }
-
-        // Appointment functions
-        function markCompleted(appointmentId) {
-            if (confirm('Mark this appointment as completed?')) {
-                // Implementation for marking appointment as completed
-                alert('Appointment marked as completed - ID: ' + appointmentId);
-            }
-        }
-
-        function cancelAppointment(appointmentId) {
-            if (confirm('Cancel this appointment?')) {
-                // Implementation for canceling appointment
-                alert('Appointment cancelled - ID: ' + appointmentId);
-            }
-        }
-
-        function viewAppointmentDetails(appointmentId) {
-            // Implementation for viewing appointment details
-            alert('View appointment details - ID: ' + appointmentId);
-        }
-
-        // Vitals functions
-        async function loadVitalTypes() {
-            try {
-                const response = await fetch('../api/vitals.php?action=types');
-                const result = await response.json();
+                // Add active class to clicked link
+                this.classList.add('active');
                 
-                if (result.success) {
-                    const container = document.getElementById('vitalsInputs');
-                    container.innerHTML = '';
-                    
-                    result.vital_types.forEach(type => {
-                        const div = document.createElement('div');
-                        div.innerHTML = `
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                ${type.name} ${type.unit ? '(' + type.unit + ')' : ''}
-                            </label>
-                            <input type="number" step="0.01" name="vitals[${type.id}]" 
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
-                                   placeholder="${type.normal_range_min}-${type.normal_range_max}">
-                        `;
-                        container.appendChild(div);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading vital types:', error);
-            }
-        }
-
-        function loadPatientVitals(patientId) {
-            document.getElementById('noPatientSelected').classList.add('hidden');
-            document.getElementById('vitalsDisplay').classList.remove('hidden');
-            
-            // Implementation for loading and displaying patient vitals
-            // This would fetch data from the API and populate the charts and cards
-        }
-
-        // Patient vitals filter
-        document.getElementById('patientVitalsFilter').addEventListener('change', function() {
-            const patientId = this.value;
-            if (patientId) {
-                loadPatientVitals(patientId);
-            } else {
-                document.getElementById('vitalsDisplay').classList.add('hidden');
-                document.getElementById('noPatientSelected').classList.remove('hidden');
-            }
-        });
-
-        // Vitals form submission
-        document.getElementById('addVitalsForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            
-            try {
-                const response = await fetch('../api/vitals.php', {
-                    method: 'POST',
-                    body: formData
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.add('hidden');
                 });
                 
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Vitals recorded successfully!');
-                    closeModal('addVitalsModal');
-                    e.target.reset();
-                } else {
-                    alert('Error: ' + result.message);
+                // Show target section
+                const targetId = this.getAttribute('href').substring(1) + '-section';
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
                 }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
+            });
+        });
+
+        // Dark mode toggle
+        document.getElementById('dark-mode-toggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
         });
 
         // Initialize dashboard
@@ -1074,6 +652,31 @@ try {
             if (totalAppointmentsEl) totalAppointmentsEl.textContent = stats.total_appointments;
             if (todayAppointmentsEl) todayAppointmentsEl.textContent = stats.today_appointments;
             if (upcomingAppointmentsEl) upcomingAppointmentsEl.textContent = stats.upcoming_appointments;
+        }
+
+        // Action functions
+        function viewPatient(patientId) {
+            alert('View patient details for ID: ' + patientId);
+        }
+
+        function recordVitals(patientId) {
+            alert('Record vitals for patient ID: ' + patientId);
+        }
+
+        function viewAppointmentDetails(appointmentId) {
+            alert('View appointment details for ID: ' + appointmentId);
+        }
+
+        function markCompleted(appointmentId) {
+            alert('Mark appointment as completed for ID: ' + appointmentId);
+        }
+
+        function cancelAppointment(appointmentId) {
+            alert('Cancel appointment for ID: ' + appointmentId);
+        }
+
+        function scheduleAppointment() {
+            alert('Schedule new appointment');
         }
     </script>
 </body>
