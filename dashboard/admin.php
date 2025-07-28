@@ -416,7 +416,7 @@ try {
             <div id="appointments-section" class="content-section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Appointments Management</h2>
-                    <button onclick="openModal('addAppointmentModal')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <button onclick="openAppointmentModal()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
                         <i class="fas fa-plus mr-2"></i>Schedule Appointment
                     </button>
                 </div>
@@ -886,6 +886,159 @@ try {
         }
 
         console.log('Admin Dashboard loaded successfully!');
+
+        // Appointment scheduling functions
+        function openAppointmentModal() {
+            document.getElementById('addAppointmentModal').classList.remove('hidden');
+            loadDoctorsForAppointment();
+            loadPatientsForAppointment();
+        }
+
+        async function loadDoctorsForAppointment() {
+            try {
+                const response = await fetch('../api/doctors.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = document.querySelector('#addAppointmentModal select[name="doctor_id"]');
+                    if (select) {
+                        select.innerHTML = '<option value="">Select Doctor</option>';
+                        
+                        result.data.forEach(doctor => {
+                            const option = document.createElement('option');
+                            option.value = doctor.id;
+                            option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.specialization})`;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+            }
+        }
+
+        async function loadPatientsForAppointment() {
+            try {
+                const response = await fetch('../api/patients.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = document.querySelector('#addAppointmentModal select[name="patient_id"]');
+                    if (select) {
+                        select.innerHTML = '<option value="">Select Patient</option>';
+                        
+                        result.data.forEach(patient => {
+                            const option = document.createElement('option');
+                            option.value = patient.id;
+                            option.textContent = `${patient.first_name} ${patient.last_name} (${patient.patient_code})`;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+        }
+
+        async function submitAppointment() {
+            const form = document.getElementById('addAppointmentForm');
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('../api/appointments.php?action=add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        patient_id: formData.get('patient_id'),
+                        doctor_id: formData.get('doctor_id'),
+                        appointment_date: formData.get('appointment_date'),
+                        appointment_time: formData.get('appointment_time'),
+                        appointment_type: formData.get('appointment_type'),
+                        notes: formData.get('notes')
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Appointment scheduled successfully!');
+                    closeModal('addAppointmentModal');
+                    loadAppointments(); // Refresh the appointments list
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error scheduling appointment:', error);
+                alert('Error scheduling appointment: ' + error.message);
+            }
+        }
     </script>
+
+    <!-- Add Appointment Modal -->
+    <div id="addAppointmentModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Schedule Appointment</h3>
+                    <button onclick="closeModal('addAppointmentModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="addAppointmentForm" class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Patient</label>
+                        <select name="patient_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Patient</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Doctor</label>
+                        <select name="doctor_id" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Doctor</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                        <input type="date" name="appointment_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
+                        <input type="time" name="appointment_time" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                        <select name="appointment_type" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Select Type</option>
+                            <option value="consultation">Consultation</option>
+                            <option value="follow-up">Follow-up</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="routine">Routine Check</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                        <textarea name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" placeholder="Any additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeModal('addAppointmentModal')" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                            Cancel
+                        </button>
+                        <button type="button" onclick="submitAppointment()" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors">
+                            Schedule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
