@@ -83,13 +83,21 @@ class User {
                  VALUES (:user_id, :specialization, :license_number, :qualification, :experience_years, :consultation_fee, :department)";
         
         $stmt = $this->conn->prepare($query);
+        
+        // Prepare variables for binding
+        $specialization = $data['specialization'] ?? '';
+        $qualification = $data['qualification'] ?? '';
+        $experience_years = $data['experience_years'] ?? 0;
+        $consultation_fee = $data['consultation_fee'] ?? 0.00;
+        $department = $data['department'] ?? '';
+        
         $stmt->bindParam(':user_id', $user_id);
-        $stmt->bindParam(':specialization', $data['specialization'] ?? '');
+        $stmt->bindParam(':specialization', $specialization);
         $stmt->bindParam(':license_number', $license_number);
-        $stmt->bindParam(':qualification', $data['qualification'] ?? '');
-        $stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
-        $stmt->bindParam(':consultation_fee', $data['consultation_fee'] ?? 0.00);
-        $stmt->bindParam(':department', $data['department'] ?? '');
+        $stmt->bindParam(':qualification', $qualification);
+        $stmt->bindParam(':experience_years', $experience_years);
+        $stmt->bindParam(':consultation_fee', $consultation_fee);
+        $stmt->bindParam(':department', $department);
         
         return $stmt->execute();
     }
@@ -103,14 +111,23 @@ class User {
                  VALUES (:user_id, :patient_id, :blood_group, :emergency_contact_name, :emergency_contact_phone, :medical_history, :allergies, :insurance_number)";
         
         $stmt = $this->conn->prepare($query);
+        
+        // Prepare variables for binding
+        $blood_group = $data['blood_group'] ?? '';
+        $emergency_contact_name = $data['emergency_contact_name'] ?? '';
+        $emergency_contact_phone = $data['emergency_contact_phone'] ?? '';
+        $medical_history = $data['medical_history'] ?? '';
+        $allergies = $data['allergies'] ?? '';
+        $insurance_number = $data['insurance_number'] ?? '';
+        
         $stmt->bindParam(':user_id', $user_id);
         $stmt->bindParam(':patient_id', $patient_id);
-        $stmt->bindParam(':blood_group', $data['blood_group'] ?? '');
-        $stmt->bindParam(':emergency_contact_name', $data['emergency_contact_name'] ?? '');
-        $stmt->bindParam(':emergency_contact_phone', $data['emergency_contact_phone'] ?? '');
-        $stmt->bindParam(':medical_history', $data['medical_history'] ?? '');
-        $stmt->bindParam(':allergies', $data['allergies'] ?? '');
-        $stmt->bindParam(':insurance_number', $data['insurance_number'] ?? '');
+        $stmt->bindParam(':blood_group', $blood_group);
+        $stmt->bindParam(':emergency_contact_name', $emergency_contact_name);
+        $stmt->bindParam(':emergency_contact_phone', $emergency_contact_phone);
+        $stmt->bindParam(':medical_history', $medical_history);
+        $stmt->bindParam(':allergies', $allergies);
+        $stmt->bindParam(':insurance_number', $insurance_number);
         
         return $stmt->execute();
     }
@@ -212,12 +229,20 @@ class User {
                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
+        
+        // Prepare variables for binding
+        $specialization = $data['specialization'] ?? '';
+        $qualification = $data['qualification'] ?? '';
+        $experience_years = $data['experience_years'] ?? 0;
+        $consultation_fee = $data['consultation_fee'] ?? 0.00;
+        $department = $data['department'] ?? '';
+        
         $stmt->bindParam(':id', $doctor_id);
-        $stmt->bindParam(':specialization', $data['specialization'] ?? '');
-        $stmt->bindParam(':qualification', $data['qualification'] ?? '');
-        $stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
-        $stmt->bindParam(':consultation_fee', $data['consultation_fee'] ?? 0.00);
-        $stmt->bindParam(':department', $data['department'] ?? '');
+        $stmt->bindParam(':specialization', $specialization);
+        $stmt->bindParam(':qualification', $qualification);
+        $stmt->bindParam(':experience_years', $experience_years);
+        $stmt->bindParam(':consultation_fee', $consultation_fee);
+        $stmt->bindParam(':department', $department);
         
         return $stmt->execute();
     }
@@ -231,13 +256,22 @@ class User {
                  WHERE id = :id";
         
         $stmt = $this->conn->prepare($query);
+        
+        // Prepare variables for binding
+        $blood_group = $data['blood_group'] ?? '';
+        $emergency_contact_name = $data['emergency_contact_name'] ?? '';
+        $emergency_contact_phone = $data['emergency_contact_phone'] ?? '';
+        $medical_history = $data['medical_history'] ?? '';
+        $allergies = $data['allergies'] ?? '';
+        $insurance_number = $data['insurance_number'] ?? '';
+        
         $stmt->bindParam(':id', $patient_id);
-        $stmt->bindParam(':blood_group', $data['blood_group'] ?? '');
-        $stmt->bindParam(':emergency_contact_name', $data['emergency_contact_name'] ?? '');
-        $stmt->bindParam(':emergency_contact_phone', $data['emergency_contact_phone'] ?? '');
-        $stmt->bindParam(':medical_history', $data['medical_history'] ?? '');
-        $stmt->bindParam(':allergies', $data['allergies'] ?? '');
-        $stmt->bindParam(':insurance_number', $data['insurance_number'] ?? '');
+        $stmt->bindParam(':blood_group', $blood_group);
+        $stmt->bindParam(':emergency_contact_name', $emergency_contact_name);
+        $stmt->bindParam(':emergency_contact_phone', $emergency_contact_phone);
+        $stmt->bindParam(':medical_history', $medical_history);
+        $stmt->bindParam(':allergies', $allergies);
+        $stmt->bindParam(':insurance_number', $insurance_number);
         
         return $stmt->execute();
     }

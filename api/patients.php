@@ -138,14 +138,19 @@ try {
                                     :blood_group, :emergency_contact_name, :emergency_contact_phone, 
                                     :assigned_doctor_id)";
                     $patient_stmt = $conn->prepare($patient_query);
+                    $gender = $data['gender'] ?? '';
+                    $blood_group = $data['blood_group'] ?? '';
+                    $emergency_contact_name = $data['emergency_contact_name'] ?? '';
+                    $emergency_contact_phone = $data['emergency_contact_phone'] ?? '';
+                    $assigned_doctor_id = $data['assigned_doctor_id'] ?? null;
                     $patient_stmt->bindParam(':user_id', $user_id);
                     $patient_stmt->bindParam(':patient_id', $patient_code);
                     $patient_stmt->bindParam(':date_of_birth', $data['date_of_birth']);
-                    $patient_stmt->bindParam(':gender', $data['gender'] ?? '');
-                    $patient_stmt->bindParam(':blood_group', $data['blood_group'] ?? '');
-                    $patient_stmt->bindParam(':emergency_contact_name', $data['emergency_contact_name'] ?? '');
-                    $patient_stmt->bindParam(':emergency_contact_phone', $data['emergency_contact_phone'] ?? '');
-                    $patient_stmt->bindParam(':assigned_doctor_id', $data['assigned_doctor_id'] ?? null);
+                    $patient_stmt->bindParam(':gender', $gender);
+                    $patient_stmt->bindParam(':blood_group', $blood_group);
+                    $patient_stmt->bindParam(':emergency_contact_name', $emergency_contact_name);
+                    $patient_stmt->bindParam(':emergency_contact_phone', $emergency_contact_phone);
+                    $patient_stmt->bindParam(':assigned_doctor_id', $assigned_doctor_id);
                     $patient_stmt->execute();
                     
                     $patient_id = $conn->lastInsertId();
@@ -208,7 +213,8 @@ try {
                     $user_stmt->bindParam(':first_name', $data['first_name']);
                     $user_stmt->bindParam(':last_name', $data['last_name']);
                     $user_stmt->bindParam(':email', $data['email']);
-                    $user_stmt->bindParam(':phone', $data['phone'] ?? '');
+                    $phone = $data['phone'] ?? '';
+                    $user_stmt->bindParam(':phone', $phone);
                     $user_stmt->bindParam(':user_id', $user_id);
                     $user_stmt->execute();
                     
@@ -218,12 +224,17 @@ try {
                                     emergency_contact_phone = :emergency_contact_phone, assigned_doctor_id = :assigned_doctor_id
                                     WHERE id = :id";
                     $patient_stmt = $conn->prepare($patient_query);
+                    $gender = $data['gender'] ?? '';
+                    $blood_group = $data['blood_group'] ?? '';
+                    $emergency_contact_name = $data['emergency_contact_name'] ?? '';
+                    $emergency_contact_phone = $data['emergency_contact_phone'] ?? '';
+                    $assigned_doctor_id = $data['assigned_doctor_id'] ?? null;
                     $patient_stmt->bindParam(':date_of_birth', $data['date_of_birth']);
-                    $patient_stmt->bindParam(':gender', $data['gender'] ?? '');
-                    $patient_stmt->bindParam(':blood_group', $data['blood_group'] ?? '');
-                    $patient_stmt->bindParam(':emergency_contact_name', $data['emergency_contact_name'] ?? '');
-                    $patient_stmt->bindParam(':emergency_contact_phone', $data['emergency_contact_phone'] ?? '');
-                    $patient_stmt->bindParam(':assigned_doctor_id', $data['assigned_doctor_id'] ?? null);
+                    $patient_stmt->bindParam(':gender', $gender);
+                    $patient_stmt->bindParam(':blood_group', $blood_group);
+                    $patient_stmt->bindParam(':emergency_contact_name', $emergency_contact_name);
+                    $patient_stmt->bindParam(':emergency_contact_phone', $emergency_contact_phone);
+                    $patient_stmt->bindParam(':assigned_doctor_id', $assigned_doctor_id);
                     $patient_stmt->bindParam(':id', $patient_id);
                     $patient_stmt->execute();
                     

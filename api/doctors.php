@@ -97,10 +97,12 @@ try {
                     $doctor_query = "INSERT INTO doctors (user_id, specialization, license_number, experience_years) 
                                     VALUES (:user_id, :specialization, :license_number, :experience_years)";
                     $doctor_stmt = $conn->prepare($doctor_query);
+                    $license_number = $data['license_number'] ?? '';
+                    $experience_years = $data['experience_years'] ?? 0;
                     $doctor_stmt->bindParam(':user_id', $user_id);
                     $doctor_stmt->bindParam(':specialization', $data['specialization']);
-                    $doctor_stmt->bindParam(':license_number', $data['license_number'] ?? '');
-                    $doctor_stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
+                    $doctor_stmt->bindParam(':license_number', $license_number);
+                    $doctor_stmt->bindParam(':experience_years', $experience_years);
                     $doctor_stmt->execute();
                     
                     $conn->commit();
@@ -146,7 +148,8 @@ try {
                     $user_stmt->bindParam(':first_name', $data['first_name']);
                     $user_stmt->bindParam(':last_name', $data['last_name']);
                     $user_stmt->bindParam(':email', $data['email']);
-                    $user_stmt->bindParam(':phone', $data['phone'] ?? '');
+                    $phone = $data['phone'] ?? '';
+                    $user_stmt->bindParam(':phone', $phone);
                     $user_stmt->bindParam(':user_id', $user_id);
                     $user_stmt->execute();
                     
@@ -155,9 +158,11 @@ try {
                                     license_number = :license_number, experience_years = :experience_years 
                                     WHERE id = :id";
                     $doctor_stmt = $conn->prepare($doctor_query);
+                    $license_number = $data['license_number'] ?? '';
+                    $experience_years = $data['experience_years'] ?? 0;
                     $doctor_stmt->bindParam(':specialization', $data['specialization']);
-                    $doctor_stmt->bindParam(':license_number', $data['license_number'] ?? '');
-                    $doctor_stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
+                    $doctor_stmt->bindParam(':license_number', $license_number);
+                    $doctor_stmt->bindParam(':experience_years', $experience_years);
                     $doctor_stmt->bindParam(':id', $doctor_id);
                     $doctor_stmt->execute();
                     
