@@ -1169,7 +1169,7 @@ try {
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Doctor</label>
                         <div class="relative">
                             <input type="text" id="doctorSearch" placeholder="Search doctors..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white mb-2">
-                            <select name="doctor_id" id="doctorSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                            <select name="doctor_id" id="doctorSelect" required onchange="loadAdminTimeSlots()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">Select Doctor</option>
                             </select>
                         </div>
@@ -1177,12 +1177,17 @@ try {
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                        <input type="date" name="appointment_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                        <input type="date" name="appointment_date" required min="<?php echo date('Y-m-d'); ?>" onchange="loadAdminTimeSlots()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
-                        <input type="time" name="appointment_time" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Available Time Slots</label>
+                        <div id="adminTimeSlots" class="grid grid-cols-4 gap-2 min-h-[100px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                            <div class="col-span-4 text-center text-gray-500 dark:text-gray-400 py-4">
+                                Select a doctor and date to view available slots
+                            </div>
+                        </div>
+                        <input type="hidden" name="appointment_time" id="adminSelectedTime" required>
                     </div>
                     
                     <div>
