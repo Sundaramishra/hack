@@ -1072,7 +1072,7 @@ try {
             const formData = new FormData(form);
             
             try {
-                const response = await fetch(getApiPath('appointments.php?action=add'), {
+                const response = await fetch(getApiPath('appointments_simple.php'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1082,12 +1082,28 @@ try {
                         doctor_id: formData.get('doctor_id'),
                         appointment_date: formData.get('appointment_date'),
                         appointment_time: formData.get('appointment_time'),
-                        appointment_type: formData.get('appointment_type'),
+                        appointment_type: formData.get('appointment_type') || 'consultation',
+                        reason: formData.get('reason') || 'Admin scheduled appointment',
                         notes: formData.get('notes')
                     })
                 });
                 
-                const result = await response.json();
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+                
+                if (!responseText.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                
+                const result = JSON.parse(responseText);
+                console.log('Parsed result:', result);
                 
                 if (result.success) {
                     showNotification('Appointment scheduled successfully!', 'success');
@@ -1098,6 +1114,7 @@ try {
                 }
             } catch (error) {
                 console.error('Error scheduling appointment:', error);
+                console.error('Error details:', error.message);
                 showNotification('Error scheduling appointment: ' + error.message, 'error');
             }
         }
