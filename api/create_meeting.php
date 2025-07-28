@@ -1,47 +1,44 @@
 <?php
-session_start();
-require_once '../config/database.php';
+require_once 'secure_api.php';
 require_once '../includes/functions.php';
 
-header('Content-Type: application/json');
+// Get secure input data
+$input = $secureAPI->getSecureInput();
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-
-// Get JSON input
-$input = json_decode(file_get_contents('php://input'), true);
-
-if (!$input) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid input']);
-    exit();
-}
+// Validate CSRF token
+$secureAPI->validateCSRF();
 
 $title = $input['title'] ?? 'Quick Meeting';
 $password = $input['password'] ?? null;
 $scheduledAt = $input['scheduled_at'] ?? null;
 
 try {
+    $userId = $secureAPI->getUserId();
     $meetingId = createMeeting($userId, $title, $password, $scheduledAt);
     
     if ($meetingId) {
-        echo json_encode([
-            'success' => true,
-            'meetingId' => $meetingId,
-            'message' => 'Meeting created successfully'
+        $secureAPI->logActivity('meeting_created', [
+            'meeting_id' => $meetingId,
+            'title' => $title,
+            'has_password' => !empty($password),
+            'is_scheduled' => !empty($scheduledAt)
         ]);
+        
+        $responseData = [
+            'meetingId' => $meetingId,
+            'message' => 'Meeting created successfully',
+            'joinUrl' => 'https://' . $_SERVER['HTTP_HOST'] . '/meeting.php?id=' . $meetingId
+        ];
+        
+        $secureAPI->sendSecureResponse($responseData);
     } else {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to create meeting']);
+        $secureAPI->sendError('Failed to create meeting', 500);
     }
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+    $secureAPI->logActivity('meeting_creation_failed', [
+        'error' => $e->getMessage(),
+        'title' => $title
+    ]);
+    $secureAPI->sendError('Server error occurred', 500);
 }
 ?>

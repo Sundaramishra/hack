@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/security.php';
+
 class Database {
     private $host = 'localhost';
     private $db_name = 'milomeet';

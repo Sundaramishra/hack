@@ -67,6 +67,12 @@ $user = getUserById($_SESSION['user_id']);
         </main>
     </div>
 
+    <script src="assets/js/secure-api-client.js"></script>
     <script src="assets/js/main.js"></script>
+    
+    <script>
+        // Set user data for secure API client
+        document.body.dataset.userId = '<?php echo $user['id']; ?>';
+    </script>
 </body>
 </html>

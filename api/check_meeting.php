@@ -1,32 +1,48 @@
 <?php
-require_once '../config/database.php';
+// This is a public endpoint, so we define the constant to prevent auto-init
+define('SECURE_API_MANUAL_INIT', true);
+require_once 'secure_api.php';
 require_once '../includes/functions.php';
 
-header('Content-Type: application/json');
+// Manual init for public endpoint
+$secureAPI = new SecureAPI();
 
-$meetingId = $_GET['id'] ?? '';
+$meetingId = Security::sanitizeInput($_GET['id'] ?? '');
 
 if (!$meetingId) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Meeting ID required']);
-    exit();
+    $secureAPI->sendError('Meeting ID required', 400);
+}
+
+// Validate meeting ID format
+if (!preg_match('/^[A-Z0-9]{10}$/', $meetingId)) {
+    $secureAPI->sendError('Invalid meeting ID format', 400);
 }
 
 try {
     $meeting = getMeetingById($meetingId);
     
-    echo json_encode([
-        'success' => true,
+    $responseData = [
         'exists' => $meeting !== false,
         'meeting' => $meeting ? [
-            'id' => $meeting['meeting_id'],
-            'title' => $meeting['title'],
-            'host_name' => $meeting['host_name'],
-            'has_password' => !empty($meeting['password'])
+            'id' => Security::encryptData($meeting['meeting_id']),
+            'title' => Security::encryptData($meeting['title']),
+            'host_name' => Security::encryptData($meeting['host_name']),
+            'has_password' => !empty($meeting['password']),
+            'participant_count' => count(getMeetingParticipants($meetingId))
         ] : null
+    ];
+    
+    $secureAPI->logActivity('meeting_info_requested', [
+        'meeting_id' => $meetingId,
+        'exists' => $meeting !== false
     ]);
+    
+    $secureAPI->sendSecureResponse($responseData, false); // Don't encrypt public data
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+    $secureAPI->logActivity('meeting_check_error', [
+        'meeting_id' => $meetingId,
+        'error' => $e->getMessage()
+    ]);
+    $secureAPI->sendError('Server error occurred', 500);
 }
 ?>

@@ -17,71 +17,61 @@ function setupEventListeners() {
     }
 }
 
-function createMeeting() {
+async function createMeeting() {
     // Show loading state
     const button = event.target;
     const originalText = button.innerHTML;
     button.innerHTML = '<div class="spinner"></div> Creating...';
     button.disabled = true;
 
-    // Create meeting via AJAX
-    fetch('api/create_meeting.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    try {
+        const response = await window.secureAPI.createMeeting({
             title: 'Quick Meeting',
             type: 'instant'
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+        });
+        
+        if (response.success || response.data) {
+            const meetingId = response.data?.meetingId || response.meetingId;
             // Redirect to meeting
-            window.location.href = `meeting.php?id=${data.meetingId}`;
+            window.location.href = `meeting.php?id=${meetingId}`;
         } else {
-            alert('Failed to create meeting: ' + data.message);
+            showToast('Failed to create meeting', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to create meeting. Please try again.');
-    })
-    .finally(() => {
+    } catch (error) {
+        console.error('Error creating meeting:', error);
+        showToast('Failed to create meeting. Please try again.', 'error');
+    } finally {
         button.innerHTML = originalText;
         button.disabled = false;
-    });
+    }
 }
 
-function joinMeeting() {
+async function joinMeeting() {
     const meetingId = document.getElementById('meetingId').value.trim();
     
     if (!meetingId) {
-        alert('Please enter a meeting ID');
+        showToast('Please enter a meeting ID', 'error');
         return;
     }
 
     // Validate meeting ID format
     if (!/^[A-Z0-9]{10}$/.test(meetingId)) {
-        alert('Please enter a valid meeting ID (10 characters)');
+        showToast('Please enter a valid meeting ID (10 characters)', 'error');
         return;
     }
 
-    // Check if meeting exists
-    fetch(`api/check_meeting.php?id=${meetingId}`)
-    .then(response => response.json())
-    .then(data => {
-        if (data.exists) {
+    try {
+        const response = await window.secureAPI.checkMeeting(meetingId);
+        
+        if (response.data?.exists || response.exists) {
             window.location.href = `meeting.php?id=${meetingId}`;
         } else {
-            alert('Meeting not found or has ended');
+            showToast('Meeting not found or has ended', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to check meeting. Please try again.');
-    });
+    } catch (error) {
+        console.error('Error checking meeting:', error);
+        showToast('Failed to check meeting. Please try again.', 'error');
+    }
 }
 
 function scheduleMeeting() {
