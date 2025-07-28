@@ -143,6 +143,12 @@ $isHost = ($userId && $userId == $meeting['host_id']);
                             <!-- Chat messages will appear here -->
                         </div>
                         <div class="chat-input">
+                            <div class="file-upload">
+                                <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+                                <button class="btn-icon" onclick="document.getElementById('fileInput').click()" title="Share File">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                            </div>
                             <div class="emoji-picker">
                                 <button class="emoji-btn" onclick="toggleEmojiPicker()">😊</button>
                                 <div id="emojiList" class="emoji-list hidden">
@@ -160,6 +166,26 @@ $isHost = ($userId && $userId == $meeting['host_id']);
                             <button id="sendMessage" class="btn btn-primary">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Panel -->
+                <div id="filesPanel" class="panel">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-folder"></i> Files</h3>
+                        <span id="fileCount">0</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="file-upload-area">
+                            <div class="upload-dropzone" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to upload or drag files here</p>
+                                <small>Max file size: 256MB</small>
+                            </div>
+                        </div>
+                        <div id="filesList" class="files-list">
+                            <!-- Shared files will appear here -->
                         </div>
                     </div>
                 </div>
@@ -193,6 +219,10 @@ $isHost = ($userId && $userId == $meeting['host_id']);
                 <button id="participantsToggle" class="control-btn active">
                     <i class="fas fa-users"></i>
                     <span>People</span>
+                </button>
+                <button id="filesToggle" class="control-btn">
+                    <i class="fas fa-folder"></i>
+                    <span>Files</span>
                 </button>
             </div>
 
@@ -317,8 +347,10 @@ $isHost = ($userId && $userId == $meeting['host_id']);
             isGuest: <?php echo $currentUser['is_guest'] ? 'true' : 'false'; ?>
         };
     </script>
+    <script src="assets/js/secure-api-client.js"></script>
     <script src="assets/js/webrtc.js"></script>
     <script src="assets/js/meeting.js"></script>
     <script src="assets/js/chat.js"></script>
+    <script src="assets/js/file-sharing.js"></script>
 </body>
 </html>

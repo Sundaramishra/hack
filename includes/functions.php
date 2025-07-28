@@ -232,7 +232,73 @@ function endMeeting($meetingId, $hostId) {
     
     // Mark all participants as left
     $stmt = $pdo->prepare("UPDATE meeting_participants SET left_at = NOW() WHERE meeting_id = ? AND left_at IS NULL");
-    return $stmt->execute([$meetingId]);
+    $stmt->execute([$meetingId]);
+    
+    // Clean up meeting files
+    cleanupMeetingFiles($meetingId);
+    
+    return true;
+}
+
+// Clean up meeting files when meeting ends
+function cleanupMeetingFiles($meetingId) {
+    global $pdo;
+    
+    try {
+        // Get all files for this meeting
+        $stmt = $pdo->prepare("SELECT file_name FROM meeting_files WHERE meeting_id = ?");
+        $stmt->execute([$meetingId]);
+        $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Delete physical files
+        $uploadDir = __DIR__ . '/../uploads/meetings/' . $meetingId . '/';
+        if (is_dir($uploadDir)) {
+            foreach ($files as $file) {
+                $filePath = $uploadDir . $file['file_name'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            
+            // Remove directory if empty
+            if (count(scandir($uploadDir)) == 2) { // Only . and .. remain
+                rmdir($uploadDir);
+            }
+        }
+        
+        // Delete file records from database
+        $stmt = $pdo->prepare("DELETE FROM meeting_files WHERE meeting_id = ?");
+        $stmt->execute([$meetingId]);
+        
+        return true;
+    } catch (Exception $e) {
+        error_log("File cleanup error for meeting $meetingId: " . $e->getMessage());
+        return false;
+    }
+}
+
+// Broadcast message to all meeting participants (for real-time file sharing notifications)
+function broadcastToMeeting($meetingId, $data) {
+    // This would integrate with WebSocket/SSE for real-time updates
+    // For now, we'll store it as a system message
+    global $pdo;
+    
+    try {
+        if ($data['type'] === 'file_uploaded') {
+            $message = "📎 " . $data['file']['name'] . " was shared by " . getUserById($data['file']['uploaded_by'])['name'];
+            
+            $stmt = $pdo->prepare("INSERT INTO messages (meeting_id, sender_id, sender_name, message, message_type) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([
+                $meetingId,
+                $data['file']['uploaded_by'],
+                'System',
+                $message,
+                'system'
+            ]);
+        }
+    } catch (Exception $e) {
+        error_log("Broadcast error: " . $e->getMessage());
+    }
 }
 
 // Clean old data (call this periodically)

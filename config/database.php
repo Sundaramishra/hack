@@ -87,6 +87,20 @@ CREATE TABLE IF NOT EXISTS meeting_permissions (
     can_enable_video BOOLEAN DEFAULT TRUE,
     INDEX (meeting_id)
 );
+
+CREATE TABLE IF NOT EXISTS meeting_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    meeting_id VARCHAR(20) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    uploaded_by INT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (meeting_id),
+    INDEX (uploaded_by),
+    FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+);
 ";
 
 $pdo->exec($sql);

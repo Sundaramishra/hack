@@ -45,6 +45,8 @@ Milo Meet is a comprehensive video conferencing platform built with PHP that pro
 - **Video On/Off** - Control your own video
 - **Chat Participation** - Send messages and emojis
 - **Screen Sharing** - Share your screen (if permitted)
+- **File Sharing** - Share files up to 256MB with real-time notifications
+- **File Downloads** - Download shared files instantly
 
 ### 📱 Responsive Design
 - **Mobile Friendly** - Fully responsive design for all devices
@@ -75,7 +77,11 @@ cd milo-meet
 
 # Set proper permissions
 chmod 755 -R .
-chmod 777 -R uploads/ (if you add file upload functionality later)
+chmod 755 uploads/
+chmod 755 uploads/meetings/
+
+# Create uploads directory if not exists
+mkdir -p uploads/meetings
 ```
 
 ### Step 2: Database Setup

@@ -293,6 +293,98 @@ class SecureAPIClient {
         });
     }
     
+    // File sharing methods
+    async uploadFile(meetingId, file, progressCallback = null) {
+        // Validate file size (256MB)
+        const maxSize = 268435456; // 256MB
+        if (file.size > maxSize) {
+            throw new Error('File size exceeds 256MB limit');
+        }
+        
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('meeting_id', meetingId);
+        
+        const timestamp = Math.floor(Date.now() / 1000);
+        const signature = this.generateRequestSignature('', timestamp); // Empty data for file upload
+        
+        const headers = {
+            'X-Request-Time': timestamp.toString(),
+            'X-API-Signature': signature
+        };
+        
+        // Add authentication headers if available
+        if (this.apiToken) {
+            headers['X-API-Token'] = this.apiToken;
+        }
+        
+        if (this.csrfToken) {
+            headers['X-CSRF-Token'] = this.csrfToken;
+        }
+        
+        try {
+            const xhr = new XMLHttpRequest();
+            
+            return new Promise((resolve, reject) => {
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable && progressCallback) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressCallback(percentComplete);
+                    }
+                });
+                
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            resolve(response);
+                        } catch (error) {
+                            reject(new Error('Invalid response format'));
+                        }
+                    } else {
+                        reject(new Error(`HTTP ${xhr.status}`));
+                    }
+                });
+                
+                xhr.addEventListener('error', () => {
+                    reject(new Error('Upload failed'));
+                });
+                
+                xhr.open('POST', this.baseURL + 'upload_file.php');
+                
+                // Set headers
+                for (const [key, value] of Object.entries(headers)) {
+                    xhr.setRequestHeader(key, value);
+                }
+                
+                xhr.send(formData);
+            });
+        } catch (error) {
+            console.error('File upload failed:', error);
+            throw error;
+        }
+    }
+    
+    async getMeetingFiles(meetingId) {
+        return this.makeSecureRequest('get_meeting_files.php', {
+            method: 'POST',
+            data: { meeting_id: meetingId }
+        });
+    }
+    
+    async downloadFile(fileId) {
+        // For file downloads, we'll open in a new window/tab
+        const downloadUrl = this.baseURL + `download_file.php?id=${fileId}`;
+        
+        // Add authentication token to URL if available
+        const urlWithAuth = this.apiToken ? 
+            `${downloadUrl}&token=${encodeURIComponent(this.apiToken)}` : 
+            downloadUrl;
+        
+        window.open(urlWithAuth, '_blank');
+    }
+    
     // Security monitoring
     logSecurityEvent(event, details = {}) {
         // Log security events to server
