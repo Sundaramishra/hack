@@ -3,7 +3,7 @@ class Database {
     private $host = 'localhost';
     private $db_name = 'hospital_crm';
     private $username = 'root';
-    private $password = '';
+    private $password = ''; // XAMPP default
     public $conn;
 
     public function getConnection() {
