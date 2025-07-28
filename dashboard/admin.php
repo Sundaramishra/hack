@@ -757,6 +757,9 @@ try {
                                     ${patient.assigned_doctor || 'Not assigned'}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="assignDoctor(${patient.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3">
+                                        Assign
+                                    </button>
                                     <button onclick="editPatient(${patient.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
                                         Edit
                                     </button>
