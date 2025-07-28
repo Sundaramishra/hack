@@ -497,6 +497,8 @@ try {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 
+                console.log('Navigation clicked:', this.getAttribute('href'));
+                
                 // Remove active class from all links
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 
@@ -510,9 +512,13 @@ try {
                 
                 // Show target section
                 const targetId = this.getAttribute('href').substring(1) + '-section';
+                console.log('Target section ID:', targetId);
                 const targetSection = document.getElementById(targetId);
                 if (targetSection) {
                     targetSection.classList.remove('hidden');
+                    console.log('Section shown:', targetId);
+                } else {
+                    console.log('Section not found:', targetId);
                 }
             });
         });
