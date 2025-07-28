@@ -44,7 +44,7 @@ $isHost = ($userId && $userId == $meeting['host_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoMeet - <?php echo htmlspecialchars($meeting['title']); ?></title>
+    <title>Milo Meet - <?php echo htmlspecialchars($meeting['title']); ?></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/meeting.css" rel="stylesheet">

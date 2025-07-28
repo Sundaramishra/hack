@@ -16,7 +16,7 @@ $user = getUserById($_SESSION['user_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoMeet - Home</title>
+    <title>Milo Meet - Home</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
@@ -25,7 +25,7 @@ $user = getUserById($_SESSION['user_id']);
         <header class="header">
             <div class="logo">
                 <i class="fas fa-video"></i>
-                <h1>VideoMeet</h1>
+                <h1>Milo Meet</h1>
             </div>
             <div class="user-info">
                 <span>Welcome, <?php echo htmlspecialchars($user['name']); ?></span>

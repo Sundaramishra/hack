@@ -62,7 +62,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoMeet - Login</title>
+    <title>Milo Meet - Login</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
@@ -70,7 +70,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="login-container">
         <div class="login-header">
             <i class="fas fa-video"></i>
-            <h1>VideoMeet</h1>
+            <h1>Milo Meet</h1>
             <p>Connect with anyone, anywhere</p>
         </div>
 

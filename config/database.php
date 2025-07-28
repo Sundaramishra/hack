@@ -1,7 +1,7 @@
 <?php
 class Database {
     private $host = 'localhost';
-    private $db_name = 'videomeet';
+    private $db_name = 'milomeet';
     private $username = 'root';
     private $password = '';
     private $conn;
