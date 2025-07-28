@@ -1,6 +1,12 @@
 <?php
 session_start();
-require_once '../config/database.php';
+
+// Check if we're being called from root directory or subdirectory
+if (file_exists('config/database.php')) {
+    require_once 'config/database.php';
+} else {
+    require_once '../config/database.php';
+}
 
 class Auth {
     private $conn;
