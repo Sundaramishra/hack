@@ -4,10 +4,12 @@
  * Requires authentication and role-based access
  */
 
-// Enable error reporting for debugging (comment out for production)
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-// ini_set('log_errors', 1);
+// Disable error output to prevent JSON corruption
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// Start output buffering to catch any unwanted output
+ob_start();
 
 require_once __DIR__ . '/ApiBase.php';
 
@@ -411,7 +413,20 @@ class AppointmentsApi extends ApiBase {
     }
 }
 
+// Clean any unwanted output
+ob_clean();
+
 // Initialize and handle the request
-$api = new AppointmentsApi();
-$api->handleRequest();
+try {
+    $api = new AppointmentsApi();
+    $api->handleRequest();
+} catch (Exception $e) {
+    // Clean output buffer and send error
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => false,
+        'message' => 'API Error: ' . $e->getMessage()
+    ]);
+}
 ?>

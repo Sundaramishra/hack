@@ -1299,15 +1299,21 @@ $stats = [
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(appointmentData)
                 });
                 
                 console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 
                 const responseText = await response.text();
-                console.log('Raw response:', responseText);
+                console.log('Raw response length:', responseText.length);
+                console.log('Raw response (first 200 chars):', responseText.substring(0, 200));
                 
                 if (!responseText.trim()) {
                     throw new Error('Empty response from server');
@@ -1316,10 +1322,18 @@ $stats = [
                 let result;
                 try {
                     result = JSON.parse(responseText);
+                    console.log('Parsed JSON:', result);
                 } catch (jsonError) {
                     console.error('JSON parse error:', jsonError);
-                    console.error('Response was:', responseText.substring(0, 500));
-                    throw new Error('Invalid JSON response from server. Response: ' + responseText.substring(0, 100));
+                    console.error('Full response was:', responseText);
+                    
+                    // Try to extract any error messages from the response
+                    const errorMatch = responseText.match(/error|Error|ERROR/gi);
+                    if (errorMatch) {
+                        throw new Error('Server error detected in response. Check server logs.');
+                    } else {
+                        throw new Error('Invalid JSON response from server');
+                    }
                 }
                 
                 console.log('Appointment result:', result);

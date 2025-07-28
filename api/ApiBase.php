@@ -14,6 +14,11 @@ class ApiBase {
     protected $allowed_roles = [];
     
     public function __construct($required_roles = []) {
+        // Clean any previous output
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
         // Set JSON header
         header('Content-Type: application/json');
         
@@ -153,6 +158,11 @@ class ApiBase {
      * Send success response
      */
     protected function sendSuccess($data = null, $message = 'Success') {
+        // Clean output buffer before sending JSON
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
         echo json_encode([
             'success' => true,
             'message' => $message,
@@ -165,6 +175,11 @@ class ApiBase {
      * Send error response
      */
     protected function sendError($message, $code = 400) {
+        // Clean output buffer before sending JSON
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
         http_response_code($code);
         echo json_encode([
             'success' => false,
