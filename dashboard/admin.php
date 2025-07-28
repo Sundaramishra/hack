@@ -1196,5 +1196,14 @@ try {
             </div>
         </div>
     </div>
+
+    <script>
+        function getApiPath(apiFile) {
+            let path = window.location.pathname;
+            let base = path.split('/dashboard')[0];
+            if (!base.endsWith('/')) base += '/';
+            return base + 'api/' + apiFile;
+        }
+    </script>
 </body>
 </html>

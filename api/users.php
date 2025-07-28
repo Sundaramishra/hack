@@ -1,126 +1,281 @@
 <?php
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors in JSON response
-ini_set('log_errors', 1);
+/**
+ * Secure Users API for Hospital CRM
+ * Requires authentication and admin role only
+ */
 
-header('Content-Type: application/json');
-session_start();
+require_once __DIR__ . '/ApiBase.php';
 
-require_once '../config/database.php';
-require_once '../classes/Auth.php';
-require_once '../classes/User.php';
-
-$auth = new Auth();
-$user_manager = new User();
-
-// Check authentication and admin role
-if (!$auth->isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Not logged in']);
-    exit();
-}
-
-if (!$auth->hasRole('admin')) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Admin access required']);
-    exit();
-}
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-try {
-    switch ($method) {
-        case 'POST':
-            // Create new user
-            $data = [
-                'username' => $_POST['username'] ?? '',
-                'email' => $_POST['email'] ?? '',
-                'password' => $_POST['password'] ?? '',
-                'role' => $_POST['role'] ?? '',
-                'first_name' => $_POST['first_name'] ?? '',
-                'last_name' => $_POST['last_name'] ?? '',
-                'phone' => $_POST['phone'] ?? '',
-                'address' => $_POST['address'] ?? '',
-                'date_of_birth' => $_POST['date_of_birth'] ?? null,
-                'gender' => $_POST['gender'] ?? '',
-                // Role-specific fields
-                'specialization' => $_POST['specialization'] ?? '',
-                'qualification' => $_POST['qualification'] ?? '',
-                'experience_years' => $_POST['experience_years'] ?? 0,
-                'consultation_fee' => $_POST['consultation_fee'] ?? 0.00,
-                'department' => $_POST['department'] ?? '',
-                'blood_group' => $_POST['blood_group'] ?? '',
-                'emergency_contact_name' => $_POST['emergency_contact_name'] ?? '',
-                'emergency_contact_phone' => $_POST['emergency_contact_phone'] ?? '',
-                'medical_history' => $_POST['medical_history'] ?? '',
-                'allergies' => $_POST['allergies'] ?? '',
-                'insurance_number' => $_POST['insurance_number'] ?? ''
-            ];
-            
-            // Debug: Log the data being processed
-            error_log("User API - Processing user creation with data: " . json_encode($data));
-            
-            $result = $user_manager->createUser($data);
-            
-            // Debug: Log the result
-            error_log("User API - Result: " . json_encode($result));
-            
-            echo json_encode($result);
-            break;
-            
-        case 'PUT':
-            // Update user
-            $input = json_decode(file_get_contents('php://input'), true);
-            $user_id = $input['id'] ?? 0;
-            
-            if (!$user_id) {
-                echo json_encode(['success' => false, 'message' => 'User ID required']);
-                break;
-            }
-            
-            $result = $user_manager->updateUser($user_id, $input);
-            echo json_encode($result);
-            break;
-            
-        case 'DELETE':
-            // Delete user
-            $input = json_decode(file_get_contents('php://input'), true);
-            $user_id = $input['id'] ?? 0;
-            
-            if (!$user_id) {
-                echo json_encode(['success' => false, 'message' => 'User ID required']);
-                break;
-            }
-            
-            $result = $user_manager->deleteUser($user_id);
-            echo json_encode($result);
-            break;
-            
-        case 'GET':
-            // Get users
-            $role = $_GET['role'] ?? null;
-            $user_id = $_GET['id'] ?? null;
-            
-            if ($user_id) {
-                $user = $user_manager->getUserById($user_id);
-                echo json_encode(['success' => true, 'user' => $user]);
-            } else {
-                $users = $user_manager->getAllUsers($role);
-                echo json_encode(['success' => true, 'users' => $users]);
-            }
-            break;
-            
-        default:
-            http_response_code(405);
-            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-            break;
+class UsersApi extends ApiBase {
+    
+    public function __construct() {
+        // Only admin can access users API
+        parent::__construct(['admin']);
     }
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
-} catch (Error $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Fatal error: ' . $e->getMessage()]);
+    
+    public function handleRequest() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $action = $_GET['action'] ?? '';
+        
+        $this->logAccess("users_api_$method" . ($action ? "_$action" : ""));
+        
+        try {
+            switch ($method) {
+                case 'GET':
+                    $this->handleGet($action);
+                    break;
+                case 'POST':
+                    $this->handlePost($action);
+                    break;
+                case 'PUT':
+                    $this->handlePut($action);
+                    break;
+                case 'DELETE':
+                    $this->handleDelete($action);
+                    break;
+                default:
+                    $this->sendError('Method not allowed', 405);
+            }
+        } catch (Exception $e) {
+            $this->sendError('Server error: ' . $e->getMessage(), 500);
+        }
+    }
+    
+    private function handleGet($action) {
+        switch ($action) {
+            case 'list':
+                $this->getUsersList();
+                break;
+            case 'get':
+                $this->getUser();
+                break;
+            case 'stats':
+                $this->getUserStats();
+                break;
+            default:
+                $this->getUsersList(); // Default to list
+        }
+    }
+    
+    private function getUsersList() {
+        $role = $_GET['role'] ?? null;
+        
+        $query = "SELECT id, username, email, role, first_name, last_name, phone, address, 
+                 date_of_birth, gender, is_active, created_at, updated_at
+                 FROM users";
+        
+        $params = [];
+        
+        if ($role) {
+            $query .= " WHERE role = :role";
+            $params[':role'] = $role;
+        }
+        
+        $query .= " ORDER BY role, first_name, last_name";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Remove password field for security
+        foreach ($users as &$user) {
+            unset($user['password']);
+        }
+        
+        $this->sendSuccess($users, 'Users retrieved successfully');
+    }
+    
+    private function getUser() {
+        $user_id = $_GET['id'] ?? null;
+        if (!$user_id) {
+            $this->sendError('User ID required');
+        }
+        
+        $query = "SELECT id, username, email, role, first_name, last_name, phone, address, 
+                 date_of_birth, gender, is_active, created_at, updated_at
+                 FROM users WHERE id = :user_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
+            $this->sendError('User not found', 404);
+        }
+        
+        $this->sendSuccess($user, 'User retrieved successfully');
+    }
+    
+    private function getUserStats() {
+        $query = "SELECT 
+                 role,
+                 COUNT(*) as count,
+                 SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_count
+                 FROM users 
+                 GROUP BY role";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $this->sendSuccess($stats, 'User statistics retrieved successfully');
+    }
+    
+    private function handlePost($action) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $this->validateRequired($data, ['username', 'email', 'password', 'role', 'first_name', 'last_name']);
+        
+        try {
+            $this->conn->beginTransaction();
+            
+            // Check if username or email already exists
+            $check_query = "SELECT COUNT(*) FROM users WHERE username = :username OR email = :email";
+            $check_stmt = $this->conn->prepare($check_query);
+            $check_stmt->bindParam(':username', $data['username']);
+            $check_stmt->bindParam(':email', $data['email']);
+            $check_stmt->execute();
+            
+            if ($check_stmt->fetchColumn() > 0) {
+                $this->sendError('Username or email already exists');
+            }
+            
+            // Create user
+            $query = "INSERT INTO users (username, email, password, role, first_name, last_name, phone, address, date_of_birth, gender, is_active) 
+                     VALUES (:username, :email, :password, :role, :first_name, :last_name, :phone, :address, :date_of_birth, :gender, :is_active)";
+            $stmt = $this->conn->prepare($query);
+            
+            $hashed_password = $this->auth->hashPassword($data['password']);
+            $stmt->bindParam(':username', $data['username']);
+            $stmt->bindParam(':email', $data['email']);
+            $stmt->bindParam(':password', $hashed_password);
+            $stmt->bindParam(':role', $data['role']);
+            $stmt->bindParam(':first_name', $data['first_name']);
+            $stmt->bindParam(':last_name', $data['last_name']);
+            $stmt->bindParam(':phone', $data['phone'] ?? null);
+            $stmt->bindParam(':address', $data['address'] ?? null);
+            $stmt->bindParam(':date_of_birth', $data['date_of_birth'] ?? null);
+            $stmt->bindParam(':gender', $data['gender'] ?? null);
+            $stmt->bindParam(':is_active', $data['is_active'] ?? 1);
+            $stmt->execute();
+            
+            $user_id = $this->conn->lastInsertId();
+            
+            // Create role-specific records
+            if ($data['role'] === 'doctor') {
+                $this->createDoctorRecord($user_id, $data);
+            } elseif ($data['role'] === 'patient') {
+                $this->createPatientRecord($user_id, $data);
+            }
+            
+            $this->conn->commit();
+            $this->sendSuccess(['user_id' => $user_id], 'User created successfully');
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            $this->sendError('Failed to create user: ' . $e->getMessage());
+        }
+    }
+    
+    private function createDoctorRecord($user_id, $data) {
+        $query = "INSERT INTO doctors (user_id, specialization, license_number, qualification, experience_years, consultation_fee, department)
+                 VALUES (:user_id, :specialization, :license_number, :qualification, :experience_years, :consultation_fee, :department)";
+        $stmt = $this->conn->prepare($query);
+        
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':specialization', $data['specialization'] ?? 'General');
+        $stmt->bindParam(':license_number', $data['license_number'] ?? 'LIC' . rand(1000, 9999));
+        $stmt->bindParam(':qualification', $data['qualification'] ?? null);
+        $stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
+        $stmt->bindParam(':consultation_fee', $data['consultation_fee'] ?? 0.00);
+        $stmt->bindParam(':department', $data['department'] ?? null);
+        $stmt->execute();
+    }
+    
+    private function createPatientRecord($user_id, $data) {
+        $query = "INSERT INTO patients (user_id, date_of_birth, gender, blood_group, emergency_contact_name, emergency_contact_phone)
+                 VALUES (:user_id, :date_of_birth, :gender, :blood_group, :emergency_contact_name, :emergency_contact_phone)";
+        $stmt = $this->conn->prepare($query);
+        
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':date_of_birth', $data['date_of_birth'] ?? null);
+        $stmt->bindParam(':gender', $data['gender'] ?? null);
+        $stmt->bindParam(':blood_group', $data['blood_group'] ?? null);
+        $stmt->bindParam(':emergency_contact_name', $data['emergency_contact_name'] ?? null);
+        $stmt->bindParam(':emergency_contact_phone', $data['emergency_contact_phone'] ?? null);
+        $stmt->execute();
+    }
+    
+    private function handlePut($action) {
+        $user_id = $_GET['id'] ?? null;
+        if (!$user_id) {
+            $this->sendError('User ID required');
+        }
+        
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        try {
+            $update_fields = [];
+            $params = [':user_id' => $user_id];
+            
+            $allowed_fields = ['username', 'email', 'first_name', 'last_name', 'phone', 'address', 'date_of_birth', 'gender', 'is_active'];
+            
+            foreach ($allowed_fields as $field) {
+                if (isset($data[$field])) {
+                    $update_fields[] = "$field = :$field";
+                    $params[":$field"] = $data[$field];
+                }
+            }
+            
+            // Handle password update separately
+            if (isset($data['password']) && !empty($data['password'])) {
+                $update_fields[] = "password = :password";
+                $params[':password'] = $this->auth->hashPassword($data['password']);
+            }
+            
+            if (empty($update_fields)) {
+                $this->sendError('No valid fields to update');
+            }
+            
+            $query = "UPDATE users SET " . implode(', ', $update_fields) . " WHERE id = :user_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute($params);
+            
+            $this->sendSuccess(null, 'User updated successfully');
+            
+        } catch (Exception $e) {
+            $this->sendError('Failed to update user: ' . $e->getMessage());
+        }
+    }
+    
+    private function handleDelete($action) {
+        $user_id = $_GET['id'] ?? null;
+        if (!$user_id) {
+            $this->sendError('User ID required');
+        }
+        
+        // Prevent admin from deleting themselves
+        if ($user_id == $this->getCurrentUserId()) {
+            $this->sendError('Cannot delete your own account');
+        }
+        
+        try {
+            $query = "DELETE FROM users WHERE id = :user_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                $this->sendSuccess(null, 'User deleted successfully');
+            } else {
+                $this->sendError('User not found', 404);
+            }
+            
+        } catch (Exception $e) {
+            $this->sendError('Failed to delete user: ' . $e->getMessage());
+        }
+    }
 }
+
+// Initialize and handle the request
+$api = new UsersApi();
+$api->handleRequest();
 ?>
