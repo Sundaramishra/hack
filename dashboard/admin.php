@@ -662,7 +662,7 @@ try {
             const formData = new FormData(e.target);
             
             try {
-                const response = await fetch('/api/users.php', {
+                const response = await fetch('../api/users.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -714,7 +714,7 @@ try {
 
         async function loadDoctors() {
             try {
-                const response = await fetch('/api/doctors.php?action=list');
+                const response = await fetch('../api/doctors.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -764,7 +764,7 @@ try {
 
         async function loadPatients() {
             try {
-                const response = await fetch('/api/patients.php?action=list');
+                const response = await fetch('../api/patients.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -817,7 +817,7 @@ try {
 
         async function loadAppointments() {
             try {
-                const response = await fetch('/api/appointments.php?action=list');
+                const response = await fetch('../api/appointments.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -872,7 +872,7 @@ try {
 
         async function loadVitalTypes() {
             try {
-                const response = await fetch('/api/vital_types.php?action=list');
+                const response = await fetch('../api/vital_types.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -938,7 +938,7 @@ try {
         async function loadDoctorsForAppointment() {
             try {
                 console.log('Loading doctors for appointment...');
-                const response = await fetch('/api/doctors.php?action=list');
+                const response = await fetch('../api/doctors.php?action=list');
                 console.log('Doctors API response status:', response.status);
                 
                 if (!response.ok) {
@@ -1004,7 +1004,7 @@ try {
         async function loadPatientsForAppointment() {
             try {
                 console.log('Loading patients for appointment...');
-                const response = await fetch('/api/patients.php?action=list');
+                const response = await fetch('../api/patients.php?action=list');
                 console.log('Patients API response status:', response.status);
                 
                 if (!response.ok) {
@@ -1072,7 +1072,7 @@ try {
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('/api/appointments.php?action=add', {
+                const response = await fetch('../api/appointments.php?action=add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

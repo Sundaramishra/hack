@@ -930,7 +930,7 @@ $stats = [
 
         async function loadAppointments() {
             try {
-                const response = await fetch('/api/appointments.php?action=list');
+                const response = await fetch('../api/appointments.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -979,7 +979,7 @@ $stats = [
 
         async function loadPrescriptions() {
             try {
-                const response = await fetch('/api/prescriptions.php?action=list');
+                const response = await fetch('../api/prescriptions.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1031,7 +1031,7 @@ $stats = [
 
         async function loadMedicalHistory() {
             try {
-                const response = await fetch('/api/medical_history.php?action=list');
+                const response = await fetch('../api/medical_history.php?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1208,7 +1208,7 @@ $stats = [
         async function loadDoctorsForBooking() {
             console.log('Loading doctors for booking...');
             try {
-                const response = await fetch('/api/doctors.php?action=list');
+                const response = await fetch('../api/doctors.php?action=list');
                 console.log('Doctors API response status:', response.status);
                 
                 if (!response.ok) {
@@ -1248,7 +1248,7 @@ $stats = [
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('/api/appointments.php?action=add', {
+                const response = await fetch('../api/appointments.php?action=add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
