@@ -47,7 +47,7 @@ try {
                     $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active
                              FROM patients p 
                              JOIN users u ON p.user_id = u.id 
-                             JOIN doctor_patient_assignments dpa ON p.id = dpa.patient_id
+                             JOIN doctor_patient_assignments dpa ON p.patient_id = dpa.patient_id
                              WHERE dpa.doctor_id = :doctor_id AND dpa.is_active = 1
                              ORDER BY u.first_name, u.last_name";
                     $stmt = $conn->prepare($query);
@@ -84,9 +84,9 @@ try {
                          FROM patients p 
                          JOIN users u ON p.user_id = u.id 
                          LEFT JOIN doctors d ON p.assigned_doctor_id = d.id
-                         WHERE p.id = :id";
+                         WHERE p.patient_id = :patient_id";
                 $stmt = $conn->prepare($query);
-                $stmt->bindParam(':id', $patient_id);
+                $stmt->bindParam(':patient_id', $patient_id);
                 $stmt->execute();
                 $patient = $stmt->fetch(PDO::FETCH_ASSOC);
                 
@@ -188,7 +188,7 @@ try {
                 
                 try {
                     // Update user
-                    $user_query = "UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone WHERE id = (SELECT user_id FROM patients WHERE id = :patient_id)";
+                    $user_query = "UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone WHERE id = (SELECT user_id FROM patients WHERE patient_id = :patient_id)";
                     $user_stmt = $conn->prepare($user_query);
                     $user_stmt->bindParam(':first_name', $data['first_name']);
                     $user_stmt->bindParam(':last_name', $data['last_name']);
@@ -198,14 +198,14 @@ try {
                     $user_stmt->execute();
                     
                     // Update patient
-                    $patient_query = "UPDATE patients SET date_of_birth = :date_of_birth, gender = :gender, blood_group = :blood_group, emergency_contact_name = :emergency_contact_name, emergency_contact_phone = :emergency_contact_phone, assigned_doctor_id = :assigned_doctor_id WHERE id = :id";
+                    $patient_query = "UPDATE patients SET date_of_birth = :date_of_birth, gender = :gender, blood_group = :blood_group, emergency_contact_name = :emergency_contact_name, emergency_contact_phone = :emergency_contact_phone, assigned_doctor_id = :assigned_doctor_id WHERE patient_id = :patient_id";
                     $patient_stmt = $conn->prepare($patient_query);
                     $gender = $data['gender'] ?? '';
                     $blood_group = $data['blood_group'] ?? '';
                     $emergency_contact_name = $data['emergency_contact_name'] ?? '';
                     $emergency_contact_phone = $data['emergency_contact_phone'] ?? '';
                     $assigned_doctor_id = $data['assigned_doctor_id'] ?? null;
-                    $patient_stmt->bindParam(':id', $patient_id);
+                    $patient_stmt->bindParam(':patient_id', $patient_id);
                     $patient_stmt->bindParam(':date_of_birth', $data['date_of_birth']);
                     $patient_stmt->bindParam(':gender', $gender);
                     $patient_stmt->bindParam(':blood_group', $blood_group);
@@ -241,9 +241,9 @@ try {
                 
                 try {
                     // Get user_id first
-                    $get_user_query = "SELECT user_id FROM patients WHERE id = :id";
+                    $get_user_query = "SELECT user_id FROM patients WHERE patient_id = :patient_id";
                     $get_user_stmt = $conn->prepare($get_user_query);
-                    $get_user_stmt->bindParam(':id', $patient_id);
+                    $get_user_stmt->bindParam(':patient_id', $patient_id);
                     $get_user_stmt->execute();
                     $patient = $get_user_stmt->fetch(PDO::FETCH_ASSOC);
                     
@@ -254,9 +254,9 @@ try {
                     $user_id = $patient['user_id'];
                     
                     // Delete patient record
-                    $delete_patient_query = "DELETE FROM patients WHERE id = :id";
+                    $delete_patient_query = "DELETE FROM patients WHERE patient_id = :patient_id";
                     $delete_patient_stmt = $conn->prepare($delete_patient_query);
-                    $delete_patient_stmt->bindParam(':id', $patient_id);
+                    $delete_patient_stmt->bindParam(':patient_id', $patient_id);
                     $delete_patient_stmt->execute();
                     
                     // Delete user

@@ -777,7 +777,7 @@ try {
                             row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
                             row.innerHTML = `
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    ${patient.id}
+                                    ${patient.patient_id}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     ${patient.first_name} ${patient.last_name}
@@ -795,13 +795,13 @@ try {
                                     ${patient.assigned_doctor || 'Not assigned'}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="assignDoctor(${patient.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3">
+                                    <button onclick="assignDoctor(${patient.patient_id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-3">
                                         Assign
                                     </button>
-                                    <button onclick="editPatient(${patient.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                    <button onclick="editPatient(${patient.patient_id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
                                         Edit
                                     </button>
-                                    <button onclick="deletePatient(${patient.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                    <button onclick="deletePatient(${patient.patient_id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
                                         Delete
                                     </button>
                                 </td>
@@ -1024,7 +1024,7 @@ try {
                         
                         result.data.forEach(patient => {
                             const option = document.createElement('option');
-                            option.value = patient.id;
+                            option.value = patient.patient_id;
                             option.textContent = `${patient.first_name} ${patient.last_name}`;
                             option.dataset.searchText = `${patient.first_name} ${patient.last_name}`.toLowerCase();
                             select.appendChild(option);

@@ -226,7 +226,7 @@ class User {
         $query = "UPDATE doctors 
                  SET specialization = :specialization, qualification = :qualification, 
                      experience_years = :experience_years, consultation_fee = :consultation_fee, department = :department
-                 WHERE id = :id";
+                 WHERE doctor_id = :doctor_id";
         
         $stmt = $this->conn->prepare($query);
         
@@ -237,7 +237,7 @@ class User {
         $consultation_fee = $data['consultation_fee'] ?? 0.00;
         $department = $data['department'] ?? '';
         
-        $stmt->bindParam(':id', $doctor_id);
+        $stmt->bindParam(':doctor_id', $doctor_id);
         $stmt->bindParam(':specialization', $specialization);
         $stmt->bindParam(':qualification', $qualification);
         $stmt->bindParam(':experience_years', $experience_years);
@@ -253,7 +253,7 @@ class User {
                  SET blood_group = :blood_group, emergency_contact_name = :emergency_contact_name, 
                      emergency_contact_phone = :emergency_contact_phone, medical_history = :medical_history, 
                      allergies = :allergies, insurance_number = :insurance_number
-                 WHERE id = :id";
+                 WHERE patient_id = :patient_id";
         
         $stmt = $this->conn->prepare($query);
         
@@ -265,7 +265,7 @@ class User {
         $allergies = $data['allergies'] ?? '';
         $insurance_number = $data['insurance_number'] ?? '';
         
-        $stmt->bindParam(':id', $patient_id);
+        $stmt->bindParam(':patient_id', $patient_id);
         $stmt->bindParam(':blood_group', $blood_group);
         $stmt->bindParam(':emergency_contact_name', $emergency_contact_name);
         $stmt->bindParam(':emergency_contact_phone', $emergency_contact_phone);

@@ -477,7 +477,7 @@ try {
                             row.className = 'border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
                             row.innerHTML = `
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    ${patient.id}
+                                    ${patient.patient_id}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     ${patient.first_name} ${patient.last_name}
@@ -495,10 +495,10 @@ try {
                                     ${patient.assigned_doctor || 'Not assigned'}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="viewPatient(${patient.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                    <button onclick="viewPatient(${patient.patient_id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
                                         View
                                     </button>
-                                    <button onclick="recordVitals(${patient.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                    <button onclick="recordVitals(${patient.patient_id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
                                         Vitals
                                     </button>
                                 </td>
@@ -666,7 +666,7 @@ try {
                         
                         result.data.forEach(patient => {
                             const option = document.createElement('option');
-                            option.value = patient.id;
+                            option.value = patient.patient_id;
                             option.textContent = `${patient.first_name} ${patient.last_name}`;
                             select.appendChild(option);
                         });

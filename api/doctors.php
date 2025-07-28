@@ -60,9 +60,9 @@ try {
                 $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active 
                          FROM doctors d 
                          JOIN users u ON d.user_id = u.id 
-                         WHERE d.id = :id";
+                         WHERE d.doctor_id = :doctor_id";
                 $stmt = $conn->prepare($query);
-                $stmt->bindParam(':id', $doctor_id);
+                $stmt->bindParam(':doctor_id', $doctor_id);
                 $stmt->execute();
                 $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
                 
@@ -158,7 +158,7 @@ try {
                 
                 try {
                     // Update user
-                    $user_query = "UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone WHERE id = (SELECT user_id FROM doctors WHERE id = :doctor_id)";
+                    $user_query = "UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone WHERE id = (SELECT user_id FROM doctors WHERE doctor_id = :doctor_id)";
                     $user_stmt = $conn->prepare($user_query);
                     $user_stmt->bindParam(':first_name', $data['first_name']);
                     $user_stmt->bindParam(':last_name', $data['last_name']);
@@ -168,11 +168,11 @@ try {
                     $user_stmt->execute();
                     
                     // Update doctor
-                    $doctor_query = "UPDATE doctors SET specialization = :specialization, license_number = :license_number, experience_years = :experience_years WHERE id = :id";
+                    $doctor_query = "UPDATE doctors SET specialization = :specialization, license_number = :license_number, experience_years = :experience_years WHERE doctor_id = :doctor_id";
                     $doctor_stmt = $conn->prepare($doctor_query);
                     $license_number = $data['license_number'] ?? '';
                     $experience_years = $data['experience_years'] ?? 0;
-                    $doctor_stmt->bindParam(':id', $doctor_id);
+                    $doctor_stmt->bindParam(':doctor_id', $doctor_id);
                     $doctor_stmt->bindParam(':specialization', $data['specialization']);
                     $doctor_stmt->bindParam(':license_number', $license_number);
                     $doctor_stmt->bindParam(':experience_years', $experience_years);
@@ -205,9 +205,9 @@ try {
                 
                 try {
                     // Get user_id first
-                    $get_user_query = "SELECT user_id FROM doctors WHERE id = :id";
+                    $get_user_query = "SELECT user_id FROM doctors WHERE doctor_id = :doctor_id";
                     $get_user_stmt = $conn->prepare($get_user_query);
-                    $get_user_stmt->bindParam(':id', $doctor_id);
+                    $get_user_stmt->bindParam(':doctor_id', $doctor_id);
                     $get_user_stmt->execute();
                     $doctor = $get_user_stmt->fetch(PDO::FETCH_ASSOC);
                     
@@ -218,9 +218,9 @@ try {
                     $user_id = $doctor['user_id'];
                     
                     // Delete doctor record
-                    $delete_doctor_query = "DELETE FROM doctors WHERE id = :id";
+                    $delete_doctor_query = "DELETE FROM doctors WHERE doctor_id = :doctor_id";
                     $delete_doctor_stmt = $conn->prepare($delete_doctor_query);
-                    $delete_doctor_stmt->bindParam(':id', $doctor_id);
+                    $delete_doctor_stmt->bindParam(':doctor_id', $doctor_id);
                     $delete_doctor_stmt->execute();
                     
                     // Delete user
