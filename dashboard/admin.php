@@ -82,6 +82,9 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Debug Information -->
+    <?php include '../debug_info.php'; ?>
+    
     <!-- Debug Info (remove in production) -->
     <div class="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
         ✅ Admin Dashboard Loaded | User: <?php echo htmlspecialchars($current_user['first_name'] ?? 'Unknown'); ?>

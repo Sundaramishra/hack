@@ -95,8 +95,11 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!-- Sidebar -->
+    <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <!-- Debug Information -->
+        <?php include '../debug_info.php'; ?>
+        
+        <!-- Sidebar -->
     <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
         <div class="flex items-center justify-center h-16 bg-primary-500">
             <i class="fas fa-user-md text-white text-2xl mr-3"></i>
