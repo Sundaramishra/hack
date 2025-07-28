@@ -1124,8 +1124,20 @@ $stats = [
 
         // Appointment booking functions
         function openBookAppointmentModal() {
-            document.getElementById('bookAppointmentModal').classList.remove('hidden');
-            loadDoctorsForBooking();
+            console.log('Open book appointment modal function called');
+            try {
+                const modal = document.getElementById('bookAppointmentModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    loadDoctorsForBooking();
+                } else {
+                    console.error('Book appointment modal not found');
+                    alert('Error: Book appointment modal not found');
+                }
+            } catch (error) {
+                console.error('Error in openBookAppointmentModal:', error);
+                alert('Error opening book appointment modal: ' + error.message);
+            }
         }
 
         function closeBookAppointmentModal() {
@@ -1133,9 +1145,17 @@ $stats = [
         }
 
         async function loadDoctorsForBooking() {
+            console.log('Loading doctors for booking...');
             try {
                 const response = await fetch('../api/doctors.php?action=list');
+                console.log('Doctors API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const result = await response.json();
+                console.log('Doctors API result:', result);
                 
                 if (result.success) {
                     const select = document.querySelector('#bookAppointmentForm select[name="doctor_id"]');
@@ -1148,10 +1168,17 @@ $stats = [
                             option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.specialization})`;
                             select.appendChild(option);
                         });
+                        console.log('Doctors loaded successfully');
+                    } else {
+                        console.error('Doctor select element not found');
                     }
+                } else {
+                    console.error('Doctors API error:', result.message);
+                    alert('Error loading doctors: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error loading doctors:', error);
+                alert('Error loading doctors: ' + error.message);
             }
         }
 

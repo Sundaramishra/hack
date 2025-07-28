@@ -544,7 +544,9 @@ try {
         }
 
         function recordVitals(patientId) {
+            console.log('Record vitals called for patient ID:', patientId);
             alert('Record vitals for patient ID: ' + patientId);
+            // TODO: Implement vitals recording modal
         }
 
         function viewAppointmentDetails(appointmentId) {
@@ -560,10 +562,22 @@ try {
         }
 
         function scheduleAppointment() {
-            // Show the appointment modal
-            document.getElementById('appointmentModal').classList.remove('hidden');
-            // Load patients for the dropdown
-            loadPatientsForAppointment();
+            console.log('Schedule appointment function called');
+            try {
+                // Show the appointment modal
+                const modal = document.getElementById('appointmentModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    // Load patients for the dropdown
+                    loadPatientsForAppointment();
+                } else {
+                    console.error('Appointment modal not found');
+                    alert('Error: Appointment modal not found');
+                }
+            } catch (error) {
+                console.error('Error in scheduleAppointment:', error);
+                alert('Error opening appointment modal: ' + error.message);
+            }
         }
 
         function closeAppointmentModal() {
@@ -571,9 +585,17 @@ try {
         }
 
         async function loadPatientsForAppointment() {
+            console.log('Loading patients for appointment...');
             try {
                 const response = await fetch('../api/patients.php?action=list');
+                console.log('Patients API response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const result = await response.json();
+                console.log('Patients API result:', result);
                 
                 if (result.success) {
                     const select = document.querySelector('#appointmentForm select[name="patient_id"]');
@@ -584,13 +606,20 @@ try {
                         result.data.forEach(patient => {
                             const option = document.createElement('option');
                             option.value = patient.id;
-                            option.textContent = `${patient.first_name} ${patient.last_name} (${patient.patient_code})`;
+                            option.textContent = `${patient.first_name} ${patient.last_name}`;
                             select.appendChild(option);
                         });
+                        console.log('Patients loaded successfully');
+                    } else {
+                        console.error('Patient select element not found');
                     }
+                } else {
+                    console.error('Patients API error:', result.message);
+                    alert('Error loading patients: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error loading patients:', error);
+                alert('Error loading patients: ' + error.message);
             }
         }
 
