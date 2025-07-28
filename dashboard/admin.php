@@ -20,6 +20,7 @@ $user = $auth->getCurrentUser();
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/notifications.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -64,6 +65,9 @@ $user = $auth->getCurrentUser();
             </a>
             <a href="#" onclick="showSection('appointments')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-calendar-alt mr-3"></i>Appointments
+            </a>
+            <a href="#" onclick="showSection('book-appointment')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-calendar-plus mr-3"></i>Book Appointment
             </a>
             <a href="#" onclick="showSection('vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-heartbeat mr-3"></i>Vitals
@@ -235,10 +239,124 @@ $user = $auth->getCurrentUser();
                 <!-- Patients content here -->
             </div>
             
-            <div id="appointmentsSection" class="section hidden">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Appointments Management</h2>
-                <!-- Appointments content here -->
+                    <div id="appointmentsSection" class="section hidden">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Appointments Management</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Doctor</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Appointments will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+
+        <div id="book-appointmentSection" class="section hidden">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Book New Appointment</h2>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <form id="appointmentForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="patientSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user mr-2"></i>Select Patient
+                            </label>
+                            <select id="patientSelect" name="patient_id" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Choose a patient...</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="doctorSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-user-md mr-2"></i>Select Doctor
+                            </label>
+                            <select id="doctorSelect" name="doctor_id" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onchange="loadTimeSlots()">
+                                <option value="">Choose a doctor...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="appointmentDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-calendar mr-2"></i>Appointment Date
+                            </label>
+                            <input type="date" id="appointmentDate" name="appointment_date" required min="<?php echo date('Y-m-d'); ?>" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onchange="loadTimeSlots()">
+                        </div>
+                        
+                        <div>
+                            <label for="appointmentType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-clipboard mr-2"></i>Appointment Type
+                            </label>
+                            <select id="appointmentType" name="appointment_type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="consultation">Consultation</option>
+                                <option value="follow_up">Follow-up</option>
+                                <option value="emergency">Emergency</option>
+                                <option value="routine_checkup">Routine Checkup</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            <i class="fas fa-clock mr-2"></i>Available Time Slots
+                        </label>
+                        <div id="timeSlotsContainer" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                            <p class="col-span-full text-gray-500 dark:text-gray-400 text-center py-4">Select a doctor and date to view available slots</p>
+                        </div>
+                        <input type="hidden" id="selectedTimeSlot" name="appointment_time">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-comment mr-2"></i>Reason for Visit
+                            </label>
+                            <input type="text" id="reason" name="reason" placeholder="e.g., Regular checkup, Follow-up" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        
+                        <div>
+                            <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-hourglass-half mr-2"></i>Duration (minutes)
+                            </label>
+                            <select id="duration" name="duration" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="symptoms" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-notes-medical mr-2"></i>Symptoms (Optional)
+                        </label>
+                        <textarea id="symptoms" name="symptoms" rows="3" placeholder="Describe any symptoms or additional information..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="resetAppointmentForm()" class="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                            <i class="fas fa-undo mr-2"></i>Reset
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200">
+                            <i class="fas fa-calendar-plus mr-2"></i>Book Appointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
             
             <div id="vitalsSection" class="section hidden">
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Vitals Management</h2>
@@ -372,7 +490,11 @@ $user = $auth->getCurrentUser();
         }
         
         // Section Management
+        let currentSection = 'dashboard';
+        
         function showSection(sectionName) {
+            currentSection = sectionName;
+            
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
@@ -389,6 +511,13 @@ $user = $auth->getCurrentUser();
             
             event.target.classList.add('active', 'bg-blue-500', 'text-white');
             event.target.classList.remove('text-gray-700', 'dark:text-gray-300');
+            
+            // Load section-specific data
+            if (sectionName === 'appointments') {
+                loadAppointments();
+            } else if (sectionName === 'book-appointment') {
+                loadPatientsAndDoctors();
+            }
             
             // Update page title
             const titles = {
@@ -673,17 +802,17 @@ $user = $auth->getCurrentUser();
                 }
             } catch (error) {
                 console.error('Error loading prescription details:', error);
-                alert('Error loading prescription details');
+                                    showError('Error loading prescription details');
             }
         }
         
         function printPrescription(prescriptionId) {
-            alert('Print functionality will be implemented');
+                            showInfo('Print functionality will be implemented');
         }
         
         function deletePrescription(prescriptionId) {
             if (confirm('Are you sure you want to delete this prescription?')) {
-                alert('Delete functionality will be implemented');
+                showWarning('Delete functionality will be implemented');
             }
         }
         
@@ -707,6 +836,245 @@ $user = $auth->getCurrentUser();
             return colors[role] || 'bg-gray-100 text-gray-800';
         }
         
+        // Appointment booking functions
+        async function loadPatientsAndDoctors() {
+            try {
+                // Load patients
+                const patientsResponse = await fetch('../handlers/admin_users.php?action=list&role=patient');
+                const patientsResult = await patientsResponse.json();
+                
+                if (patientsResult.success) {
+                    const patientSelect = document.getElementById('patientSelect');
+                    patientSelect.innerHTML = '<option value="">Choose a patient...</option>';
+                    
+                    patientsResult.data.forEach(patient => {
+                        const option = document.createElement('option');
+                        option.value = patient.patient_id;
+                        option.textContent = `${patient.first_name} ${patient.last_name} (${patient.patient_code})`;
+                        patientSelect.appendChild(option);
+                    });
+                }
+                
+                // Load doctors
+                const doctorsResponse = await fetch('../handlers/get_doctors.php');
+                const doctorsResult = await doctorsResponse.json();
+                
+                if (doctorsResult.success) {
+                    const doctorSelect = document.getElementById('doctorSelect');
+                    doctorSelect.innerHTML = '<option value="">Choose a doctor...</option>';
+                    
+                    doctorsResult.data.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor.doctor_id;
+                        option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} - ${doctor.specialization}`;
+                        doctorSelect.appendChild(option);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading patients and doctors:', error);
+                showError('Error loading patients and doctors');
+            }
+        }
+
+        async function loadTimeSlots() {
+            const doctorId = document.getElementById('doctorSelect').value;
+            const date = document.getElementById('appointmentDate').value;
+            const container = document.getElementById('timeSlotsContainer');
+            
+            if (!doctorId || !date) {
+                container.innerHTML = '<p class="col-span-full text-gray-500 dark:text-gray-400 text-center py-4">Select a doctor and date to view available slots</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`../handlers/appointments.php?action=available_slots&doctor_id=${doctorId}&date=${date}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.data.length === 0) {
+                        container.innerHTML = '<p class="col-span-full text-gray-500 dark:text-gray-400 text-center py-4">No available slots for this date</p>';
+                        return;
+                    }
+                    
+                    container.innerHTML = '';
+                    result.data.forEach(slot => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = `p-2 text-sm rounded-lg border transition-colors duration-200 ${
+                            slot.available 
+                                ? 'border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20' 
+                                : 'border-gray-300 text-gray-400 cursor-not-allowed dark:border-gray-600 dark:text-gray-500'
+                        }`;
+                        button.textContent = slot.display_time;
+                        button.disabled = !slot.available;
+                        
+                        if (slot.available) {
+                            button.onclick = () => selectTimeSlot(slot.time, button);
+                        }
+                        
+                        container.appendChild(button);
+                    });
+                } else {
+                    showError(result.message || 'Error loading time slots');
+                }
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+                showError('Error loading time slots');
+            }
+        }
+
+        function selectTimeSlot(time, button) {
+            // Remove selection from other buttons
+            document.querySelectorAll('#timeSlotsContainer button').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'dark:bg-blue-600');
+                btn.classList.add('border-blue-300', 'text-blue-700', 'hover:bg-blue-50', 'dark:border-blue-600', 'dark:text-blue-300', 'dark:hover:bg-blue-900/20');
+            });
+            
+            // Add selection to clicked button
+            button.classList.remove('border-blue-300', 'text-blue-700', 'hover:bg-blue-50', 'dark:border-blue-600', 'dark:text-blue-300', 'dark:hover:bg-blue-900/20');
+            button.classList.add('bg-blue-500', 'text-white', 'dark:bg-blue-600');
+            
+            document.getElementById('selectedTimeSlot').value = time;
+        }
+
+        function resetAppointmentForm() {
+            document.getElementById('appointmentForm').reset();
+            document.getElementById('selectedTimeSlot').value = '';
+            document.getElementById('timeSlotsContainer').innerHTML = '<p class="col-span-full text-gray-500 dark:text-gray-400 text-center py-4">Select a doctor and date to view available slots</p>';
+        }
+
+        // Handle appointment form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const appointmentForm = document.getElementById('appointmentForm');
+            if (appointmentForm) {
+                appointmentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const appointmentData = {
+                        action: 'book',
+                        patient_id: formData.get('patient_id'),
+                        doctor_id: formData.get('doctor_id'),
+                        appointment_date: formData.get('appointment_date'),
+                        appointment_time: formData.get('appointment_time'),
+                        appointment_type: formData.get('appointment_type'),
+                        duration: formData.get('duration'),
+                        reason: formData.get('reason'),
+                        symptoms: formData.get('symptoms')
+                    };
+                    
+                    if (!appointmentData.appointment_time) {
+                        showWarning('Please select a time slot');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('../handlers/appointments.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(appointmentData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showSuccess('Appointment booked successfully!');
+                            resetAppointmentForm();
+                            // Reload appointments if on appointments section
+                            if (currentSection === 'appointments') {
+                                loadAppointments();
+                            }
+                        } else {
+                            showError(result.message || 'Error booking appointment');
+                        }
+                    } catch (error) {
+                        console.error('Error booking appointment:', error);
+                        showError('Error booking appointment');
+                    }
+                });
+            }
+        });
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('../handlers/appointments.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const tbody = document.getElementById('appointmentsTableBody');
+                    tbody.innerHTML = '';
+                    
+                    result.data.forEach(appointment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">${appointment.patient_name}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.patient_code}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">${appointment.doctor_name}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.specialization}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">${appointment.appointment_date}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.appointment_time}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(appointment.status)}">
+                                    ${appointment.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="editAppointment(${appointment.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="cancelAppointment(${appointment.id})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    showError(result.message || 'Error loading appointments');
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                showError('Error loading appointments');
+            }
+        }
+
+        function editAppointment(appointmentId) {
+            showInfo('Edit appointment functionality will be implemented');
+        }
+
+        async function cancelAppointment(appointmentId) {
+            if (!confirm('Are you sure you want to cancel this appointment?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`../handlers/appointments.php?id=${appointmentId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Appointment cancelled successfully');
+                    loadAppointments();
+                } else {
+                    showError(result.message || 'Error cancelling appointment');
+                }
+            } catch (error) {
+                console.error('Error cancelling appointment:', error);
+                showError('Error cancelling appointment');
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadDashboardData();
