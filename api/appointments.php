@@ -5,6 +5,12 @@ require_once __DIR__ . '/../classes/Auth.php';
 
 $auth = new Auth();
 
+if (!$auth->isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit();
+}
+
 // Temporarily allow access for testing - remove this in production
 $allow_testing = true;
 

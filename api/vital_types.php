@@ -5,10 +5,14 @@ require_once '../classes/Auth.php';
 
 $auth = new Auth();
 
-// Check if user is logged in and has admin role
-if (!$auth->isLoggedIn() || !$auth->hasRole('admin')) {
+if (!$auth->isLoggedIn()) {
     http_response_code(401);
     echo json_encode(['error' => 'Unauthorized']);
+    exit();
+}
+if (!$auth->hasRole('admin')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden: Admins only']);
     exit();
 }
 

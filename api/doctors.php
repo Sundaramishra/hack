@@ -5,16 +5,17 @@ require_once __DIR__ . '/../classes/Auth.php';
 
 $auth = new Auth();
 
-// Temporarily allow access for testing - remove this in production
-$allow_testing = true;
+if (!$auth->isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit();
+}
 
-// Check if user is logged in and has admin role
-if (!$auth->isLoggedIn() && !$allow_testing) {
-    // Temporarily allow access for appointment booking
-    // http_response_code(401);
-    // echo json_encode(['error' => 'Unauthorized', 'message' => 'User not logged in']);
-    // exit();
-    // Don't output anything - just continue
+// Only admin can access doctor list and manage doctors
+if (!$auth->hasRole('admin')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Forbidden: Admins only']);
+    exit();
 }
 
 $database = new Database();
@@ -29,7 +30,7 @@ try {
             if ($action === 'list') {
                 // Admin should always be able to see all doctors for appointment booking
                 // Allow access for admin or testing
-                if ($allow_testing || $auth->hasRole('admin') || $auth->isLoggedIn()) {
+                if ($auth->hasRole('admin')) {
                     $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active 
                              FROM doctors d 
                              JOIN users u ON d.user_id = u.id 
@@ -77,7 +78,7 @@ try {
         case 'POST':
             if ($action === 'add') {
                 // Only admin can add doctors
-                if (!$auth->hasRole('admin') && !$allow_testing) {
+                if (!$auth->hasRole('admin')) {
                     throw new Exception('Insufficient permissions');
                 }
                 
@@ -142,7 +143,7 @@ try {
         case 'PUT':
             if ($action === 'update') {
                 // Only admin can update doctors
-                if (!$auth->hasRole('admin') && !$allow_testing) {
+                if (!$auth->hasRole('admin')) {
                     throw new Exception('Insufficient permissions');
                 }
                 
@@ -191,7 +192,7 @@ try {
         case 'DELETE':
             if ($action === 'delete') {
                 // Only admin can delete doctors
-                if (!$auth->hasRole('admin') && !$allow_testing) {
+                if (!$auth->hasRole('admin')) {
                     throw new Exception('Insufficient permissions');
                 }
                 
