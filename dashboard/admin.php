@@ -146,7 +146,7 @@ try {
                     
                     <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                         <i class="fas fa-user-shield"></i>
-                        <span><?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?></span>
+                        <span><?php echo htmlspecialchars(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? '')); ?></span>
                     </div>
                     
                     <a href="../logout.php" class="flex items-center space-x-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">

@@ -119,7 +119,7 @@ $stats = [
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                     <h2 class="ml-4 text-xl font-semibold text-gray-800 dark:text-white">
-                        Welcome, <?php echo htmlspecialchars($current_user['first_name'] . ' ' . $current_user['last_name']); ?>
+                        Welcome, <?php echo htmlspecialchars(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? '')); ?>
                     </h2>
                 </div>
                 
@@ -131,7 +131,7 @@ $stats = [
                     
                     <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                         <i class="fas fa-id-card"></i>
-                        <span>ID: <?php echo htmlspecialchars($current_user['patient_code']); ?></span>
+                        <span>ID: <?php echo htmlspecialchars($current_user['patient_code'] ?? 'N/A'); ?></span>
                     </div>
                     
                     <a href="../logout.php" class="flex items-center space-x-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
@@ -680,7 +680,7 @@ $stats = [
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Patient ID</label>
                                         <div class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
-                                            <?php echo htmlspecialchars($current_user['patient_code']); ?>
+                                            <?php echo htmlspecialchars($current_user['patient_code'] ?? 'N/A'); ?>
                                         </div>
                                     </div>
                                     
