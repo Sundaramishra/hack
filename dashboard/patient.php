@@ -590,9 +590,15 @@ $stats = [
                 </div>
             </div>
 
-            <!-- Other sections placeholders -->
+            <!-- Prescriptions Section -->
             <div id="prescriptions-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Prescriptions</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">My Prescriptions</h2>
+                    <button onclick="downloadPrescription()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-download mr-2"></i>Download
+                    </button>
+                </div>
+                
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left">
@@ -604,6 +610,7 @@ $stats = [
                                     <th class="px-6 py-3">Dosage</th>
                                     <th class="px-6 py-3">Duration</th>
                                     <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="prescriptionsTableBody">
@@ -614,19 +621,26 @@ $stats = [
                 </div>
             </div>
 
+            <!-- Medical History Section -->
             <div id="medical-history-section" class="content-section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Medical History</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Medical History</h2>
+                    <button onclick="exportHistory()" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-file-export mr-2"></i>Export
+                    </button>
+                </div>
+                
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
                                 <tr>
                                     <th class="px-6 py-3">Date</th>
-                                    <th class="px-6 py-3">Visit Type</th>
                                     <th class="px-6 py-3">Doctor</th>
                                     <th class="px-6 py-3">Diagnosis</th>
                                     <th class="px-6 py-3">Treatment</th>
-                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Notes</th>
+                                    <th class="px-6 py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="medicalHistoryTableBody">
@@ -959,6 +973,11 @@ $stats = [
                                         ${prescription.status}
                                     </span>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="downloadPrescription(${prescription.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        Download
+                                    </button>
+                                </td>
                             `;
                             tbody.appendChild(row);
                         });
@@ -987,9 +1006,6 @@ $stats = [
                                     ${history.visit_date}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                    ${history.visit_type}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     ${history.doctor_name}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -998,12 +1014,13 @@ $stats = [
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                     ${history.treatment}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        ${history.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                                          'bg-gray-100 text-gray-800'}">
-                                        ${history.status}
-                                    </span>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    ${history.notes}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="exportHistory(${history.id})" class="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-3">
+                                        Export
+                                    </button>
                                 </td>
                             `;
                             tbody.appendChild(row);
@@ -1025,6 +1042,81 @@ $stats = [
             if (upcomingAppointmentsEl) upcomingAppointmentsEl.textContent = stats.upcoming_appointments;
             if (totalPrescriptionsEl) totalPrescriptionsEl.textContent = stats.total_prescriptions;
             if (recentVitalsEl) recentVitalsEl.textContent = stats.recent_vitals;
+        }
+
+        // New functions for prescriptions and medical history
+        async function downloadPrescription(prescriptionId = null) {
+            try {
+                const action = prescriptionId ? 'download' : 'list';
+                const url = `../api/prescriptions.php?action=${action}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    let content = '';
+                    if (data.length === 0) {
+                        content = 'No prescriptions found.';
+                    } else {
+                        content = `Date,Doctor,Medication,Dosage,Duration,Status\n`;
+                        data.forEach(prescription => {
+                            content += `${prescription.prescribed_date},${prescription.doctor_name},${prescription.medication},${prescription.dosage},${prescription.duration},${prescription.status}\n`;
+                        });
+                    }
+
+                    const blob = new Blob([content], { type: 'text/csv' });
+                    const urlBlob = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = urlBlob;
+                    a.download = `patient_prescriptions_${prescriptionId ? 'details' : 'all'}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(urlBlob);
+                } else {
+                    alert('Error downloading prescriptions: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error downloading prescriptions:', error);
+                alert('Error downloading prescriptions: ' + error.message);
+            }
+        }
+
+        async function exportHistory(historyId = null) {
+            try {
+                const action = historyId ? 'export' : 'list';
+                const url = `../api/medical_history.php?action=${action}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    let content = '';
+                    if (data.length === 0) {
+                        content = 'No medical history found.';
+                    } else {
+                        content = `Date,Doctor,Diagnosis,Treatment,Notes\n`;
+                        data.forEach(history => {
+                            content += `${history.visit_date},${history.doctor_name},${history.diagnosis},${history.treatment},${history.notes}\n`;
+                        });
+                    }
+
+                    const blob = new Blob([content], { type: 'text/csv' });
+                    const urlBlob = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = urlBlob;
+                    a.download = `patient_medical_history_${historyId ? 'details' : 'all'}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(urlBlob);
+                } else {
+                    alert('Error exporting medical history: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error exporting medical history:', error);
+                alert('Error exporting medical history: ' + error.message);
+            }
         }
     </script>
 </body>
