@@ -464,7 +464,7 @@ try {
 
         async function loadPatients() {
             try {
-                const response = await fetch('../api/patients.php?action=list');
+                const response = await fetch(getApiPath('patients.php?action=list'));
                 const result = await response.json();
                 
                 if (result.success) {
@@ -514,7 +514,7 @@ try {
 
         async function loadAppointments() {
             try {
-                const response = await fetch('../api/appointments.php?action=list');
+                const response = await fetch(getApiPath('appointments.php?action=list'));
                 const result = await response.json();
                 
                 if (result.success) {
@@ -648,7 +648,7 @@ try {
         async function loadPatientsForAppointment() {
             console.log('Loading patients for appointment...');
             try {
-                const response = await fetch('../api/patients.php?action=list');
+                const response = await fetch(getApiPath('patients.php?action=list'));
                 console.log('Patients API response status:', response.status);
                 
                 if (!response.ok) {
@@ -689,7 +689,7 @@ try {
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('../api/appointments.php?action=add', {
+                const response = await fetch(getApiPath('appointments.php?action=add'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -717,6 +717,13 @@ try {
                 console.error('Error scheduling appointment:', error);
                 showNotification('Error scheduling appointment: ' + error.message, 'error');
             }
+        }
+
+        function getApiPath(apiFile) {
+            let path = window.location.pathname;
+            let base = path.split('/dashboard')[0];
+            if (!base.endsWith('/')) base += '/';
+            return base + 'api/' + apiFile;
         }
     </script>
 

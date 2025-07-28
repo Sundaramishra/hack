@@ -930,7 +930,7 @@ $stats = [
 
         async function loadAppointments() {
             try {
-                const response = await fetch('../api/appointments.php?action=list');
+                const response = await fetch(getApiPath('appointments.php') + '?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -979,7 +979,7 @@ $stats = [
 
         async function loadPrescriptions() {
             try {
-                const response = await fetch('../api/prescriptions.php?action=list');
+                const response = await fetch(getApiPath('prescriptions.php') + '?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1031,7 +1031,7 @@ $stats = [
 
         async function loadMedicalHistory() {
             try {
-                const response = await fetch('../api/medical_history.php?action=list');
+                const response = await fetch(getApiPath('medical_history.php') + '?action=list');
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1089,7 +1089,7 @@ $stats = [
         async function downloadPrescription(prescriptionId = null) {
             try {
                 const action = prescriptionId ? 'download' : 'list';
-                const url = `../api/prescriptions.php?action=${action}`;
+                const url = getApiPath('prescriptions.php') + `?action=${action}`;
                 const response = await fetch(url);
                 const result = await response.json();
 
@@ -1126,7 +1126,7 @@ $stats = [
         async function exportHistory(historyId = null) {
             try {
                 const action = historyId ? 'export' : 'list';
-                const url = `../api/medical_history.php?action=${action}`;
+                const url = getApiPath('medical_history.php') + `?action=${action}`;
                 const response = await fetch(url);
                 const result = await response.json();
 
@@ -1208,7 +1208,7 @@ $stats = [
         async function loadDoctorsForBooking() {
             console.log('Loading doctors for booking...');
             try {
-                const response = await fetch('../api/doctors.php?action=list');
+                const response = await fetch(getApiPath('doctors.php') + '?action=list');
                 console.log('Doctors API response status:', response.status);
                 
                 if (!response.ok) {
@@ -1248,7 +1248,7 @@ $stats = [
             const formData = new FormData(form);
             
             try {
-                const response = await fetch('../api/appointments.php?action=add', {
+                const response = await fetch(getApiPath('appointments.php') + '?action=add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1277,6 +1277,13 @@ $stats = [
                 console.error('Error booking appointment:', error);
                 showNotification('Error booking appointment: ' + error.message, 'error');
             }
+        }
+
+        function getApiPath(apiFile) {
+            let path = window.location.pathname;
+            let base = path.split('/dashboard')[0];
+            if (!base.endsWith('/')) base += '/';
+            return base + 'api/' + apiFile;
         }
     </script>
 
