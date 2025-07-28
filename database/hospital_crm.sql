@@ -83,7 +83,6 @@ CREATE TABLE `appointments` (
   `reason` varchar(255) DEFAULT NULL,
   `symptoms` text DEFAULT NULL,
   `diagnosis` text DEFAULT NULL,
-  `prescription` text DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `created_by_user_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -96,6 +95,45 @@ CREATE TABLE `appointments` (
   KEY `idx_appointments_time` (`appointment_time`),
   KEY `idx_appointments_status` (`status`),
   KEY `idx_appointments_type` (`appointment_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Prescriptions table
+CREATE TABLE `prescriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `appointment_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `doctor_id` int(11) NOT NULL,
+  `prescription_number` varchar(50) NOT NULL UNIQUE,
+  `prescription_date` date NOT NULL,
+  `diagnosis` text DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `follow_up_date` date DEFAULT NULL,
+  `status` enum('active','completed','cancelled') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  KEY `idx_prescriptions_number` (`prescription_number`),
+  KEY `idx_prescriptions_date` (`prescription_date`),
+  KEY `idx_prescriptions_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Prescription medicines table
+CREATE TABLE `prescription_medicines` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `prescription_id` int(11) NOT NULL,
+  `medicine_name` varchar(200) NOT NULL,
+  `dosage` varchar(100) NOT NULL,
+  `frequency` varchar(100) NOT NULL,
+  `duration` varchar(100) NOT NULL,
+  `instructions` text DEFAULT NULL,
+  `quantity` int(11) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`prescription_id`) REFERENCES `prescriptions` (`id`) ON DELETE CASCADE,
+  KEY `idx_prescription_medicines_name` (`medicine_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Vitals table
@@ -181,5 +219,23 @@ INSERT INTO `users` (`username`, `email`, `password_hash`, `first_name`, `last_n
 INSERT INTO `patients` (`user_id`, `patient_code`, `blood_group`, `assigned_doctor_id`) VALUES
 (4, 'PAT001', 'O+', 1),
 (5, 'PAT002', 'A+', 2);
+
+-- Sample appointments
+INSERT INTO `appointments` (`patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `reason`, `status`, `created_by_user_id`) VALUES
+(1, 1, '2024-01-15', '10:00:00', 'Regular checkup', 'completed', 4),
+(2, 2, '2024-01-16', '11:00:00', 'Fever and cough', 'completed', 5);
+
+-- Sample prescriptions
+INSERT INTO `prescriptions` (`appointment_id`, `patient_id`, `doctor_id`, `prescription_number`, `prescription_date`, `diagnosis`, `notes`) VALUES
+(1, 1, 1, 'RX001-2024', '2024-01-15', 'Hypertension - mild', 'Patient advised to reduce salt intake and exercise regularly'),
+(2, 2, 2, 'RX002-2024', '2024-01-16', 'Upper respiratory tract infection', 'Complete rest for 3 days, increase fluid intake');
+
+-- Sample prescription medicines
+INSERT INTO `prescription_medicines` (`prescription_id`, `medicine_name`, `dosage`, `frequency`, `duration`, `instructions`, `quantity`) VALUES
+(1, 'Amlodipine', '5mg', 'Once daily', '30 days', 'Take in the morning with food', 30),
+(1, 'Aspirin', '75mg', 'Once daily', '30 days', 'Take after dinner', 30),
+(2, 'Amoxicillin', '500mg', 'Three times daily', '7 days', 'Take with food, complete the course', 21),
+(2, 'Paracetamol', '500mg', 'As needed', '5 days', 'For fever, maximum 4 times per day', 20),
+(2, 'Cough Syrup', '10ml', 'Three times daily', '5 days', 'Take after meals', 1);
 
 -- Default password for all users is: Hospital@123

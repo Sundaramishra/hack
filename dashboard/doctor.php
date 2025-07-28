@@ -59,6 +59,9 @@ $doctorId = $_SESSION['doctor_id'];
             <a href="#" onclick="showSection('patients')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-users mr-3"></i>My Patients
             </a>
+            <a href="#" onclick="showSection('prescriptions')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-prescription-bottle-alt mr-3"></i>Prescriptions
+            </a>
             <a href="#" onclick="showSection('profile')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user mr-3"></i>Profile
             </a>
@@ -237,6 +240,36 @@ $doctorId = $_SESSION['doctor_id'];
             </div>
             
             <!-- Profile Section -->
+            <!-- Prescriptions Section -->
+            <div id="prescriptionsSection" class="section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Prescriptions Management</h2>
+                    <button onclick="openPrescriptionModal()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>New Prescription
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Prescription #</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Diagnosis</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptionsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
             <div id="profileSection" class="section hidden">
                 <div class="max-w-2xl">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">My Profile</h2>
@@ -285,6 +318,68 @@ $doctorId = $_SESSION['doctor_id'];
                 </div>
             </div>
         </main>
+    </div>
+    
+    <!-- Prescription Modal -->
+    <div id="prescriptionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Create Prescription</h3>
+                    <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="prescriptionForm" class="space-y-6">
+                    <input type="hidden" id="prescriptionAppointmentId">
+                    <input type="hidden" id="prescriptionPatientId">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient</label>
+                            <input type="text" id="prescriptionPatientName" readonly class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Appointment Date</label>
+                            <input type="text" id="prescriptionAppointmentDate" readonly class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Diagnosis</label>
+                        <textarea id="prescriptionDiagnosis" rows="3" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Enter diagnosis..."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Medicines</label>
+                        <div id="medicinesContainer" class="space-y-4">
+                            <!-- Medicine entries will be added here -->
+                        </div>
+                        <button type="button" onclick="addMedicine()" class="mt-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300">
+                            <i class="fas fa-plus mr-1"></i>Add Medicine
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Follow-up Date</label>
+                            <input type="date" id="prescriptionFollowUp" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Additional Notes</label>
+                        <textarea id="prescriptionNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Additional instructions or notes..."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closePrescriptionModal()" class="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">Cancel</button>
+                        <button type="submit" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200">Create Prescription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -345,6 +440,7 @@ $doctorId = $_SESSION['doctor_id'];
                 'dashboard': 'Dashboard',
                 'appointments': 'My Appointments',
                 'patients': 'My Patients',
+                'prescriptions': 'Prescriptions',
                 'profile': 'Profile'
             };
             
@@ -371,6 +467,9 @@ $doctorId = $_SESSION['doctor_id'];
                     break;
                 case 'patients':
                     loadPatients();
+                    break;
+                case 'prescriptions':
+                    loadPrescriptions();
                     break;
                 case 'profile':
                     loadProfile();
