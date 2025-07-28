@@ -10,7 +10,15 @@ class NotificationManager {
             const container = document.createElement('div');
             container.id = 'notification-container';
             container.className = 'fixed top-4 right-4 z-50 space-y-2';
-            document.body.appendChild(container);
+            
+            // Wait for DOM to be ready
+            if (document.body) {
+                document.body.appendChild(container);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.appendChild(container);
+                });
+            }
         }
     }
 
@@ -121,11 +129,24 @@ class NotificationManager {
     }
 }
 
-// Create global notification instance
-window.notify = new NotificationManager();
+// Create global notification instance when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    if (!window.notify) {
+        window.notify = new NotificationManager();
+        
+        // Helper functions for easy access
+        window.showSuccess = (message) => notify.success(message);
+        window.showError = (message) => notify.error(message);
+        window.showWarning = (message) => notify.warning(message);
+        window.showInfo = (message) => notify.info(message);
+    }
+});
 
-// Helper functions for easy access
-window.showSuccess = (message) => notify.success(message);
-window.showError = (message) => notify.error(message);
-window.showWarning = (message) => notify.warning(message);
-window.showInfo = (message) => notify.info(message);
+// Fallback for immediate use
+if (!window.notify && document.body) {
+    window.notify = new NotificationManager();
+    window.showSuccess = (message) => notify.success(message);
+    window.showError = (message) => notify.error(message);
+    window.showWarning = (message) => notify.warning(message);
+    window.showInfo = (message) => notify.info(message);
+}
