@@ -1,15 +1,15 @@
 <?php
-require_once '../includes/auth.php';
 require_once '../config/database.php';
+require_once '../includes/auth.php';
+
+header('Content-Type: application/json');
 
 $auth = new Auth();
 $auth->requireRole('admin');
 
-header('Content-Type: application/json');
-
 try {
-    $database = new Database();
-    $conn = $database->getConnection();
+    $db = new Database();
+    $conn = $db->getConnection();
     
     // Get total users
     $stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE is_active = 1");

@@ -1,40 +1,40 @@
 <?php
-require_once '../includes/auth.php';
 require_once '../config/database.php';
+require_once '../includes/auth.php';
+
+header('Content-Type: application/json');
 
 $auth = new Auth();
 $auth->requireRole('admin');
 
-header('Content-Type: application/json');
-
 try {
-    $database = new Database();
-    $conn = $database->getConnection();
+    $db = new Database();
+    $conn = $db->getConnection();
     
-    $action = $_GET['action'] ?? 'list';
+    // Get recent appointments
+    $stmt = $conn->prepare("
+        SELECT 
+            a.id,
+            a.appointment_date,
+            a.appointment_time,
+            a.status,
+            CONCAT(pu.first_name, ' ', pu.last_name) as patient_name,
+            CONCAT(du.first_name, ' ', du.last_name) as doctor_name
+        FROM appointments a
+        JOIN patients p ON a.patient_id = p.id
+        JOIN users pu ON p.user_id = pu.id
+        JOIN doctors d ON a.doctor_id = d.id
+        JOIN users du ON d.user_id = du.id
+        ORDER BY a.appointment_date DESC, a.appointment_time DESC
+        LIMIT 10
+    ");
+    $stmt->execute();
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    if ($action === 'recent') {
-        // Get recent appointments (last 10)
-        $query = "SELECT a.*, 
-                         CONCAT(up.first_name, ' ', up.last_name) as patient_name,
-                         CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name
-                  FROM appointments a
-                  JOIN patients p ON a.patient_id = p.patient_id
-                  JOIN users up ON p.user_id = up.id
-                  JOIN doctors d ON a.doctor_id = d.doctor_id
-                  JOIN users ud ON d.user_id = ud.id
-                  ORDER BY a.created_at DESC
-                  LIMIT 10";
-        
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-        $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        echo json_encode([
-            'success' => true,
-            'data' => $appointments
-        ]);
-    }
+    echo json_encode([
+        'success' => true,
+        'data' => $appointments
+    ]);
     
 } catch (Exception $e) {
     echo json_encode([

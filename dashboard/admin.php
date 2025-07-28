@@ -60,7 +60,7 @@ $user = $auth->getCurrentUser();
                 <i class="fas fa-prescription-bottle-alt mr-3"></i>Prescriptions
             </a>
             <a href="javascript:void(0)" onclick="showSection('vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-heartbeat mr-3"></i>Vitals
+                <i class="fas fa-heartbeat mr-3"></i>Vitals Management
             </a>
             <a href="javascript:void(0)" onclick="showSection('settings')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <i class="fas fa-cog mr-3"></i>Settings
@@ -184,7 +184,7 @@ $user = $auth->getCurrentUser();
             <div id="usersSection" class="section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Users Management</h2>
-                    <button onclick="showInfo('Add user functionality')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    <button onclick="openUserModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-plus mr-2"></i>Add User
                     </button>
                 </div>
@@ -215,7 +215,7 @@ $user = $auth->getCurrentUser();
             <div id="doctorsSection" class="section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Doctors Management</h2>
-                    <button onclick="showInfo('Add doctor functionality')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    <button onclick="openDoctorModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-plus mr-2"></i>Add Doctor
                     </button>
                 </div>
@@ -246,7 +246,7 @@ $user = $auth->getCurrentUser();
             <div id="patientsSection" class="section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Patients Management</h2>
-                    <button onclick="showInfo('Add patient functionality')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    <button onclick="openPatientModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-plus mr-2"></i>Add Patient
                     </button>
                 </div>
@@ -277,7 +277,7 @@ $user = $auth->getCurrentUser();
             <div id="appointmentsSection" class="section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Appointments Management</h2>
-                    <button onclick="showInfo('Book appointment functionality')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    <button onclick="openAppointmentModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
                         <i class="fas fa-plus mr-2"></i>Book Appointment
                     </button>
                 </div>
@@ -330,11 +330,68 @@ $user = $auth->getCurrentUser();
                 </div>
             </div>
             
-            <!-- Vitals Section -->
+            <!-- Vitals Management Section -->
             <div id="vitalsSection" class="section hidden">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Vitals Management</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Vitals Management</h2>
+                    <div class="flex space-x-3">
+                        <button onclick="openVitalModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-plus mr-2"></i>Add Vital Record
+                        </button>
+                        <button onclick="openCustomVitalModal()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-cog mr-2"></i>Manage Vital Types
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Patient Vitals -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Patient Vitals</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Patient</label>
+                                <select id="vitalPatientSelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Loading patients...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vital Type</label>
+                                <select id="vitalTypeSelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Loading vital types...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Value</label>
+                                <input type="text" id="vitalValue" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Enter vital value">
+                            </div>
+                            <button onclick="addVitalRecord()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i>Add Vital Record
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Doctor Vitals (Admin can view all) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Doctor Vitals Overview</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Doctor</label>
+                                <select id="doctorVitalSelect" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="">Loading doctors...</option>
+                                </select>
+                            </div>
+                            <button onclick="viewDoctorPatientVitals()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg">
+                                <i class="fas fa-eye mr-2"></i>View Doctor's Patient Vitals
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Vital Records</h3>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -443,6 +500,108 @@ $user = $auth->getCurrentUser();
         </main>
     </div>
 
+    <!-- Modals -->
+    <!-- User Modal -->
+    <div id="userModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add New User</h3>
+                <button onclick="closeUserModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="userForm" onsubmit="submitUser(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                        <input type="text" name="firstName" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                        <input type="text" name="lastName" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                        <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                        <input type="text" name="username" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                        <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                        <select name="role" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="patient">Patient</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        Add User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Appointment Modal -->
+    <div id="appointmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Book Appointment</h3>
+                <button onclick="closeAppointmentModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="appointmentForm" onsubmit="submitAppointment(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient</label>
+                        <select name="patientId" id="appointmentPatientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Loading patients...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Doctor</label>
+                        <select name="doctorId" id="appointmentDoctorSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Loading doctors...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
+                        <input type="date" name="appointmentDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time</label>
+                        <input type="time" name="appointmentTime" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason</label>
+                        <textarea name="reason" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Reason for appointment"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeAppointmentModal()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        Book Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         console.log('Admin Dashboard Loading...');
         
@@ -542,12 +701,14 @@ $user = $auth->getCurrentUser();
                     break;
                 case 'appointments':
                     await loadAppointments();
+                    await loadAppointmentSelects();
                     break;
                 case 'prescriptions':
                     await loadPrescriptions();
                     break;
                 case 'vitals':
                     await loadVitals();
+                    await loadVitalSelects();
                     break;
             }
         }
@@ -648,10 +809,10 @@ $user = $auth->getCurrentUser();
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm">
-                        <button onclick="showInfo('Edit user: ${user.first_name}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="editUser(${user.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="showWarning('Delete user: ${user.first_name}')" class="text-red-600 hover:text-red-900">
+                        <button onclick="deleteUser(${user.id})" class="text-red-600 hover:text-red-900">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -695,10 +856,10 @@ $user = $auth->getCurrentUser();
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm">
-                        <button onclick="showInfo('Edit doctor: Dr. ${doctor.first_name}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="editDoctor(${doctor.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="showWarning('Delete doctor: Dr. ${doctor.first_name}')" class="text-red-600 hover:text-red-900">
+                        <button onclick="deleteDoctor(${doctor.id})" class="text-red-600 hover:text-red-900">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -742,10 +903,10 @@ $user = $auth->getCurrentUser();
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm">
-                        <button onclick="showInfo('Edit patient: ${patient.first_name}')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="editPatient(${patient.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="showWarning('Delete patient: ${patient.first_name}')" class="text-red-600 hover:text-red-900">
+                        <button onclick="deletePatient(${patient.id})" class="text-red-600 hover:text-red-900">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -789,10 +950,10 @@ $user = $auth->getCurrentUser();
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm">
-                        <button onclick="showInfo('Edit appointment')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="editAppointment(${appointment.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="showWarning('Cancel appointment')" class="text-red-600 hover:text-red-900">
+                        <button onclick="cancelAppointment(${appointment.id})" class="text-red-600 hover:text-red-900">
                             <i class="fas fa-times"></i>
                         </button>
                     </td>
@@ -832,10 +993,10 @@ $user = $auth->getCurrentUser();
                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${prescription.doctor_name}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${prescription.prescription_date}</td>
                     <td class="px-6 py-4 text-sm">
-                        <button onclick="showInfo('View prescription')" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <button onclick="viewPrescription(${prescription.id})" class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button onclick="showInfo('Print prescription')" class="text-green-600 hover:text-green-900">
+                        <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-900">
                             <i class="fas fa-print"></i>
                         </button>
                     </td>
@@ -846,7 +1007,309 @@ $user = $auth->getCurrentUser();
         
         // Load Vitals
         async function loadVitals() {
-            document.getElementById('vitalsTable').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Vitals functionality coming soon</td></tr>';
+            try {
+                const response = await fetch('../handlers/vitals.php?action=patient_vitals&patient_id=all');
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayVitals(result.data);
+                } else {
+                    document.getElementById('vitalsTable').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No vitals found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading vitals:', error);
+                document.getElementById('vitalsTable').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Error loading vitals</td></tr>';
+            }
+        }
+        
+        function displayVitals(vitals) {
+            const tbody = document.getElementById('vitalsTable');
+            tbody.innerHTML = '';
+            
+            if (vitals.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No vitals found</td></tr>';
+                return;
+            }
+            
+            vitals.forEach(vital => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${vital.patient_name || 'Unknown'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${vital.vital_name}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${vital.value} ${vital.unit || ''}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">${vital.recorded_date}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <button onclick="editVital(${vital.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteVital(${vital.id})" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Load dropdown selects for appointments and vitals
+        async function loadAppointmentSelects() {
+            try {
+                // Load patients for appointment modal
+                const patientsResponse = await fetch('../handlers/admin_users.php?action=list&role=patient');
+                const patientsResult = await patientsResponse.json();
+                
+                if (patientsResult.success) {
+                    const patientSelect = document.getElementById('appointmentPatientSelect');
+                    patientSelect.innerHTML = '<option value="">Select Patient</option>';
+                    patientsResult.data.forEach(patient => {
+                        patientSelect.innerHTML += `<option value="${patient.id}">${patient.first_name} ${patient.last_name}</option>`;
+                    });
+                }
+                
+                // Load doctors for appointment modal
+                const doctorsResponse = await fetch('../handlers/admin_users.php?action=list&role=doctor');
+                const doctorsResult = await doctorsResponse.json();
+                
+                if (doctorsResult.success) {
+                    const doctorSelect = document.getElementById('appointmentDoctorSelect');
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                    doctorsResult.data.forEach(doctor => {
+                        doctorSelect.innerHTML += `<option value="${doctor.id}">Dr. ${doctor.first_name} ${doctor.last_name}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading appointment selects:', error);
+            }
+        }
+        
+        async function loadVitalSelects() {
+            try {
+                // Load patients for vitals
+                const patientsResponse = await fetch('../handlers/admin_users.php?action=list&role=patient');
+                const patientsResult = await patientsResponse.json();
+                
+                if (patientsResult.success) {
+                    const patientSelect = document.getElementById('vitalPatientSelect');
+                    patientSelect.innerHTML = '<option value="">Select Patient</option>';
+                    patientsResult.data.forEach(patient => {
+                        patientSelect.innerHTML += `<option value="${patient.id}">${patient.first_name} ${patient.last_name}</option>`;
+                    });
+                }
+                
+                // Load doctors for vitals overview
+                const doctorsResponse = await fetch('../handlers/admin_users.php?action=list&role=doctor');
+                const doctorsResult = await doctorsResponse.json();
+                
+                if (doctorsResult.success) {
+                    const doctorSelect = document.getElementById('doctorVitalSelect');
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                    doctorsResult.data.forEach(doctor => {
+                        doctorSelect.innerHTML += `<option value="${doctor.id}">Dr. ${doctor.first_name} ${doctor.last_name}</option>`;
+                    });
+                }
+                
+                // Load vital types
+                const vitalTypesResponse = await fetch('../handlers/vitals.php?action=vital_types');
+                const vitalTypesResult = await vitalTypesResponse.json();
+                
+                if (vitalTypesResult.success) {
+                    const vitalTypeSelect = document.getElementById('vitalTypeSelect');
+                    vitalTypeSelect.innerHTML = '<option value="">Select Vital Type</option>';
+                    vitalTypesResult.data.forEach(vitalType => {
+                        vitalTypeSelect.innerHTML += `<option value="${vitalType.id}">${vitalType.name} (${vitalType.unit})</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading vital selects:', error);
+            }
+        }
+        
+        // Modal Functions
+        function openUserModal() {
+            document.getElementById('userModal').classList.remove('hidden');
+        }
+        
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden');
+            document.getElementById('userForm').reset();
+        }
+        
+        function openDoctorModal() {
+            if (window.showInfo) showInfo('Doctor creation modal - Add specialization, license, etc.');
+        }
+        
+        function openPatientModal() {
+            if (window.showInfo) showInfo('Patient creation modal - Add blood group, medical history, etc.');
+        }
+        
+        function openAppointmentModal() {
+            document.getElementById('appointmentModal').classList.remove('hidden');
+        }
+        
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').classList.add('hidden');
+            document.getElementById('appointmentForm').reset();
+        }
+        
+        function openVitalModal() {
+            if (window.showInfo) showInfo('Add vital record functionality');
+        }
+        
+        function openCustomVitalModal() {
+            if (window.showInfo) showInfo('Manage custom vital types functionality');
+        }
+        
+        // Form Submissions
+        async function submitUser(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch('../handlers/admin_users.php?action=create', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('User created successfully!');
+                    closeUserModal();
+                    loadUsers();
+                } else {
+                    if (window.showError) showError(result.message || 'Error creating user');
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                if (window.showError) showError('Error creating user');
+            }
+        }
+        
+        async function submitAppointment(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch('../handlers/appointments.php?action=create', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('Appointment booked successfully!');
+                    closeAppointmentModal();
+                    loadAppointments();
+                } else {
+                    if (window.showError) showError(result.message || 'Error booking appointment');
+                }
+            } catch (error) {
+                console.error('Error booking appointment:', error);
+                if (window.showError) showError('Error booking appointment');
+            }
+        }
+        
+        // Vital Functions
+        async function addVitalRecord() {
+            const patientId = document.getElementById('vitalPatientSelect').value;
+            const vitalTypeId = document.getElementById('vitalTypeSelect').value;
+            const value = document.getElementById('vitalValue').value;
+            
+            if (!patientId || !vitalTypeId || !value) {
+                if (window.showError) showError('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('patient_id', patientId);
+                formData.append('vital_type_id', vitalTypeId);
+                formData.append('value', value);
+                
+                const response = await fetch('../handlers/vitals.php?action=add_vital', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('Vital record added successfully!');
+                    document.getElementById('vitalValue').value = '';
+                    loadVitals();
+                } else {
+                    if (window.showError) showError(result.message || 'Error adding vital record');
+                }
+            } catch (error) {
+                console.error('Error adding vital record:', error);
+                if (window.showError) showError('Error adding vital record');
+            }
+        }
+        
+        function viewDoctorPatientVitals() {
+            const doctorId = document.getElementById('doctorVitalSelect').value;
+            if (!doctorId) {
+                if (window.showError) showError('Please select a doctor');
+                return;
+            }
+            if (window.showInfo) showInfo('Viewing vitals for doctor\'s patients');
+        }
+        
+        // Action Functions
+        function editUser(userId) {
+            if (window.showInfo) showInfo('Edit user functionality - ID: ' + userId);
+        }
+        
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                if (window.showInfo) showInfo('Delete user functionality - ID: ' + userId);
+            }
+        }
+        
+        function editDoctor(doctorId) {
+            if (window.showInfo) showInfo('Edit doctor functionality - ID: ' + doctorId);
+        }
+        
+        function deleteDoctor(doctorId) {
+            if (confirm('Are you sure you want to delete this doctor?')) {
+                if (window.showInfo) showInfo('Delete doctor functionality - ID: ' + doctorId);
+            }
+        }
+        
+        function editPatient(patientId) {
+            if (window.showInfo) showInfo('Edit patient functionality - ID: ' + patientId);
+        }
+        
+        function deletePatient(patientId) {
+            if (confirm('Are you sure you want to delete this patient?')) {
+                if (window.showInfo) showInfo('Delete patient functionality - ID: ' + patientId);
+            }
+        }
+        
+        function editAppointment(appointmentId) {
+            if (window.showInfo) showInfo('Edit appointment functionality - ID: ' + appointmentId);
+        }
+        
+        function cancelAppointment(appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                if (window.showInfo) showInfo('Cancel appointment functionality - ID: ' + appointmentId);
+            }
+        }
+        
+        function viewPrescription(prescriptionId) {
+            if (window.showInfo) showInfo('View prescription functionality - ID: ' + prescriptionId);
+        }
+        
+        function printPrescription(prescriptionId) {
+            if (window.showInfo) showInfo('Print prescription functionality - ID: ' + prescriptionId);
+        }
+        
+        function editVital(vitalId) {
+            if (window.showInfo) showInfo('Edit vital functionality - ID: ' + vitalId);
+        }
+        
+        function deleteVital(vitalId) {
+            if (confirm('Are you sure you want to delete this vital record?')) {
+                if (window.showInfo) showInfo('Delete vital functionality - ID: ' + vitalId);
+            }
         }
         
         // Utility Functions
