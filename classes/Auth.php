@@ -48,17 +48,17 @@ class Auth {
         return password_verify($password, $hash);
     }
     
-    // Login function
-    public function login($email, $password) {
+    // Login function - supports both email and username
+    public function login($identifier, $password) {
         try {
             $query = "SELECT u.*, d.id as doctor_id, p.id as patient_id 
                      FROM " . $this->table_name . " u 
                      LEFT JOIN doctors d ON u.id = d.user_id 
                      LEFT JOIN patients p ON u.id = p.user_id 
-                     WHERE u.email = :email AND u.is_active = 1 LIMIT 1";
+                     WHERE (u.email = :identifier OR u.username = :identifier) AND u.is_active = 1 LIMIT 1";
             
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':identifier', $identifier);
             $stmt->execute();
             
             if ($stmt->rowCount() > 0) {

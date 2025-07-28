@@ -26,11 +26,11 @@ $error_message = '';
 
 // Handle login
 if ($_POST) {
-    $email = $_POST['email'] ?? '';
+    $identifier = $_POST['identifier'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    if (!empty($email) && !empty($password)) {
-        $result = $auth->login($email, $password);
+    if (!empty($identifier) && !empty($password)) {
+        $result = $auth->login($identifier, $password);
         
         if ($result['success']) {
             switch ($result['user']['role']) {
@@ -114,13 +114,13 @@ if ($_POST) {
 
                 <form method="POST" class="space-y-6">
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-envelope mr-2"></i>Email Address
+                        <label for="identifier" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-user mr-2"></i>Email or Username
                         </label>
-                        <input type="email" id="email" name="email" required
+                        <input type="text" id="identifier" name="identifier" required
                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-300"
-                               placeholder="Enter your email address"
-                               value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                               placeholder="Enter your email or username"
+                               value="<?php echo htmlspecialchars($_POST['identifier'] ?? ''); ?>">
                     </div>
 
                     <div>
@@ -149,9 +149,9 @@ if ($_POST) {
                         <i class="fas fa-info-circle mr-2"></i>Demo Credentials
                     </h3>
                     <div class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                        <div><strong>Admin:</strong> admin@hospital.com / password123</div>
-                        <div><strong>Doctor:</strong> doctor@hospital.com / password123</div>
-                        <div><strong>Patient:</strong> patient@hospital.com / password123</div>
+                        <div><strong>Admin:</strong> admin@hospital.com or admin / password123</div>
+                        <div><strong>Doctor:</strong> doctor@hospital.com or doctor / password123</div>
+                        <div><strong>Patient:</strong> patient@hospital.com or patient / password123</div>
                     </div>
                 </div>
             </div>
