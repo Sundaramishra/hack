@@ -171,6 +171,16 @@ try {
     // Insert sample data
     echo "<h2>Inserting Sample Data</h2>";
     
+    // Add missing columns to patients table if not exist
+    $alter = "ALTER TABLE patients
+        ADD COLUMN IF NOT EXISTS date_of_birth DATE AFTER user_id,
+        ADD COLUMN IF NOT EXISTS gender VARCHAR(10) AFTER date_of_birth,
+        ADD COLUMN IF NOT EXISTS blood_group VARCHAR(5) AFTER gender,
+        ADD COLUMN IF NOT EXISTS emergency_contact_name VARCHAR(100) AFTER blood_group,
+        ADD COLUMN IF NOT EXISTS emergency_contact_phone VARCHAR(20) AFTER emergency_contact_name;";
+    $conn->exec($alter);
+    echo "✅ patients table columns ensured<br>";
+
     // Insert sample vital types
     $vital_types = [
         ['Blood Pressure', 'mmHg', 90, 140],
