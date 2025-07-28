@@ -95,8 +95,46 @@ try {
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+            border-left: 4px solid #059669;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .notification.info {
+            background-color: #3b82f6;
+            border-left: 4px solid #2563eb;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
 
     
     <!-- Debug Info (remove in production) -->
@@ -538,27 +576,50 @@ try {
             if (upcomingAppointmentsEl) upcomingAppointmentsEl.textContent = stats.upcoming_appointments;
         }
 
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
         // Action functions
         function viewPatient(patientId) {
-            alert('View patient details for ID: ' + patientId);
+            showNotification('View patient details for ID: ' + patientId, 'info');
         }
 
         function recordVitals(patientId) {
             console.log('Record vitals called for patient ID:', patientId);
-            alert('Record vitals for patient ID: ' + patientId);
+            showNotification('Record vitals for patient ID: ' + patientId, 'info');
             // TODO: Implement vitals recording modal
         }
 
         function viewAppointmentDetails(appointmentId) {
-            alert('View appointment details for ID: ' + appointmentId);
+            showNotification('View appointment details for ID: ' + appointmentId, 'info');
         }
 
         function markCompleted(appointmentId) {
-            alert('Mark appointment as completed for ID: ' + appointmentId);
+            showNotification('Mark appointment as completed for ID: ' + appointmentId, 'info');
         }
 
         function cancelAppointment(appointmentId) {
-            alert('Cancel appointment for ID: ' + appointmentId);
+            showNotification('Cancel appointment for ID: ' + appointmentId, 'info');
         }
 
         function scheduleAppointment() {
@@ -572,11 +633,11 @@ try {
                     loadPatientsForAppointment();
                 } else {
                     console.error('Appointment modal not found');
-                    alert('Error: Appointment modal not found');
+                    showNotification('Error: Appointment modal not found', 'error');
                 }
             } catch (error) {
                 console.error('Error in scheduleAppointment:', error);
-                alert('Error opening appointment modal: ' + error.message);
+                showNotification('Error opening appointment modal: ' + error.message, 'error');
             }
         }
 
@@ -615,11 +676,11 @@ try {
                     }
                 } else {
                     console.error('Patients API error:', result.message);
-                    alert('Error loading patients: ' + result.message);
+                    showNotification('Error loading patients: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading patients:', error);
-                alert('Error loading patients: ' + error.message);
+                showNotification('Error loading patients: ' + error.message, 'error');
             }
         }
 
@@ -646,15 +707,15 @@ try {
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Appointment scheduled successfully!');
+                    showNotification('Appointment scheduled successfully!', 'success');
                     closeAppointmentModal();
                     loadAppointments(); // Refresh the appointments list
                 } else {
-                    alert('Error: ' + result.message);
+                    showNotification('Error: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error scheduling appointment:', error);
-                alert('Error scheduling appointment: ' + error.message);
+                showNotification('Error scheduling appointment: ' + error.message, 'error');
             }
         }
     </script>

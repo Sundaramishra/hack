@@ -82,8 +82,46 @@ try {
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+            border-left: 4px solid #059669;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .notification.info {
+            background-color: #3b82f6;
+            border-left: 4px solid #2563eb;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
 
     
     <!-- Debug Info (remove in production) -->
@@ -632,25 +670,25 @@ try {
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('User added successfully!');
+                    showNotification('User added successfully!', 'success');
                     closeModal('addUserModal');
                     location.reload();
                 } else {
-                    alert('Error: ' + result.message);
+                    showNotification('Error: ' + result.message, 'error');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                showNotification('Error: ' + error.message, 'error');
             }
         });
 
         // User management functions
         function editUser(userId) {
-            alert('Edit user functionality - ID: ' + userId);
+            showNotification('Edit user functionality - ID: ' + userId, 'info');
         }
 
         function deleteUser(userId) {
             if (confirm('Are you sure you want to delete this user?')) {
-                alert('Delete user functionality - ID: ' + userId);
+                showNotification('Delete user functionality - ID: ' + userId, 'info');
             }
         }
 
@@ -966,16 +1004,39 @@ try {
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Appointment scheduled successfully!');
+                    showNotification('Appointment scheduled successfully!', 'success');
                     closeModal('addAppointmentModal');
                     loadAppointments(); // Refresh the appointments list
                 } else {
-                    alert('Error: ' + result.message);
+                    showNotification('Error: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error scheduling appointment:', error);
-                alert('Error scheduling appointment: ' + error.message);
+                showNotification('Error scheduling appointment: ' + error.message, 'error');
             }
+        }
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
     </script>
 

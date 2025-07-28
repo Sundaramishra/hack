@@ -70,6 +70,41 @@ $stats = [
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: #10b981;
+            border-left: 4px solid #059669;
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .notification.info {
+            background-color: #3b82f6;
+            border-left: 4px solid #2563eb;
+        }
+    </style>
 </head>
     <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         
@@ -754,6 +789,9 @@ $stats = [
         </main>
     </div>
 
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
     <script>
         // Theme toggle
         const themeToggle = document.getElementById('theme-toggle');
@@ -832,11 +870,11 @@ $stats = [
 
         // Appointment functions
         function viewAppointmentDetails(appointmentId) {
-            alert('View appointment details - ID: ' + appointmentId);
+            showNotification('View appointment details - ID: ' + appointmentId, 'info');
         }
 
         function requestReschedule(appointmentId) {
-            alert('Request reschedule - ID: ' + appointmentId);
+            showNotification('Request reschedule - ID: ' + appointmentId, 'info');
         }
 
         // Initialize vitals chart
@@ -1077,11 +1115,11 @@ $stats = [
                     document.body.removeChild(a);
                     URL.revokeObjectURL(urlBlob);
                 } else {
-                    alert('Error downloading prescriptions: ' + result.message);
+                    showNotification('Error downloading prescriptions: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error downloading prescriptions:', error);
-                alert('Error downloading prescriptions: ' + error.message);
+                showNotification('Error downloading prescriptions: ' + error.message, 'error');
             }
         }
 
@@ -1114,12 +1152,35 @@ $stats = [
                     document.body.removeChild(a);
                     URL.revokeObjectURL(urlBlob);
                 } else {
-                    alert('Error exporting medical history: ' + result.message);
+                    showNotification('Error exporting medical history: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error exporting medical history:', error);
-                alert('Error exporting medical history: ' + error.message);
+                showNotification('Error exporting medical history: ' + error.message, 'error');
             }
+        }
+
+        // Notification function
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Appointment booking functions
@@ -1132,11 +1193,11 @@ $stats = [
                     loadDoctorsForBooking();
                 } else {
                     console.error('Book appointment modal not found');
-                    alert('Error: Book appointment modal not found');
+                    showNotification('Error: Book appointment modal not found', 'error');
                 }
             } catch (error) {
                 console.error('Error in openBookAppointmentModal:', error);
-                alert('Error opening book appointment modal: ' + error.message);
+                showNotification('Error opening book appointment modal: ' + error.message, 'error');
             }
         }
 
@@ -1174,11 +1235,11 @@ $stats = [
                     }
                 } else {
                     console.error('Doctors API error:', result.message);
-                    alert('Error loading doctors: ' + result.message);
+                    showNotification('Error loading doctors: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading doctors:', error);
-                alert('Error loading doctors: ' + error.message);
+                showNotification('Error loading doctors: ' + error.message, 'error');
             }
         }
 
@@ -1206,15 +1267,15 @@ $stats = [
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Appointment booked successfully!');
+                    showNotification('Appointment booked successfully!', 'success');
                     closeBookAppointmentModal();
                     location.reload(); // Refresh the page to show new appointment
                 } else {
-                    alert('Error: ' + result.message);
+                    showNotification('Error: ' + result.message, 'error');
                 }
             } catch (error) {
                 console.error('Error booking appointment:', error);
-                alert('Error booking appointment: ' + error.message);
+                showNotification('Error booking appointment: ' + error.message, 'error');
             }
         }
     </script>
