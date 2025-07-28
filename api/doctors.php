@@ -1,254 +1,326 @@
 <?php
-header('Content-Type: application/json');
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../classes/Auth.php';
+/**
+ * Secure Doctors API for Hospital CRM
+ * Requires authentication and role-based access
+ */
 
-$auth = new Auth();
+require_once __DIR__ . '/ApiBase.php';
 
-if (!$auth->isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit();
-}
-
-// Only admin can access doctor list and manage doctors
-if (!$auth->hasRole('admin')) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Forbidden: Admins only']);
-    exit();
-}
-
-$database = new Database();
-$conn = $database->getConnection();
-
-$method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? '';
-
-try {
-    switch ($method) {
-        case 'GET':
-            if ($action === 'list') {
-                // Admin should always be able to see all doctors for appointment booking
-                // Allow access for admin or testing
-                if ($auth->hasRole('admin')) {
-                    $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active 
-                             FROM doctors d 
-                             JOIN users u ON d.user_id = u.id 
-                             ORDER BY u.first_name, u.last_name";
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
-                    $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    
-                    echo json_encode(['success' => true, 'data' => $doctors]);
-                } else {
-                    // For appointment booking, allow access even without strict role checks
-                    $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active 
-                             FROM doctors d 
-                             JOIN users u ON d.user_id = u.id 
-                             ORDER BY u.first_name, u.last_name";
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
-                    $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    
-                    echo json_encode(['success' => true, 'data' => $doctors]);
-                }
-            } elseif ($action === 'get') {
-                $doctor_id = $_GET['id'] ?? null;
-                if (!$doctor_id) {
-                    throw new Exception('Doctor ID required');
-                }
-                
-                $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active 
-                         FROM doctors d 
-                         JOIN users u ON d.user_id = u.id 
-                         WHERE d.doctor_id = :doctor_id";
-                $stmt = $conn->prepare($query);
-                $stmt->bindParam(':doctor_id', $doctor_id);
-                $stmt->execute();
-                $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($doctor) {
-                    echo json_encode(['success' => true, 'data' => $doctor]);
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Doctor not found']);
-                }
-            }
-            break;
-            
-        case 'POST':
-            if ($action === 'add') {
-                // Only admin can add doctors
-                if (!$auth->hasRole('admin')) {
-                    throw new Exception('Insufficient permissions');
-                }
-                
-                $data = json_decode(file_get_contents('php://input'), true);
-                
-                // Validate required fields
-                $required_fields = ['first_name', 'last_name', 'email', 'password', 'specialization'];
-                foreach ($required_fields as $field) {
-                    if (empty($data[$field])) {
-                        throw new Exception("Field '$field' is required");
-                    }
-                }
-                
-                // Check if email already exists
-                $check_query = "SELECT id FROM users WHERE email = :email";
-                $check_stmt = $conn->prepare($check_query);
-                $check_stmt->bindParam(':email', $data['email']);
-                $check_stmt->execute();
-                
-                if ($check_stmt->rowCount() > 0) {
-                    throw new Exception('Email already exists');
-                }
-                
-                // Start transaction
-                $conn->beginTransaction();
-                
-                try {
-                    // Create user
-                    $user_query = "INSERT INTO users (first_name, last_name, email, password, role, is_active) 
-                                  VALUES (:first_name, :last_name, :email, :password, 'doctor', 1)";
-                    $user_stmt = $conn->prepare($user_query);
-                    $user_stmt->bindParam(':first_name', $data['first_name']);
-                    $user_stmt->bindParam(':last_name', $data['last_name']);
-                    $user_stmt->bindParam(':email', $data['email']);
-                    $user_stmt->bindParam(':password', password_hash($data['password'], PASSWORD_DEFAULT));
-                    $user_stmt->execute();
-                    
-                    $user_id = $conn->lastInsertId();
-                    
-                    // Create doctor record
-                    $doctor_query = "INSERT INTO doctors (user_id, specialization, license_number, experience_years) 
-                                    VALUES (:user_id, :specialization, :license_number, :experience_years)";
-                    $doctor_stmt = $conn->prepare($doctor_query);
-                    $license_number = $data['license_number'] ?? '';
-                    $experience_years = $data['experience_years'] ?? 0;
-                    $doctor_stmt->bindParam(':user_id', $user_id);
-                    $doctor_stmt->bindParam(':specialization', $data['specialization']);
-                    $doctor_stmt->bindParam(':license_number', $license_number);
-                    $doctor_stmt->bindParam(':experience_years', $experience_years);
-                    $doctor_stmt->execute();
-                    
-                    $conn->commit();
-                    echo json_encode(['success' => true, 'message' => 'Doctor added successfully']);
-                    
-                } catch (Exception $e) {
-                    $conn->rollback();
-                    throw $e;
-                }
-            }
-            break;
-            
-        case 'PUT':
-            if ($action === 'update') {
-                // Only admin can update doctors
-                if (!$auth->hasRole('admin')) {
-                    throw new Exception('Insufficient permissions');
-                }
-                
-                $data = json_decode(file_get_contents('php://input'), true);
-                $doctor_id = $data['id'] ?? null;
-                
-                if (!$doctor_id) {
-                    throw new Exception('Doctor ID required');
-                }
-                
-                // Start transaction
-                $conn->beginTransaction();
-                
-                try {
-                    // Update user
-                    $user_query = "UPDATE users SET first_name = :first_name, last_name = :last_name, email = :email, phone = :phone WHERE id = (SELECT user_id FROM doctors WHERE doctor_id = :doctor_id)";
-                    $user_stmt = $conn->prepare($user_query);
-                    $user_stmt->bindParam(':first_name', $data['first_name']);
-                    $user_stmt->bindParam(':last_name', $data['last_name']);
-                    $user_stmt->bindParam(':email', $data['email']);
-                    $user_stmt->bindParam(':phone', $data['phone'] ?? '');
-                    $user_stmt->bindParam(':doctor_id', $doctor_id);
-                    $user_stmt->execute();
-                    
-                    // Update doctor
-                    $doctor_query = "UPDATE doctors SET specialization = :specialization, license_number = :license_number, experience_years = :experience_years WHERE doctor_id = :doctor_id";
-                    $doctor_stmt = $conn->prepare($doctor_query);
-                    $license_number = $data['license_number'] ?? '';
-                    $experience_years = $data['experience_years'] ?? 0;
-                    $doctor_stmt->bindParam(':doctor_id', $doctor_id);
-                    $doctor_stmt->bindParam(':specialization', $data['specialization']);
-                    $doctor_stmt->bindParam(':license_number', $license_number);
-                    $doctor_stmt->bindParam(':experience_years', $experience_years);
-                    $doctor_stmt->execute();
-                    
-                    $conn->commit();
-                    echo json_encode(['success' => true, 'message' => 'Doctor updated successfully']);
-                    
-                } catch (Exception $e) {
-                    $conn->rollback();
-                    throw $e;
-                }
-            }
-            break;
-            
-        case 'DELETE':
-            if ($action === 'delete') {
-                // Only admin can delete doctors
-                if (!$auth->hasRole('admin')) {
-                    throw new Exception('Insufficient permissions');
-                }
-                
-                $doctor_id = $_GET['id'] ?? null;
-                if (!$doctor_id) {
-                    throw new Exception('Doctor ID required');
-                }
-                
-                // Start transaction
-                $conn->beginTransaction();
-                
-                try {
-                    // Get user_id first
-                    $get_user_query = "SELECT user_id FROM doctors WHERE doctor_id = :doctor_id";
-                    $get_user_stmt = $conn->prepare($get_user_query);
-                    $get_user_stmt->bindParam(':doctor_id', $doctor_id);
-                    $get_user_stmt->execute();
-                    $doctor = $get_user_stmt->fetch(PDO::FETCH_ASSOC);
-                    
-                    if (!$doctor) {
-                        throw new Exception('Doctor not found');
-                    }
-                    
-                    $user_id = $doctor['user_id'];
-                    
-                    // Delete doctor record
-                    $delete_doctor_query = "DELETE FROM doctors WHERE doctor_id = :doctor_id";
-                    $delete_doctor_stmt = $conn->prepare($delete_doctor_query);
-                    $delete_doctor_stmt->bindParam(':doctor_id', $doctor_id);
-                    $delete_doctor_stmt->execute();
-                    
-                    // Delete user
-                    $delete_user_query = "DELETE FROM users WHERE id = :id";
-                    $delete_user_stmt = $conn->prepare($delete_user_query);
-                    $delete_user_stmt->bindParam(':id', $user_id);
-                    $delete_user_stmt->execute();
-                    
-                    $conn->commit();
-                    echo json_encode(['success' => true, 'message' => 'Doctor deleted successfully']);
-                    
-                } catch (Exception $e) {
-                    $conn->rollback();
-                    throw $e;
-                }
-            }
-            break;
-            
-        default:
-            throw new Exception('Invalid action');
+class DoctorsApi extends ApiBase {
+    
+    public function __construct() {
+        // Allow admin, doctor, and patient roles (patients can view doctors for appointments)
+        parent::__construct(['admin', 'doctor', 'patient']);
     }
     
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-} catch (Error $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Internal server error: ' . $e->getMessage()]);
+    public function handleRequest() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        $action = $_GET['action'] ?? '';
+        
+        $this->logAccess("doctors_api_$method" . ($action ? "_$action" : ""));
+        
+        try {
+            switch ($method) {
+                case 'GET':
+                    $this->handleGet($action);
+                    break;
+                case 'POST':
+                    $this->handlePost($action);
+                    break;
+                case 'PUT':
+                    $this->handlePut($action);
+                    break;
+                case 'DELETE':
+                    $this->handleDelete($action);
+                    break;
+                default:
+                    $this->sendError('Method not allowed', 405);
+            }
+        } catch (Exception $e) {
+            $this->sendError('Server error: ' . $e->getMessage(), 500);
+        }
+    }
+    
+    private function handleGet($action) {
+        switch ($action) {
+            case 'list':
+                $this->getDoctorsList();
+                break;
+            case 'get':
+                $this->getDoctor();
+                break;
+            case 'available':
+                $this->getAvailableDoctors();
+                break;
+            default:
+                $this->sendError('Invalid action');
+        }
+    }
+    
+    private function getDoctorsList() {
+        if ($this->isAdmin()) {
+            // Admin can see all doctors with full details
+            $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
+                     u.date_of_birth, u.gender, u.address
+                     FROM doctors d
+                     JOIN users u ON d.user_id = u.id
+                     ORDER BY u.first_name, u.last_name";
+            
+        } elseif ($this->isDoctor()) {
+            // Doctor can see basic info of other doctors
+            $query = "SELECT d.doctor_id, d.specialization, d.department, d.experience_years,
+                     u.first_name, u.last_name, u.email
+                     FROM doctors d
+                     JOIN users u ON d.user_id = u.id
+                     WHERE u.is_active = 1
+                     ORDER BY u.first_name, u.last_name";
+            
+        } elseif ($this->isPatient()) {
+            // Patient can see basic doctor info for appointments
+            $query = "SELECT d.doctor_id, d.specialization, d.department, d.experience_years,
+                     d.consultation_fee, d.available_days, d.available_time_start, d.available_time_end,
+                     u.first_name, u.last_name
+                     FROM doctors d
+                     JOIN users u ON d.user_id = u.id
+                     WHERE u.is_active = 1
+                     ORDER BY u.first_name, u.last_name";
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $this->sendSuccess($doctors, 'Doctors retrieved successfully');
+    }
+    
+    private function getDoctor() {
+        $doctor_id = $_GET['id'] ?? null;
+        if (!$doctor_id) {
+            $this->sendError('Doctor ID required');
+        }
+        
+        if ($this->isAdmin()) {
+            // Admin can see full doctor details
+            $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
+                     u.date_of_birth, u.gender, u.address
+                     FROM doctors d
+                     JOIN users u ON d.user_id = u.id
+                     WHERE d.doctor_id = :doctor_id";
+            
+        } elseif ($this->isDoctor()) {
+            // Doctor can see their own full details or basic info of others
+            if ($this->canAccessDoctor($doctor_id)) {
+                $query = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
+                         u.date_of_birth, u.gender, u.address
+                         FROM doctors d
+                         JOIN users u ON d.user_id = u.id
+                         WHERE d.doctor_id = :doctor_id";
+            } else {
+                $query = "SELECT d.doctor_id, d.specialization, d.department, d.experience_years,
+                         u.first_name, u.last_name, u.email
+                         FROM doctors d
+                         JOIN users u ON d.user_id = u.id
+                         WHERE d.doctor_id = :doctor_id AND u.is_active = 1";
+            }
+            
+        } elseif ($this->isPatient()) {
+            // Patient can see basic doctor info
+            $query = "SELECT d.doctor_id, d.specialization, d.department, d.experience_years,
+                     d.consultation_fee, d.available_days, d.available_time_start, d.available_time_end,
+                     u.first_name, u.last_name
+                     FROM doctors d
+                     JOIN users u ON d.user_id = u.id
+                     WHERE d.doctor_id = :doctor_id AND u.is_active = 1";
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':doctor_id', $doctor_id);
+        $stmt->execute();
+        
+        $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$doctor) {
+            $this->sendError('Doctor not found', 404);
+        }
+        
+        $this->sendSuccess($doctor, 'Doctor retrieved successfully');
+    }
+    
+    private function getAvailableDoctors() {
+        // All roles can see available doctors for appointments
+        $date = $_GET['date'] ?? null;
+        $specialization = $_GET['specialization'] ?? null;
+        
+        $query = "SELECT d.doctor_id, d.specialization, d.department, d.consultation_fee,
+                 d.available_days, d.available_time_start, d.available_time_end,
+                 u.first_name, u.last_name
+                 FROM doctors d
+                 JOIN users u ON d.user_id = u.id
+                 WHERE u.is_active = 1";
+        
+        $params = [];
+        
+        if ($specialization) {
+            $query .= " AND d.specialization LIKE :specialization";
+            $params[':specialization'] = "%$specialization%";
+        }
+        
+        $query .= " ORDER BY u.first_name, u.last_name";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute($params);
+        $doctors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $this->sendSuccess($doctors, 'Available doctors retrieved successfully');
+    }
+    
+    private function handlePost($action) {
+        // Only admin can create new doctors
+        if (!$this->isAdmin()) {
+            $this->sendError('Only admin can create new doctors', 403);
+        }
+        
+        $data = json_decode(file_get_contents('php://input'), true);
+        $this->validateRequired($data, ['first_name', 'last_name', 'email', 'username', 'password', 'specialization', 'license_number']);
+        
+        try {
+            $this->conn->beginTransaction();
+            
+            // Create user first
+            $user_query = "INSERT INTO users (username, email, password, role, first_name, last_name, phone, address, date_of_birth, gender) 
+                          VALUES (:username, :email, :password, 'doctor', :first_name, :last_name, :phone, :address, :date_of_birth, :gender)";
+            $user_stmt = $this->conn->prepare($user_query);
+            
+            $hashed_password = $this->auth->hashPassword($data['password']);
+            $user_stmt->bindParam(':username', $data['username']);
+            $user_stmt->bindParam(':email', $data['email']);
+            $user_stmt->bindParam(':password', $hashed_password);
+            $user_stmt->bindParam(':first_name', $data['first_name']);
+            $user_stmt->bindParam(':last_name', $data['last_name']);
+            $user_stmt->bindParam(':phone', $data['phone'] ?? null);
+            $user_stmt->bindParam(':address', $data['address'] ?? null);
+            $user_stmt->bindParam(':date_of_birth', $data['date_of_birth'] ?? null);
+            $user_stmt->bindParam(':gender', $data['gender'] ?? null);
+            $user_stmt->execute();
+            
+            $user_id = $this->conn->lastInsertId();
+            
+            // Create doctor record
+            $doctor_query = "INSERT INTO doctors (user_id, specialization, license_number, qualification, experience_years, consultation_fee, available_days, available_time_start, available_time_end, department)
+                            VALUES (:user_id, :specialization, :license_number, :qualification, :experience_years, :consultation_fee, :available_days, :available_time_start, :available_time_end, :department)";
+            $doctor_stmt = $this->conn->prepare($doctor_query);
+            
+            $doctor_stmt->bindParam(':user_id', $user_id);
+            $doctor_stmt->bindParam(':specialization', $data['specialization']);
+            $doctor_stmt->bindParam(':license_number', $data['license_number']);
+            $doctor_stmt->bindParam(':qualification', $data['qualification'] ?? null);
+            $doctor_stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
+            $doctor_stmt->bindParam(':consultation_fee', $data['consultation_fee'] ?? 0.00);
+            $doctor_stmt->bindParam(':available_days', $data['available_days'] ?? null);
+            $doctor_stmt->bindParam(':available_time_start', $data['available_time_start'] ?? null);
+            $doctor_stmt->bindParam(':available_time_end', $data['available_time_end'] ?? null);
+            $doctor_stmt->bindParam(':department', $data['department'] ?? null);
+            $doctor_stmt->execute();
+            
+            $this->conn->commit();
+            $this->sendSuccess(['user_id' => $user_id], 'Doctor created successfully');
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            $this->sendError('Failed to create doctor: ' . $e->getMessage());
+        }
+    }
+    
+    private function handlePut($action) {
+        $doctor_id = $_GET['id'] ?? null;
+        if (!$doctor_id) {
+            $this->sendError('Doctor ID required');
+        }
+        
+        // Check access permissions
+        if (!$this->isAdmin() && !$this->canAccessDoctor($doctor_id)) {
+            $this->sendError('Access denied to update this doctor', 403);
+        }
+        
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        try {
+            $this->conn->beginTransaction();
+            
+            // Update user table
+            $user_query = "UPDATE users u JOIN doctors d ON u.id = d.user_id 
+                          SET u.first_name = :first_name, u.last_name = :last_name, u.email = :email, 
+                              u.phone = :phone, u.address = :address, u.date_of_birth = :date_of_birth, u.gender = :gender
+                          WHERE d.doctor_id = :doctor_id";
+            $user_stmt = $this->conn->prepare($user_query);
+            $user_stmt->bindParam(':first_name', $data['first_name']);
+            $user_stmt->bindParam(':last_name', $data['last_name']);
+            $user_stmt->bindParam(':email', $data['email']);
+            $user_stmt->bindParam(':phone', $data['phone'] ?? null);
+            $user_stmt->bindParam(':address', $data['address'] ?? null);
+            $user_stmt->bindParam(':date_of_birth', $data['date_of_birth'] ?? null);
+            $user_stmt->bindParam(':gender', $data['gender'] ?? null);
+            $user_stmt->bindParam(':doctor_id', $doctor_id);
+            $user_stmt->execute();
+            
+            // Update doctor table
+            $doctor_query = "UPDATE doctors SET specialization = :specialization, license_number = :license_number, 
+                            qualification = :qualification, experience_years = :experience_years, consultation_fee = :consultation_fee,
+                            available_days = :available_days, available_time_start = :available_time_start, 
+                            available_time_end = :available_time_end, department = :department
+                            WHERE doctor_id = :doctor_id";
+            $doctor_stmt = $this->conn->prepare($doctor_query);
+            
+            $doctor_stmt->bindParam(':specialization', $data['specialization']);
+            $doctor_stmt->bindParam(':license_number', $data['license_number']);
+            $doctor_stmt->bindParam(':qualification', $data['qualification'] ?? null);
+            $doctor_stmt->bindParam(':experience_years', $data['experience_years'] ?? 0);
+            $doctor_stmt->bindParam(':consultation_fee', $data['consultation_fee'] ?? 0.00);
+            $doctor_stmt->bindParam(':available_days', $data['available_days'] ?? null);
+            $doctor_stmt->bindParam(':available_time_start', $data['available_time_start'] ?? null);
+            $doctor_stmt->bindParam(':available_time_end', $data['available_time_end'] ?? null);
+            $doctor_stmt->bindParam(':department', $data['department'] ?? null);
+            $doctor_stmt->bindParam(':doctor_id', $doctor_id);
+            $doctor_stmt->execute();
+            
+            $this->conn->commit();
+            $this->sendSuccess(null, 'Doctor updated successfully');
+            
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            $this->sendError('Failed to update doctor: ' . $e->getMessage());
+        }
+    }
+    
+    private function handleDelete($action) {
+        // Only admin can delete doctors
+        if (!$this->isAdmin()) {
+            $this->sendError('Only admin can delete doctors', 403);
+        }
+        
+        $doctor_id = $_GET['id'] ?? null;
+        if (!$doctor_id) {
+            $this->sendError('Doctor ID required');
+        }
+        
+        try {
+            $query = "DELETE FROM users WHERE id = (SELECT user_id FROM doctors WHERE doctor_id = :doctor_id)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':doctor_id', $doctor_id);
+            $stmt->execute();
+            
+            if ($stmt->rowCount() > 0) {
+                $this->sendSuccess(null, 'Doctor deleted successfully');
+            } else {
+                $this->sendError('Doctor not found', 404);
+            }
+            
+        } catch (Exception $e) {
+            $this->sendError('Failed to delete doctor: ' . $e->getMessage());
+        }
+    }
 }
+
+// Initialize and handle the request
+$api = new DoctorsApi();
+$api->handleRequest();
 ?>
