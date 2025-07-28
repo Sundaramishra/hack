@@ -191,6 +191,17 @@ $doctorId = $_SESSION['doctor_id'];
             <div id="appointmentsSection" class="section hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">My Appointments</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="filterAppointments('all')" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm">
+                            All
+                        </button>
+                        <button onclick="filterAppointments('today')" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200 text-sm">
+                            Today
+                        </button>
+                        <button onclick="filterAppointments('upcoming')" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors duration-200 text-sm">
+                            Upcoming
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
@@ -198,15 +209,15 @@ $doctorId = $_SESSION['doctor_id'];
                         <table class="w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date & Time</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="appointmentsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                <!-- Will be populated by JavaScript -->
+                            <tbody id="appointmentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Appointments will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -452,6 +463,11 @@ $doctorId = $_SESSION['doctor_id'];
             
             document.getElementById('pageTitle').textContent = titles[sectionName] || 'Dashboard';
             currentSection = sectionName;
+            
+            // Load section-specific data
+            if (sectionName === 'appointments') {
+                loadDoctorAppointments();
+            }
             
             // Load section data
             loadSectionData(sectionName);
@@ -723,6 +739,191 @@ $doctorId = $_SESSION['doctor_id'];
                 }
             });
         });
+
+        // Doctor Appointments Functions
+        let currentAppointmentFilter = 'all';
+        
+        async function loadDoctorAppointments(filter = 'all') {
+            try {
+                const response = await fetch('../handlers/appointments.php?action=list');
+                const result = await response.json();
+                
+                if (result.success) {
+                    let appointments = result.data;
+                    
+                    // Filter appointments based on selection
+                    const today = new Date().toISOString().split('T')[0];
+                    const now = new Date();
+                    
+                    if (filter === 'today') {
+                        appointments = appointments.filter(apt => apt.appointment_date === today);
+                    } else if (filter === 'upcoming') {
+                        appointments = appointments.filter(apt => {
+                            const aptDateTime = new Date(apt.appointment_date + ' ' + apt.appointment_time);
+                            return aptDateTime > now;
+                        });
+                    }
+                    
+                    displayDoctorAppointments(appointments);
+                } else {
+                    showError(result.message || 'Error loading appointments');
+                }
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                showError('Error loading appointments');
+            }
+        }
+        
+        function displayDoctorAppointments(appointments) {
+            const tbody = document.getElementById('appointmentsTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (appointments.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                            <p>No appointments found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            appointments.forEach(appointment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">${appointment.patient_name}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${appointment.patient_code || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white">${formatDate(appointment.appointment_date)}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${formatTime(appointment.appointment_time)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            ${appointment.appointment_type || 'Consultation'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(appointment.status)}">
+                            ${appointment.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            ${appointment.status === 'scheduled' ? `
+                                <button onclick="markComplete(${appointment.id})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="Mark Complete">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="openPrescriptionModal(${appointment.id}, ${appointment.patient_id})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="Add Prescription">
+                                    <i class="fas fa-prescription-bottle-alt"></i>
+                                </button>
+                            ` : ''}
+                            <button onclick="viewAppointmentDetails(${appointment.id})" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function filterAppointments(filter) {
+            currentAppointmentFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('[onclick^="filterAppointments"]').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'bg-green-500', 'bg-purple-500');
+                btn.classList.add('bg-gray-500');
+            });
+            
+            event.target.classList.remove('bg-gray-500');
+            if (filter === 'all') {
+                event.target.classList.add('bg-blue-500');
+            } else if (filter === 'today') {
+                event.target.classList.add('bg-green-500');
+            } else if (filter === 'upcoming') {
+                event.target.classList.add('bg-purple-500');
+            }
+            
+            loadDoctorAppointments(filter);
+        }
+        
+        async function markComplete(appointmentId) {
+            try {
+                const response = await fetch('../handlers/appointments.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'update_status',
+                        appointment_id: appointmentId,
+                        status: 'completed'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Appointment marked as completed');
+                    loadDoctorAppointments(currentAppointmentFilter);
+                } else {
+                    showError(result.message || 'Error updating appointment');
+                }
+            } catch (error) {
+                console.error('Error updating appointment:', error);
+                showError('Error updating appointment');
+            }
+        }
+        
+        function viewAppointmentDetails(appointmentId) {
+            showInfo('Appointment details functionality will be implemented');
+        }
+        
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function formatTime(timeString) {
+            const time = new Date('2000-01-01 ' + timeString);
+            return time.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                'scheduled': 'bg-blue-100 text-blue-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800',
+                'no_show': 'bg-gray-100 text-gray-800',
+                'rescheduled': 'bg-yellow-100 text-yellow-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
     </script>
 </body>
 </html>
