@@ -81,6 +81,9 @@ $user = $auth->getCurrentUser();
             <a href="#" onclick="showSection('profile')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user-circle mr-3"></i>My Profile
             </a>
+            <a href="#" onclick="showSection('website-settings')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                <i class="fas fa-cog mr-3"></i>Website Settings
+            </a>
         </nav>
     </div>
     
@@ -595,6 +598,203 @@ $user = $auth->getCurrentUser();
                         <button onclick="updateTheme()" class="mt-4 w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors duration-200">
                             <i class="fas fa-check mr-2"></i>Apply Theme
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="website-settingsSection" class="section hidden">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Website Settings</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- General Settings -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-globe mr-2"></i>General Settings
+                    </h3>
+                    
+                    <form id="generalSettingsForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-tag mr-2"></i>Website Name
+                            </label>
+                            <input type="text" id="siteName" name="site_name" placeholder="Hospital CRM" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-image mr-2"></i>Website Logo
+                            </label>
+                            <div class="flex items-center space-x-4">
+                                <div id="logoPreview" class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="logoUpload" accept="image/*" class="hidden">
+                                    <button type="button" onclick="document.getElementById('logoUpload').click()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-upload mr-2"></i>Upload Logo
+                                    </button>
+                                    <button type="button" onclick="removeLogo()" class="ml-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-trash mr-2"></i>Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-star mr-2"></i>Favicon
+                            </label>
+                            <div class="flex items-center space-x-4">
+                                <div id="faviconPreview" class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
+                                    <i class="fas fa-star text-gray-400 text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <input type="file" id="faviconUpload" accept="image/*,.ico" class="hidden">
+                                    <button type="button" onclick="document.getElementById('faviconUpload').click()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-upload mr-2"></i>Upload Favicon
+                                    </button>
+                                    <button type="button" onclick="removeFavicon()" class="ml-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-trash mr-2"></i>Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Save General Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Color Customization -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-palette mr-2"></i>Color Customization
+                    </h3>
+                    
+                    <form id="colorSettingsForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="primaryColor" name="primary_color" value="#3B82F6" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="primaryColorText" value="#3B82F6" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="secondaryColor" name="secondary_color" value="#6366F1" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="secondaryColorText" value="#6366F1" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Success Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="accentColor" name="accent_color" value="#10B981" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="accentColorText" value="#10B981" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Danger Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="dangerColor" name="danger_color" value="#EF4444" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="dangerColorText" value="#EF4444" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Warning Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="warningColor" name="warning_color" value="#F59E0B" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="warningColorText" value="#F59E0B" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Info Color</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="color" id="infoColor" name="info_color" value="#06B6D4" class="w-12 h-10 border border-gray-300 rounded cursor-pointer">
+                                    <input type="text" id="infoColorText" value="#06B6D4" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button type="button" onclick="resetColors()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200">
+                                <i class="fas fa-undo mr-2"></i>Reset to Default
+                            </button>
+                            <button type="submit" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Colors
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-code mr-2"></i>Advanced Settings
+                    </h3>
+                    
+                    <form id="advancedSettingsForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-css3-alt mr-2"></i>Custom CSS
+                            </label>
+                            <textarea id="customCSS" name="custom_css" rows="8" placeholder="/* Add your custom CSS here */" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm resize-none"></textarea>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Add custom CSS to override default styles. Use !important for better specificity.</p>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Advanced Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Preview Section -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-eye mr-2"></i>Live Preview
+                    </h3>
+                    
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+                        <div class="flex items-center justify-between mb-4 p-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg text-white">
+                            <div class="flex items-center">
+                                <div id="previewLogo" class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <span id="previewSiteName" class="text-xl font-semibold">Hospital CRM</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors">Primary</button>
+                                <button class="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-colors">Success</button>
+                                <button class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors">Danger</button>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Sample Card</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">This is how your content will look with the current color scheme.</p>
+                            </div>
+                            <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Another Card</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">Colors will update in real-time as you change them.</p>
+                            </div>
+                            <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Third Card</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">Preview your changes before saving.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
