@@ -27,47 +27,21 @@ try {
     switch ($method) {
         case 'GET':
             if ($action === 'list') {
-                // Admin should always be able to see all patients for appointment booking
-                // Allow access for admin or testing
-                if ($allow_testing || $auth->hasRole('admin') || $auth->isLoggedIn()) {
-                    // Admin can see all patients
-                    $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
-                             CONCAT(d.first_name, ' ', d.last_name) as assigned_doctor
-                             FROM patients p 
-                             JOIN users u ON p.user_id = u.id 
-                             LEFT JOIN doctors d ON p.assigned_doctor_id = d.id
-                             ORDER BY u.first_name, u.last_name";
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
-                } elseif ($auth->hasRole('doctor')) {
-                    // Doctor can only see assigned patients
-                    $current_user = $auth->getCurrentUser();
-                    $doctor_id = $current_user['doctor_id'];
-                    
-                    $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active
-                             FROM patients p 
-                             JOIN users u ON p.user_id = u.id 
-                             JOIN doctor_patient_assignments dpa ON p.patient_id = dpa.patient_id
-                             WHERE dpa.doctor_id = :doctor_id AND dpa.is_active = 1
-                             ORDER BY u.first_name, u.last_name";
-                    $stmt = $conn->prepare($query);
-                    $stmt->bindParam(':doctor_id', $doctor_id);
-                    $stmt->execute();
-                } else {
-                    // For appointment booking, allow access even without strict role checks
-                    $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
-                             CONCAT(d.first_name, ' ', d.last_name) as assigned_doctor
-                             FROM patients p 
-                             JOIN users u ON p.user_id = u.id 
-                             LEFT JOIN doctors d ON p.assigned_doctor_id = d.id
-                             ORDER BY u.first_name, u.last_name";
-                    $stmt = $conn->prepare($query);
-                    $stmt->execute();
+                // Only admin can see all patients
+                if (!$auth->isLoggedIn() || !$auth->hasRole('admin')) {
+                    http_response_code(403);
+                    echo json_encode(['error' => 'Forbidden: Admins only']);
+                    exit();
                 }
-                
-                $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                echo json_encode(['success' => true, 'data' => $patients]);
-                
+                // Admin can see all patients
+                $query = "SELECT p.*, u.first_name, u.last_name, u.email, u.phone, u.is_active,
+                         CONCAT(d.first_name, ' ', d.last_name) as assigned_doctor
+                         FROM patients p 
+                         JOIN users u ON p.user_id = u.id 
+                         LEFT JOIN doctors d ON p.assigned_doctor_id = d.id
+                         ORDER BY u.first_name, u.last_name";
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
             } elseif ($action === 'get') {
                 $patient_id = $_GET['id'] ?? null;
                 if (!$patient_id) {
