@@ -293,6 +293,27 @@ class SecureAPIClient {
         });
     }
     
+    // Session management methods
+    async keepAlive(meetingId, guestName = null) {
+        return this.makeSecureRequest('keep_alive.php', {
+            method: 'POST',
+            data: { 
+                meeting_id: meetingId,
+                guest_name: guestName
+            }
+        });
+    }
+    
+    async leaveMeeting(meetingId, guestName = null) {
+        return this.makeSecureRequest('leave_meeting.php', {
+            method: 'POST',
+            data: { 
+                meeting_id: meetingId,
+                guest_name: guestName
+            }
+        });
+    }
+    
     // File sharing methods
     async uploadFile(meetingId, file, progressCallback = null) {
         // Validate file size (256MB)
