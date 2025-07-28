@@ -50,19 +50,19 @@ $doctorId = $_SESSION['doctor_id'];
         </div>
         
         <nav class="mt-6">
-            <a href="#" onclick="showSection('dashboard')" class="nav-link active flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('dashboard', this)" class="nav-link active flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
             </a>
-            <a href="#" onclick="showSection('appointments')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('appointments', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-calendar-alt mr-3"></i>My Appointments
             </a>
-            <a href="#" onclick="showSection('patients')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('patients', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-users mr-3"></i>My Patients
             </a>
-            <a href="#" onclick="showSection('prescriptions')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('prescriptions', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-prescription-bottle-alt mr-3"></i>Prescriptions
             </a>
-            <a href="#" onclick="showSection('profile')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('profile', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user mr-3"></i>Profile
             </a>
         </nav>
@@ -417,14 +417,17 @@ $doctorId = $_SESSION['doctor_id'];
         }
         
         // Section Management
-        function showSection(sectionName) {
+        function showSection(sectionName, element) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
             
             // Show selected section
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
             
             // Update nav links
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -432,8 +435,11 @@ $doctorId = $_SESSION['doctor_id'];
                 link.classList.add('text-gray-700', 'dark:text-gray-300');
             });
             
-            event.target.classList.add('active', 'bg-green-500', 'text-white');
-            event.target.classList.remove('text-gray-700', 'dark:text-gray-300');
+            // Update clicked element
+            if (element) {
+                element.classList.add('active', 'bg-green-500', 'text-white');
+                element.classList.remove('text-gray-700', 'dark:text-gray-300');
+            }
             
             // Update page title
             const titles = {

@@ -51,37 +51,37 @@ $user = $auth->getCurrentUser();
         </div>
         
         <nav class="mt-6">
-            <a href="#" onclick="showSection('dashboard')" class="nav-link active flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('dashboard', this)" class="nav-link active flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
             </a>
-            <a href="#" onclick="showSection('users')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('users', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-users mr-3"></i>Users
             </a>
-            <a href="#" onclick="showSection('doctors')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('doctors', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user-md mr-3"></i>Doctors
             </a>
-            <a href="#" onclick="showSection('patients')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('patients', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user-injured mr-3"></i>Patients
             </a>
-            <a href="#" onclick="showSection('appointments')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('appointments', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-calendar-alt mr-3"></i>Appointments
             </a>
-            <a href="#" onclick="showSection('book-appointment')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('book-appointment', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-calendar-plus mr-3"></i>Book Appointment
             </a>
-            <a href="#" onclick="showSection('vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('vitals', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-heartbeat mr-3"></i>Vitals
             </a>
-            <a href="#" onclick="showSection('prescriptions')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('prescriptions', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-prescription-bottle-alt mr-3"></i>Prescriptions
             </a>
-            <a href="#" onclick="showSection('custom-vitals')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('custom-vitals', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-plus-circle mr-3"></i>Custom Vitals
             </a>
-            <a href="#" onclick="showSection('profile')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('profile', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-user-circle mr-3"></i>My Profile
             </a>
-            <a href="#" onclick="showSection('website-settings')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+            <a href="#" onclick="showSection('website-settings', this)" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
                 <i class="fas fa-cog mr-3"></i>Website Settings
             </a>
         </nav>
@@ -898,7 +898,7 @@ $user = $auth->getCurrentUser();
         // Section Management
         let currentSection = 'dashboard';
         
-        function showSection(sectionName) {
+        function showSection(sectionName, element) {
             currentSection = sectionName;
             
             // Hide all sections
@@ -907,7 +907,10 @@ $user = $auth->getCurrentUser();
             });
             
             // Show selected section
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
             
             // Update nav links
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -915,8 +918,11 @@ $user = $auth->getCurrentUser();
                 link.classList.add('text-gray-700', 'dark:text-gray-300');
             });
             
-            event.target.classList.add('active', 'bg-blue-500', 'text-white');
-            event.target.classList.remove('text-gray-700', 'dark:text-gray-300');
+            // Update clicked element
+            if (element) {
+                element.classList.add('active', 'bg-blue-500', 'text-white');
+                element.classList.remove('text-gray-700', 'dark:text-gray-300');
+            }
             
             // Load section-specific data
             if (sectionName === 'appointments') {

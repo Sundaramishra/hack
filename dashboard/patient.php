@@ -338,14 +338,17 @@ $patientId = $_SESSION['patient_id'];
         }
         
         // Section Management
-        function showSection(sectionName) {
+        function showSection(sectionName, element) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
             
             // Show selected section
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
             
             // Update nav links
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -353,8 +356,11 @@ $patientId = $_SESSION['patient_id'];
                 link.classList.add('text-gray-700', 'dark:text-gray-300');
             });
             
-            event.target.classList.add('active', 'bg-purple-500', 'text-white');
-            event.target.classList.remove('text-gray-700', 'dark:text-gray-300');
+            // Update clicked element
+            if (element) {
+                element.classList.add('active', 'bg-purple-500', 'text-white');
+                element.classList.remove('text-gray-700', 'dark:text-gray-300');
+            }
             
             // Update page title
             const titles = {
