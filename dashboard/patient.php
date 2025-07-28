@@ -1295,7 +1295,7 @@ $stats = [
                 
                 console.log('Submitting appointment:', appointmentData);
                 
-                const response = await fetch(getApiPath('appointments.php'), {
+                const response = await fetch(getApiPath('debug_appointments.php'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
