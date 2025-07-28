@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Don't display errors in JSON response
+ini_set('log_errors', 1);
+
 header('Content-Type: application/json');
 session_start();
 
@@ -10,9 +15,15 @@ $auth = new Auth();
 $user_manager = new User();
 
 // Check authentication and admin role
-if (!$auth->isLoggedIn() || !$auth->hasRole('admin')) {
+if (!$auth->isLoggedIn()) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Not logged in']);
+    exit();
+}
+
+if (!$auth->hasRole('admin')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Admin access required']);
     exit();
 }
 
@@ -47,7 +58,14 @@ try {
                 'insurance_number' => $_POST['insurance_number'] ?? ''
             ];
             
+            // Debug: Log the data being processed
+            error_log("User API - Processing user creation with data: " . json_encode($data));
+            
             $result = $user_manager->createUser($data);
+            
+            // Debug: Log the result
+            error_log("User API - Result: " . json_encode($result));
+            
             echo json_encode($result);
             break;
             
@@ -101,5 +119,8 @@ try {
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+} catch (Error $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Fatal error: ' . $e->getMessage()]);
 }
 ?>
