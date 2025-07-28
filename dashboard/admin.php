@@ -234,19 +234,107 @@ $user = $auth->getCurrentUser();
                 </div>
             </div>
             
-            <!-- Other sections will be added here -->
+            <!-- Doctors Section -->
             <div id="doctorsSection" class="section hidden">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Doctors Management</h2>
-                <!-- Doctors content here -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Doctors Management</h2>
+                    <button onclick="openDoctorModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>Add Doctor
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Specialization</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">License</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="doctorsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-user-md text-4xl mb-4"></i>
+                                        <p>Loading doctors...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
+            <!-- Patients Section -->
             <div id="patientsSection" class="section hidden">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Patients Management</h2>
-                <!-- Patients content here -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Patients Management</h2>
+                    <button onclick="openPatientModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>Add Patient
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient Code</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Blood Group</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-user-injured text-4xl mb-4"></i>
+                                        <p>Loading patients...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
-                    <div id="appointmentsSection" class="section hidden">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Appointments Management</h2>
+            <!-- Appointments Section -->
+            <div id="appointmentsSection" class="section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Appointments Management</h2>
+                    <button onclick="showSection('book-appointment', this)" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>Book Appointment
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Doctor</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date & Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-calendar-alt text-4xl mb-4"></i>
+                                        <p>Loading appointments...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                 <div class="overflow-x-auto">
@@ -364,9 +452,38 @@ $user = $auth->getCurrentUser();
             </div>
         </div>
             
+            <!-- Vitals Section -->
             <div id="vitalsSection" class="section hidden">
-                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Vitals Management</h2>
-                <!-- Vitals content here -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Vitals Management</h2>
+                    <button onclick="openVitalsModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>Add Vital Record
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Patient</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vital Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Value</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vitalsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-heartbeat text-4xl mb-4"></i>
+                                        <p>Loading vitals...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
             <!-- Prescriptions Section -->
@@ -395,10 +512,39 @@ $user = $auth->getCurrentUser();
                 </div>
             </div>
             
-                    <div id="custom-vitalsSection" class="section hidden">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Custom Vitals Management</h2>
-            <!-- Custom vitals content here -->
-        </div>
+            <!-- Custom Vitals Section -->
+            <div id="custom-vitalsSection" class="section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Custom Vitals Management</h2>
+                    <button onclick="openCustomVitalModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>Add Custom Vital Type
+                    </button>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Unit</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Normal Range</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customVitalsTable" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-plus-circle text-4xl mb-4"></i>
+                                        <p>Loading custom vitals...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
         <div id="profileSection" class="section hidden">
             <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">My Profile</h2>
@@ -874,18 +1020,100 @@ $user = $auth->getCurrentUser();
         // Theme Management
         function toggleTheme() {
             debugLog('Toggle theme clicked');
-            const html = document.documentElement;
-            const isDark = html.classList.contains('dark');
-            
-            if (isDark) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                debugLog('Switched to light theme');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                debugLog('Switched to dark theme');
+            try {
+                const html = document.documentElement;
+                const isDark = html.classList.contains('dark');
+                
+                if (isDark) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                    debugLog('Switched to light theme');
+                    showSuccess('Switched to light theme');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                    debugLog('Switched to dark theme');
+                    showSuccess('Switched to dark theme');
+                }
+            } catch (error) {
+                debugLog('Error toggling theme: ' + error.message);
+                showError('Error switching theme');
             }
+        }
+        
+        // Load section-specific data
+        function loadSectionData(sectionName) {
+            debugLog('Loading data for section: ' + sectionName);
+            
+            switch(sectionName) {
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'doctors':
+                    loadDoctors();
+                    break;
+                case 'patients':
+                    loadPatients();
+                    break;
+                case 'appointments':
+                    loadAppointments();
+                    break;
+                case 'prescriptions':
+                    loadAdminPrescriptions();
+                    break;
+                case 'vitals':
+                    loadVitals();
+                    break;
+                case 'profile':
+                    loadProfile();
+                    break;
+                case 'website-settings':
+                    loadWebsiteSettings();
+                    break;
+                default:
+                    debugLog('No specific data loading for section: ' + sectionName);
+            }
+        }
+        
+        // Placeholder functions for missing functionality
+        function loadUsers() {
+            debugLog('Loading users...');
+            showInfo('Users section loaded');
+        }
+        
+        function loadDoctors() {
+            debugLog('Loading doctors...');
+            showInfo('Doctors section loaded');
+        }
+        
+        function loadPatients() {
+            debugLog('Loading patients...');
+            showInfo('Patients section loaded');
+        }
+        
+        function loadVitals() {
+            debugLog('Loading vitals...');
+            showInfo('Vitals section loaded');
+        }
+        
+        function openUserModal() {
+            showInfo('User modal will open here');
+        }
+        
+        function openDoctorModal() {
+            showInfo('Doctor modal will open here');
+        }
+        
+        function openPatientModal() {
+            showInfo('Patient modal will open here');
+        }
+        
+        function openVitalsModal() {
+            showInfo('Vitals modal will open here');
+        }
+        
+        function openCustomVitalModal() {
+            showInfo('Custom vital modal will open here');
         }
         
         // Sidebar Management
@@ -916,43 +1144,47 @@ $user = $auth->getCurrentUser();
             debugLog('Show section: ' + sectionName);
             currentSection = sectionName;
             
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            // Show selected section
-            const targetSection = document.getElementById(sectionName + 'Section');
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-                debugLog('Section shown: ' + sectionName);
-            } else {
-                debugLog('Section not found: ' + sectionName + 'Section');
+            try {
+                // Hide all sections
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show selected section
+                const targetSection = document.getElementById(sectionName + 'Section');
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                    debugLog('Section shown: ' + sectionName);
+                } else {
+                    debugLog('Section not found: ' + sectionName + 'Section');
+                    showError('Section not found: ' + sectionName);
+                    return;
+                }
+                
+                // Update nav links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active', 'bg-blue-500', 'text-white');
+                    link.classList.add('text-gray-700', 'dark:text-gray-300');
+                });
+                
+                // Update clicked element
+                if (element) {
+                    element.classList.add('active', 'bg-blue-500', 'text-white');
+                    element.classList.remove('text-gray-700', 'dark:text-gray-300');
+                    debugLog('Navigation link updated');
+                } else {
+                    debugLog('No element provided to update');
+                }
+                
+                // Load section-specific data
+                loadSectionData(sectionName);
+                
+            } catch (error) {
+                debugLog('Error in showSection: ' + error.message);
+                showError('Error switching sections');
             }
             
-            // Update nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active', 'bg-blue-500', 'text-white');
-                link.classList.add('text-gray-700', 'dark:text-gray-300');
-            });
-            
-            // Update clicked element
-            if (element) {
-                element.classList.add('active', 'bg-blue-500', 'text-white');
-                element.classList.remove('text-gray-700', 'dark:text-gray-300');
-                debugLog('Navigation link updated');
-            } else {
-                debugLog('No element provided to update');
-            }
-            
-            // Load section-specific data
-            if (sectionName === 'appointments') {
-                loadAppointments();
-            } else if (sectionName === 'book-appointment') {
-                loadPatientsAndDoctors();
-            } else if (sectionName === 'profile') {
-                loadProfile();
-            }
+            // Section-specific data loading is now handled in loadSectionData()
             
             // Update page title
             const titles = {
