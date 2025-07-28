@@ -17,29 +17,33 @@ try {
     echo "<h2>Adding Sample Users</h2>";
     
     // Add admin user
-    $admin_query = "INSERT INTO users (first_name, last_name, email, password, role, is_active) 
-                    VALUES ('Admin', 'User', 'admin@hospital.com', :password, 'admin', 1)";
+    $admin_query = "INSERT INTO users (first_name, last_name, username, email, password, role, is_active) 
+                    VALUES ('Admin', 'User', 'admin', 'admin@hospital.com', :password, 'admin', 1)";
     $admin_stmt = $conn->prepare($admin_query);
-    $admin_stmt->bindParam(':password', password_hash('admin123', PASSWORD_DEFAULT));
+    $admin_password = password_hash('admin123', PASSWORD_DEFAULT);
+    $admin_stmt->bindParam(':password', $admin_password);
     $admin_stmt->execute();
     echo "✅ Admin user added<br>";
     
     // Add doctor users
     $doctors = [
-        ['Dr. John', 'Smith', 'john.smith@hospital.com', 'Cardiology'],
-        ['Dr. Sarah', 'Johnson', 'sarah.johnson@hospital.com', 'Neurology'],
-        ['Dr. Michael', 'Brown', 'michael.brown@hospital.com', 'Pediatrics']
+        ['John', 'Smith', 'john.smith@hospital.com', 'Cardiology'],
+        ['Sarah', 'Johnson', 'sarah.johnson@hospital.com', 'Neurology'],
+        ['Michael', 'Brown', 'michael.brown@hospital.com', 'Pediatrics']
     ];
     
     foreach ($doctors as $doctor) {
         // Add user
-        $user_query = "INSERT INTO users (first_name, last_name, email, password, role, is_active) 
-                      VALUES (:first_name, :last_name, :email, :password, 'doctor', 1)";
+        $user_query = "INSERT INTO users (first_name, last_name, username, email, password, role, is_active) 
+                      VALUES (:first_name, :last_name, :username, :email, :password, 'doctor', 1)";
         $user_stmt = $conn->prepare($user_query);
+        $username = strtolower($doctor[0]) . '.' . strtolower($doctor[1]);
+        $doctor_password = password_hash('doctor123', PASSWORD_DEFAULT);
         $user_stmt->bindParam(':first_name', $doctor[0]);
         $user_stmt->bindParam(':last_name', $doctor[1]);
+        $user_stmt->bindParam(':username', $username);
         $user_stmt->bindParam(':email', $doctor[2]);
-        $user_stmt->bindParam(':password', password_hash('doctor123', PASSWORD_DEFAULT));
+        $user_stmt->bindParam(':password', $doctor_password);
         $user_stmt->execute();
         
         $user_id = $conn->lastInsertId();
@@ -72,13 +76,16 @@ try {
     
     foreach ($patients as $patient) {
         // Add user
-        $user_query = "INSERT INTO users (first_name, last_name, email, password, role, is_active) 
-                      VALUES (:first_name, :last_name, :email, :password, 'patient', 1)";
+        $user_query = "INSERT INTO users (first_name, last_name, username, email, password, role, is_active) 
+                      VALUES (:first_name, :last_name, :username, :email, :password, 'patient', 1)";
         $user_stmt = $conn->prepare($user_query);
+        $username = strtolower($patient[0]) . '.' . strtolower($patient[1]);
+        $patient_password = password_hash('patient123', PASSWORD_DEFAULT);
         $user_stmt->bindParam(':first_name', $patient[0]);
         $user_stmt->bindParam(':last_name', $patient[1]);
+        $user_stmt->bindParam(':username', $username);
         $user_stmt->bindParam(':email', $patient[2]);
-        $user_stmt->bindParam(':password', password_hash('patient123', PASSWORD_DEFAULT));
+        $user_stmt->bindParam(':password', $patient_password);
         $user_stmt->execute();
         
         $user_id = $conn->lastInsertId();
