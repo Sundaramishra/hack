@@ -866,17 +866,25 @@ $user = $auth->getCurrentUser();
         // Global variables
         let currentSection = 'dashboard';
         
+        // Debug function
+        function debugLog(message) {
+            console.log('[Admin Dashboard]', message);
+        }
+        
         // Theme Management
         function toggleTheme() {
+            debugLog('Toggle theme clicked');
             const html = document.documentElement;
             const isDark = html.classList.contains('dark');
             
             if (isDark) {
                 html.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
+                debugLog('Switched to light theme');
             } else {
                 html.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
+                debugLog('Switched to dark theme');
             }
         }
         
@@ -891,14 +899,21 @@ $user = $auth->getCurrentUser();
         
         // User Menu
         function toggleUserMenu() {
+            debugLog('Toggle user menu clicked');
             const menu = document.getElementById('userMenu');
-            menu.classList.toggle('hidden');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                debugLog('User menu toggled');
+            } else {
+                debugLog('User menu element not found');
+            }
         }
         
         // Section Management
         let currentSection = 'dashboard';
         
         function showSection(sectionName, element) {
+            debugLog('Show section: ' + sectionName);
             currentSection = sectionName;
             
             // Hide all sections
@@ -910,6 +925,9 @@ $user = $auth->getCurrentUser();
             const targetSection = document.getElementById(sectionName + 'Section');
             if (targetSection) {
                 targetSection.classList.remove('hidden');
+                debugLog('Section shown: ' + sectionName);
+            } else {
+                debugLog('Section not found: ' + sectionName + 'Section');
             }
             
             // Update nav links
@@ -922,6 +940,9 @@ $user = $auth->getCurrentUser();
             if (element) {
                 element.classList.add('active', 'bg-blue-500', 'text-white');
                 element.classList.remove('text-gray-700', 'dark:text-gray-300');
+                debugLog('Navigation link updated');
+            } else {
+                debugLog('No element provided to update');
             }
             
             // Load section-specific data
@@ -1358,59 +1379,7 @@ $user = $auth->getCurrentUser();
             document.getElementById('timeSlotsContainer').innerHTML = '<p class="col-span-full text-gray-500 dark:text-gray-400 text-center py-4">Select a doctor and date to view available slots</p>';
         }
 
-        // Handle appointment form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const appointmentForm = document.getElementById('appointmentForm');
-            if (appointmentForm) {
-                appointmentForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(this);
-                    const appointmentData = {
-                        action: 'book',
-                        patient_id: formData.get('patient_id'),
-                        doctor_id: formData.get('doctor_id'),
-                        appointment_date: formData.get('appointment_date'),
-                        appointment_time: formData.get('appointment_time'),
-                        appointment_type: formData.get('appointment_type'),
-                        duration: formData.get('duration'),
-                        reason: formData.get('reason'),
-                        symptoms: formData.get('symptoms')
-                    };
-                    
-                    if (!appointmentData.appointment_time) {
-                        showWarning('Please select a time slot');
-                        return;
-                    }
-                    
-                    try {
-                        const response = await fetch('../handlers/appointments.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(appointmentData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            showSuccess('Appointment booked successfully!');
-                            resetAppointmentForm();
-                            // Reload appointments if on appointments section
-                            if (currentSection === 'appointments') {
-                                loadAppointments();
-                            }
-                        } else {
-                            showError(result.message || 'Error booking appointment');
-                        }
-                    } catch (error) {
-                        console.error('Error booking appointment:', error);
-                        showError('Error booking appointment');
-                    }
-                });
-            }
-        });
+        // Appointment form handling is now in main DOMContentLoaded listener
 
         async function loadAppointments() {
             try {
@@ -1540,87 +1509,7 @@ $user = $auth->getCurrentUser();
             }
         }
 
-        // Handle profile form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const profileForm = document.getElementById('profileForm');
-            if (profileForm) {
-                profileForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(this);
-                    const profileData = {
-                        action: 'update_basic',
-                        first_name: formData.get('first_name'),
-                        last_name: formData.get('last_name'),
-                        email: formData.get('email'),
-                        phone: formData.get('phone'),
-                        date_of_birth: formData.get('date_of_birth'),
-                        gender: formData.get('gender'),
-                        address: formData.get('address')
-                    };
-                    
-                    try {
-                        const response = await fetch('../handlers/profile.php', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(profileData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            showSuccess('Profile updated successfully!');
-                            loadProfile(); // Reload profile data
-                        } else {
-                            showError(result.message || 'Error updating profile');
-                        }
-                    } catch (error) {
-                        console.error('Error updating profile:', error);
-                        showError('Error updating profile');
-                    }
-                });
-            }
-
-            // Handle password change form
-            const passwordForm = document.getElementById('passwordForm');
-            if (passwordForm) {
-                passwordForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(this);
-                    const passwordData = {
-                        action: 'update_password',
-                        current_password: formData.get('current_password'),
-                        new_password: formData.get('new_password'),
-                        confirm_password: formData.get('confirm_password')
-                    };
-                    
-                    try {
-                        const response = await fetch('../handlers/profile.php', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(passwordData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            showSuccess('Password changed successfully!');
-                            passwordForm.reset();
-                        } else {
-                            showError(result.message || 'Error changing password');
-                        }
-                    } catch (error) {
-                        console.error('Error changing password:', error);
-                        showError('Error changing password');
-                    }
-                });
-            }
-        });
+        // Profile form handling is now in main DOMContentLoaded listener
 
         function updateTheme() {
             const selectedTheme = document.querySelector('input[name="theme"]:checked');
@@ -1664,14 +1553,163 @@ $user = $auth->getCurrentUser();
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM Content Loaded');
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            
+            // Initialize dashboard
             loadDashboardData();
+            
+            // Setup appointment form handler
+            const appointmentForm = document.getElementById('appointmentForm');
+            if (appointmentForm) {
+                appointmentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    debugLog('Appointment form submitted');
+                    
+                    const formData = new FormData(this);
+                    const appointmentData = {
+                        action: 'book',
+                        patient_id: formData.get('patient_id'),
+                        doctor_id: formData.get('doctor_id'),
+                        appointment_date: formData.get('appointment_date'),
+                        appointment_time: formData.get('appointment_time'),
+                        appointment_type: formData.get('appointment_type'),
+                        duration: formData.get('duration'),
+                        reason: formData.get('reason'),
+                        symptoms: formData.get('symptoms')
+                    };
+                    
+                    if (!appointmentData.appointment_time) {
+                        showWarning('Please select a time slot');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('../handlers/appointments.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(appointmentData)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showSuccess('Appointment booked successfully!');
+                            resetAppointmentForm();
+                            // Reload appointments if on appointments section
+                            if (currentSection === 'appointments') {
+                                loadAppointments();
+                            }
+                        } else {
+                            showError(result.message || 'Error booking appointment');
+                        }
+                    } catch (error) {
+                        console.error('Error booking appointment:', error);
+                        showError('Error booking appointment. Please try again.');
+                    }
+                });
+            }
+            
+            // Setup profile form handler
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    debugLog('Profile form submitted');
+                    
+                    const formData = new FormData(this);
+                    const profileData = {
+                        action: 'update_basic',
+                        first_name: formData.get('first_name'),
+                        last_name: formData.get('last_name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        date_of_birth: formData.get('date_of_birth'),
+                        gender: formData.get('gender'),
+                        address: formData.get('address')
+                    };
+
+                    try {
+                        const response = await fetch('../handlers/profile.php', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(profileData)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showSuccess('Profile updated successfully!');
+                            loadProfile(); // Reload profile data
+                        } else {
+                            showError(result.message || 'Error updating profile');
+                        }
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        showError('Error updating profile. Please try again.');
+                    }
+                });
+            }
+            
+            // Setup password change form handler
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    debugLog('Password form submitted');
+                    
+                    const formData = new FormData(this);
+                    const passwordData = {
+                        action: 'update_password',
+                        current_password: formData.get('current_password'),
+                        new_password: formData.get('new_password'),
+                        confirm_password: formData.get('confirm_password')
+                    };
+                    
+                    try {
+                        const response = await fetch('../handlers/profile.php', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(passwordData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showSuccess('Password changed successfully!');
+                            passwordForm.reset();
+                        } else {
+                            showError(result.message || 'Error changing password');
+                        }
+                    } catch (error) {
+                        console.error('Error changing password:', error);
+                        showError('Error changing password');
+                    }
+                });
+            }
             
             // Close dropdowns when clicking outside
             document.addEventListener('click', function(event) {
                 if (!event.target.closest('#userMenu') && !event.target.closest('button[onclick="toggleUserMenu()"]')) {
-                    document.getElementById('userMenu').classList.add('hidden');
+                    const userMenu = document.getElementById('userMenu');
+                    if (userMenu) {
+                        userMenu.classList.add('hidden');
+                    }
                 }
             });
+            
+            debugLog('Admin dashboard initialized successfully');
         });
     </script>
 </body>
