@@ -14,7 +14,7 @@ if (!$auth->isLoggedIn() && !$allow_testing) {
     // http_response_code(401);
     // echo json_encode(['error' => 'Unauthorized', 'message' => 'User not logged in']);
     // exit();
-    echo "<!-- Authentication temporarily disabled for appointment booking -->";
+    // Don't output anything - just continue
 }
 
 $database = new Database();
