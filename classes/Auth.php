@@ -51,7 +51,7 @@ class Auth {
     // Login function - supports both email and username
     public function login($identifier, $password) {
         try {
-            $query = "SELECT u.*, d.id as doctor_id, p.id as patient_id 
+            $query = "SELECT u.*, d.doctor_id as doctor_id, p.patient_id as patient_id 
                      FROM " . $this->table_name . " u 
                      LEFT JOIN doctors d ON u.id = d.user_id 
                      LEFT JOIN patients p ON u.id = p.user_id 
@@ -123,7 +123,7 @@ class Auth {
     // Get current user
     public function getCurrentUser() {
         if ($this->isLoggedIn()) {
-            $query = "SELECT u.*, d.id as doctor_id, p.id as patient_id, p.patient_id as patient_code
+            $query = "SELECT u.*, d.doctor_id as doctor_id, p.patient_id as patient_id, p.patient_id as patient_code
                      FROM " . $this->table_name . " u 
                      LEFT JOIN doctors d ON u.id = d.user_id 
                      LEFT JOIN patients p ON u.id = p.user_id 
