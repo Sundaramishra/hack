@@ -1263,15 +1263,15 @@ $stats = [
                 return;
             }
             
-            if (!formData.get('appointment_type')) {
-                showNotification('Please select appointment type', 'error');
-                return;
-            }
+            // Appointment type is optional for backward compatibility
+            const appointmentType = formData.get('appointment_type');
             
             // Get duration based on appointment type
-            let duration = currentDuration;
-            if (formData.get('appointment_type') === 'custom') {
+            let duration = 30; // Default duration
+            if (appointmentType === 'custom') {
                 duration = parseInt(formData.get('custom_duration')) || 30;
+            } else if (appointmentType && typeof currentDuration !== 'undefined') {
+                duration = currentDuration;
             }
             
             try {
@@ -1280,11 +1280,18 @@ $stats = [
                     doctor_id: formData.get('doctor_id'),
                     appointment_date: formData.get('appointment_date'),
                     appointment_time: document.getElementById('selectedTime').value,
-                    appointment_type: formData.get('appointment_type'),
-                    duration: duration,
                     reason: formData.get('reason'),
                     notes: formData.get('notes')
                 };
+                
+                // Add optional fields if available
+                if (appointmentType) {
+                    appointmentData.appointment_type = appointmentType;
+                }
+                
+                if (duration) {
+                    appointmentData.duration = duration;
+                }
                 
                 console.log('Submitting appointment:', appointmentData);
                 
@@ -1296,7 +1303,25 @@ $stats = [
                     body: JSON.stringify(appointmentData)
                 });
                 
-                const result = await response.json();
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+                
+                if (!responseText.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    console.error('Response was:', responseText.substring(0, 500));
+                    throw new Error('Invalid JSON response from server. Response: ' + responseText.substring(0, 100));
+                }
+                
                 console.log('Appointment result:', result);
                 
                 if (result.success) {
@@ -1316,7 +1341,17 @@ $stats = [
                 }
             } catch (error) {
                 console.error('Error booking appointment:', error);
-                showNotification('Error booking appointment: ' + error.message, 'error');
+                
+                let errorMessage = 'Error booking appointment: ';
+                if (error.message.includes('JSON')) {
+                    errorMessage += 'Server returned invalid response. Please check if you are logged in and try again.';
+                } else if (error.message.includes('Empty response')) {
+                    errorMessage += 'No response from server. Please check your connection and try again.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showNotification(errorMessage, 'error');
             }
         }
 
@@ -1660,7 +1695,7 @@ $stats = [
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appointment Type & Duration</label>
-                                    <select name="appointment_type" id="appointmentType" required onchange="updateDuration()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                                    <select name="appointment_type" id="appointmentType" onchange="updateDuration()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
                                         <option value="">Select Appointment Type</option>
                                         <option value="consultation" data-duration="30">Consultation (30 min)</option>
                                         <option value="follow-up" data-duration="15">Follow-up (15 min)</option>

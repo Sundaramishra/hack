@@ -250,20 +250,42 @@ class AppointmentsApi extends ApiBase {
                 $this->sendError('Doctor is not available at this time slot');
             }
             
-            // Create appointment
-            $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, notes, created_by_user_id, status, duration, appointment_type)
-                     VALUES (:patient_id, :doctor_id, :appointment_date, :appointment_time, :reason, :notes, :created_by_user_id, 'scheduled', :duration, :appointment_type)";
-            $stmt = $this->conn->prepare($query);
+            // Check if duration and appointment_type columns exist
+            $check_columns = "SHOW COLUMNS FROM appointments LIKE 'duration'";
+            $check_stmt = $this->conn->prepare($check_columns);
+            $check_stmt->execute();
+            $has_duration = $check_stmt->fetchColumn() !== false;
             
-            $stmt->bindParam(':patient_id', $data['patient_id']);
-            $stmt->bindParam(':doctor_id', $data['doctor_id']);
-            $stmt->bindParam(':appointment_date', $data['appointment_date']);
-            $stmt->bindParam(':appointment_time', $data['appointment_time']);
-            $stmt->bindParam(':reason', $data['reason'] ?? null);
-            $stmt->bindParam(':notes', $data['notes'] ?? null);
-            $stmt->bindParam(':created_by_user_id', $this->getCurrentUserId());
-            $stmt->bindParam(':duration', $data['duration'] ?? 30);
-            $stmt->bindParam(':appointment_type', $data['appointment_type'] ?? 'consultation');
+            // Create appointment with or without new columns
+            if ($has_duration) {
+                $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, notes, created_by_user_id, status, duration, appointment_type)
+                         VALUES (:patient_id, :doctor_id, :appointment_date, :appointment_time, :reason, :notes, :created_by_user_id, 'scheduled', :duration, :appointment_type)";
+                $stmt = $this->conn->prepare($query);
+                
+                $stmt->bindParam(':patient_id', $data['patient_id']);
+                $stmt->bindParam(':doctor_id', $data['doctor_id']);
+                $stmt->bindParam(':appointment_date', $data['appointment_date']);
+                $stmt->bindParam(':appointment_time', $data['appointment_time']);
+                $stmt->bindParam(':reason', $data['reason'] ?? null);
+                $stmt->bindParam(':notes', $data['notes'] ?? null);
+                $stmt->bindParam(':created_by_user_id', $this->getCurrentUserId());
+                $stmt->bindParam(':duration', $data['duration'] ?? 30);
+                $stmt->bindParam(':appointment_type', $data['appointment_type'] ?? 'consultation');
+            } else {
+                // Fallback to old schema without duration/appointment_type
+                $query = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, notes, created_by_user_id, status)
+                         VALUES (:patient_id, :doctor_id, :appointment_date, :appointment_time, :reason, :notes, :created_by_user_id, 'scheduled')";
+                $stmt = $this->conn->prepare($query);
+                
+                $stmt->bindParam(':patient_id', $data['patient_id']);
+                $stmt->bindParam(':doctor_id', $data['doctor_id']);
+                $stmt->bindParam(':appointment_date', $data['appointment_date']);
+                $stmt->bindParam(':appointment_time', $data['appointment_time']);
+                $stmt->bindParam(':reason', $data['reason'] ?? null);
+                $stmt->bindParam(':notes', $data['notes'] ?? null);
+                $stmt->bindParam(':created_by_user_id', $this->getCurrentUserId());
+            }
+            
             $stmt->execute();
             
             $appointment_id = $this->conn->lastInsertId();
