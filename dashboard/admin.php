@@ -1,36 +1,58 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
-require_once '../classes/Auth.php';
-require_once '../classes/User.php';
-require_once '../classes/Appointment.php';
-require_once '../classes/Vitals.php';
 
-$auth = new Auth();
-$user_manager = new User();
-$appointment_manager = new Appointment();
-$vitals_manager = new Vitals();
+try {
+    require_once '../config/database.php';
+    require_once '../classes/Auth.php';
+    require_once '../classes/User.php';
+    require_once '../classes/Appointment.php';
+    require_once '../classes/Vitals.php';
 
-// Check authentication and role
-if (!$auth->isLoggedIn() || !$auth->hasRole('admin')) {
-    header('Location: ../index.php');
-    exit();
+    $auth = new Auth();
+    $user_manager = new User();
+    $appointment_manager = new Appointment();
+    $vitals_manager = new Vitals();
+
+    // Check authentication and role
+    if (!$auth->isLoggedIn() || !$auth->hasRole('admin')) {
+        header('Location: ../index.php');
+        exit();
+    }
+
+    $current_user = $auth->getCurrentUser();
+
+    // Get dashboard stats with error handling
+    $all_users = [];
+    $doctors = [];
+    $patients = [];
+    $all_appointments = [];
+    $upcoming_appointments = [];
+
+    try {
+        $all_users = $user_manager->getAllUsers();
+        $doctors = $user_manager->getAllUsers('doctor');
+        $patients = $user_manager->getAllUsers('patient');
+        $all_appointments = $appointment_manager->getAllAppointments();
+        $upcoming_appointments = $appointment_manager->getUpcomingAppointments('admin', null);
+    } catch (Exception $e) {
+        // If database operations fail, use empty arrays
+        error_log("Dashboard data error: " . $e->getMessage());
+    }
+
+    $stats = [
+        'total_doctors' => count($doctors),
+        'total_patients' => count($patients),
+        'total_appointments' => count($all_appointments),
+        'upcoming_appointments' => count($upcoming_appointments)
+    ];
+
+} catch (Exception $e) {
+    die("System Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
 }
-
-$current_user = $auth->getCurrentUser();
-
-// Get dashboard stats
-$all_users = $user_manager->getAllUsers();
-$doctors = $user_manager->getAllUsers('doctor');
-$patients = $user_manager->getAllUsers('patient');
-$all_appointments = $appointment_manager->getAllAppointments();
-$upcoming_appointments = $appointment_manager->getUpcomingAppointments('admin', null);
-
-$stats = [
-    'total_doctors' => count($doctors),
-    'total_patients' => count($patients),
-    'total_appointments' => count($all_appointments),
-    'upcoming_appointments' => count($upcoming_appointments)
-];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,8 +82,13 @@ $stats = [
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Debug Info (remove in production) -->
+    <div class="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
+        ✅ Admin Dashboard Loaded | User: <?php echo htmlspecialchars($current_user['first_name'] ?? 'Unknown'); ?>
+    </div>
+
     <!-- Sidebar -->
-    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
         <div class="flex items-center justify-center h-16 bg-primary-500">
             <i class="fas fa-hospital text-white text-2xl mr-3"></i>
             <h1 class="text-white text-xl font-bold">Hospital CRM</h1>
@@ -181,7 +208,7 @@ $stats = [
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
+                <!-- Recent Activity and Quick Actions -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Recent Appointments -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
@@ -230,19 +257,19 @@ $stats = [
                                     <span class="text-sm font-medium text-primary-700 dark:text-primary-300">Add User</span>
                                 </button>
                                 
-                                <button onclick="showSection('appointments')" class="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
-                                    <i class="fas fa-calendar-plus text-green-600 text-2xl mb-2"></i>
-                                    <span class="text-sm font-medium text-green-700 dark:text-green-300">View Appointments</span>
+                                <button onclick="showSection('users')" class="flex flex-col items-center p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
+                                    <i class="fas fa-users text-green-600 text-2xl mb-2"></i>
+                                    <span class="text-sm font-medium text-green-700 dark:text-green-300">Manage Users</span>
                                 </button>
                                 
-                                <button onclick="openModal('addVitalTypeModal')" class="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
-                                    <i class="fas fa-heartbeat text-blue-600 text-2xl mb-2"></i>
-                                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Add Vital Type</span>
+                                <button onclick="showSection('appointments')" class="flex flex-col items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
+                                    <i class="fas fa-calendar-plus text-blue-600 text-2xl mb-2"></i>
+                                    <span class="text-sm font-medium text-blue-700 dark:text-blue-300">View Appointments</span>
                                 </button>
                                 
-                                <button onclick="showSection('users')" class="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors">
-                                    <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
-                                    <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Manage Users</span>
+                                <button onclick="openModal('addVitalTypeModal')" class="flex flex-col items-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors">
+                                    <i class="fas fa-heartbeat text-purple-600 text-2xl mb-2"></i>
+                                    <span class="text-sm font-medium text-purple-700 dark:text-purple-300">Add Vital Type</span>
                                 </button>
                             </div>
                         </div>
@@ -266,7 +293,6 @@ $stats = [
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Phone</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -300,9 +326,6 @@ $stats = [
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                         <?php echo htmlspecialchars($user['email']); ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        <?php echo htmlspecialchars($user['phone'] ?? 'N/A'); ?>
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full <?php echo $user['is_active'] ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'; ?>">
                                             <?php echo $user['is_active'] ? 'Active' : 'Inactive'; ?>
@@ -326,25 +349,41 @@ $stats = [
                 </div>
             </div>
 
-            <!-- Other sections would go here -->
+            <!-- Other sections -->
             <div id="doctors-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Doctors Management</h2>
-                <!-- Doctors content -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <i class="fas fa-user-md text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Doctors Section Coming Soon</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Advanced doctor management features will be available in the next update.</p>
+                </div>
             </div>
 
             <div id="patients-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Patients Management</h2>
-                <!-- Patients content -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <i class="fas fa-user-injured text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Patients Section Coming Soon</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Advanced patient management features will be available in the next update.</p>
+                </div>
             </div>
 
             <div id="appointments-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Appointments Management</h2>
-                <!-- Appointments content -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <i class="fas fa-calendar-alt text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Appointments Section Coming Soon</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Advanced appointment management features will be available in the next update.</p>
+                </div>
             </div>
 
             <div id="vitals-section" class="content-section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Vital Types Management</h2>
-                <!-- Vitals content -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <i class="fas fa-heartbeat text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Vital Types Section Coming Soon</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Vital types management features will be available in the next update.</p>
+                </div>
             </div>
         </main>
     </div>
@@ -435,15 +474,12 @@ $stats = [
 
         // Navigation
         function showSection(sectionName) {
-            // Hide all sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.add('hidden');
             });
             
-            // Show selected section
             document.getElementById(sectionName + '-section').classList.remove('hidden');
             
-            // Update nav links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active', 'bg-primary-50', 'dark:bg-gray-700');
             });
@@ -510,16 +546,16 @@ $stats = [
 
         // User management functions
         function editUser(userId) {
-            // Implementation for edit user
-            alert('Edit user functionality - to be implemented');
+            alert('Edit user functionality - ID: ' + userId);
         }
 
         function deleteUser(userId) {
             if (confirm('Are you sure you want to delete this user?')) {
-                // Implementation for delete user
-                alert('Delete user functionality - to be implemented');
+                alert('Delete user functionality - ID: ' + userId);
             }
         }
+
+        console.log('Admin Dashboard loaded successfully!');
     </script>
 </body>
 </html>
