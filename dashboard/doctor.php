@@ -1,127 +1,12 @@
 <?php
-// FORCE ERROR DISPLAY
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 
-// Debug section at top
-echo "<div style='background: #ffebee; border: 2px solid #f44336; padding: 15px; margin: 10px; font-family: Arial;'>";
-echo "<h3 style='color: #d32f2f; margin: 0 0 10px 0;'>🔍 DOCTOR DASHBOARD DEBUG</h3>";
-
-// Test 1: Basic PHP
-echo "<h4 style='color: #1976d2;'>📋 PHP Info:</h4>";
-echo "PHP Version: " . phpversion() . "<br>";
-echo "Error Reporting: " . (error_reporting() ? 'ON' : 'OFF') . "<br>";
-echo "Display Errors: " . (ini_get('display_errors') ? 'ON' : 'OFF') . "<br>";
-echo "Current File: " . __FILE__ . "<br>";
-echo "Current Directory: " . getcwd() . "<br><br>";
-
-// Test 2: Session
-echo "<h4 style='color: #1976d2;'>🔐 Session Test:</h4>";
-try {
-    session_start();
-    echo "✅ Session started<br>";
-    echo "Session ID: " . session_id() . "<br>";
-    echo "Session Status: " . session_status() . "<br><br>";
-} catch (Exception $e) {
-    echo "❌ Session ERROR: " . $e->getMessage() . "<br><br>";
-}
-
-// Test 3: File Includes
-echo "<h4 style='color: #1976d2;'>📁 File Include Test:</h4>";
-$files = [
-    '../classes/Auth.php',
-    '../classes/User.php', 
-    '../classes/Appointment.php',
-    '../classes/Vitals.php'
-];
-
-foreach ($files as $file) {
-    if (file_exists($file)) {
-        echo "✅ $file: EXISTS<br>";
-        try {
-            require_once $file;
-            echo "✅ $file: INCLUDED<br>";
-        } catch (Exception $e) {
-            echo "❌ $file INCLUDE ERROR: " . $e->getMessage() . "<br>";
-        }
-    } else {
-        echo "❌ $file: MISSING!<br>";
-    }
-}
-echo "<br>";
-
-// Test 4: Database
-echo "<h4 style='color: #1976d2;'>🗄️ Database Test:</h4>";
-try {
-    require_once '../config/database.php';
-    $database = new Database();
-    $conn = $database->getConnection();
-    
-    if ($conn) {
-        echo "✅ Database Connected!<br>";
-        
-        // Test tables
-        $tables = ['users', 'doctors', 'patients', 'appointments'];
-        foreach ($tables as $table) {
-            try {
-                $stmt = $conn->query("SELECT COUNT(*) FROM $table");
-                $count = $stmt->fetchColumn();
-                echo "✅ Table '$table': $count records<br>";
-            } catch (Exception $e) {
-                echo "❌ Table '$table' ERROR: " . $e->getMessage() . "<br>";
-            }
-        }
-    } else {
-        echo "❌ Database Connection FAILED!<br>";
-    }
-} catch (Exception $e) {
-    echo "❌ Database ERROR: " . $e->getMessage() . "<br>";
-}
-echo "<br>";
-
-// Test 5: Classes
-echo "<h4 style='color: #1976d2;'>🔧 Classes Test:</h4>";
-try {
-    $auth = new Auth();
-    echo "✅ Auth class created<br>";
-    
-    if ($auth->isLoggedIn()) {
-        echo "✅ User logged in<br>";
-        $user = $auth->getCurrentUser();
-        echo "User: " . ($user['first_name'] ?? 'Unknown') . "<br>";
-    } else {
-        echo "⚠️ User not logged in<br>";
-    }
-} catch (Exception $e) {
-    echo "❌ Auth ERROR: " . $e->getMessage() . "<br>";
-}
-
-try {
-    $user_manager = new User();
-    echo "✅ User class created<br>";
-} catch (Exception $e) {
-    echo "❌ User class ERROR: " . $e->getMessage() . "<br>";
-}
-
-try {
-    $appointment_manager = new Appointment();
-    echo "✅ Appointment class created<br>";
-} catch (Exception $e) {
-    echo "❌ Appointment class ERROR: " . $e->getMessage() . "<br>";
-}
-
-try {
-    $vitals_manager = new Vitals();
-    echo "✅ Vitals class created<br>";
-} catch (Exception $e) {
-    echo "❌ Vitals class ERROR: " . $e->getMessage() . "<br>";
-}
-echo "<br>";
-
-echo "<h4 style='color: #1976d2;'>✅ DEBUG COMPLETE</h4>";
-echo "If you see this, PHP is working!<br>";
-echo "</div>";
+session_start();
+require_once '../classes/Auth.php';
+require_once '../classes/User.php';
+require_once '../classes/Appointment.php';
+require_once '../classes/Vitals.php';
 
 // Main dashboard code
 try {
@@ -212,8 +97,7 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!-- Debug Information -->
-    <?php include '../debug_info.php'; ?>
+
     
     <!-- Debug Info (remove in production) -->
     <div class="fixed top-0 right-0 bg-green-500 text-white p-2 text-xs z-50">
@@ -497,8 +381,6 @@ try {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 
-                console.log('Navigation clicked:', this.getAttribute('href'));
-                
                 // Remove active class from all links
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 
@@ -512,13 +394,9 @@ try {
                 
                 // Show target section
                 const targetId = this.getAttribute('href').substring(1) + '-section';
-                console.log('Target section ID:', targetId);
                 const targetSection = document.getElementById(targetId);
                 if (targetSection) {
                     targetSection.classList.remove('hidden');
-                    console.log('Section shown:', targetId);
-                } else {
-                    console.log('Section not found:', targetId);
                 }
             });
         });
