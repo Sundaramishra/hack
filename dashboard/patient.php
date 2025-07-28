@@ -1459,7 +1459,7 @@ $stats = [
             }
         }
 
-        // Load weekly availability chart
+        // Load weekly availability chart with real appointment data
         async function loadWeeklyAvailability() {
             if (!selectedDoctor) return;
             
@@ -1467,43 +1467,87 @@ $stats = [
             const today = new Date();
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             
-            // Get current week dates
-            const startOfWeek = new Date(today);
-            startOfWeek.setDate(today.getDate() - today.getDay());
-            
-            let chartHTML = '';
-            
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(startOfWeek);
-                date.setDate(startOfWeek.getDate() + i);
+            try {
+                // Get appointments for this doctor for the current week
+                const response = await fetch(getApiPath('appointments.php?action=list'));
+                const result = await response.json();
                 
-                const dateStr = date.toISOString().split('T')[0];
-                const dayName = days[i];
-                const isToday = date.toDateString() === today.toDateString();
+                let weeklyAppointments = [];
+                if (result.success) {
+                    weeklyAppointments = result.data.filter(apt => 
+                        apt.doctor_id == selectedDoctor.doctor_id && 
+                        apt.status !== 'cancelled'
+                    );
+                }
                 
-                // Check if doctor is available on this day
-                const availableDays = selectedDoctor.available_days ? 
-                    JSON.parse(selectedDoctor.available_days) : 
-                    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                // Get current week dates
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
                 
-                const dayLower = dayName.toLowerCase();
-                const isAvailable = availableDays.includes(dayLower) || availableDays.includes(dayName.toLowerCase());
+                let chartHTML = '';
                 
-                chartHTML += `
-                    <div class="text-center p-2 rounded ${isToday ? 'bg-blue-100 dark:bg-blue-800' : ''}">
-                        <div class="font-semibold text-xs mb-1">${dayName}</div>
-                        <div class="text-xs mb-2">${date.getDate()}</div>
-                        <div class="h-8 flex items-center justify-center">
-                            ${isAvailable ? 
-                                '<div class="w-full h-2 bg-green-500 rounded"></div>' : 
-                                '<div class="w-full h-2 bg-gray-300 rounded"></div>'
-                            }
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(startOfWeek);
+                    date.setDate(startOfWeek.getDate() + i);
+                    
+                    const dateStr = date.toISOString().split('T')[0];
+                    const dayName = days[i];
+                    const isToday = date.toDateString() === today.toDateString();
+                    const isPast = date < today && !isToday;
+                    
+                    // Count appointments for this day
+                    const dayAppointments = weeklyAppointments.filter(apt => 
+                        apt.appointment_date === dateStr
+                    );
+                    
+                    // Check if doctor is available on this day (default: Mon-Fri)
+                    const availableDays = selectedDoctor.available_days ? 
+                        JSON.parse(selectedDoctor.available_days) : 
+                        ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                    
+                    const dayLower = dayName.toLowerCase();
+                    const isDoctorAvailable = availableDays.includes(dayLower) || 
+                                            availableDays.includes(dayName.toLowerCase()) ||
+                                            (i >= 1 && i <= 5); // Default Mon-Fri if no specific days
+                    
+                    let statusClass, statusText;
+                    
+                    if (isPast) {
+                        statusClass = 'bg-gray-400';
+                        statusText = 'Past';
+                    } else if (!isDoctorAvailable) {
+                        statusClass = 'bg-gray-300';
+                        statusText = 'Off';
+                    } else if (dayAppointments.length >= 10) { // Assuming max 10 slots per day
+                        statusClass = 'bg-red-500';
+                        statusText = 'Full';
+                    } else if (dayAppointments.length > 0) {
+                        statusClass = 'bg-yellow-500';
+                        statusText = `${dayAppointments.length} booked`;
+                    } else {
+                        statusClass = 'bg-green-500';
+                        statusText = 'Available';
+                    }
+                    
+                    chartHTML += `
+                        <div class="text-center p-1 rounded ${isToday ? 'ring-2 ring-blue-500' : ''}">
+                            <div class="font-semibold text-xs mb-1 ${isToday ? 'text-blue-600' : 'text-gray-700 dark:text-gray-300'}">${dayName}</div>
+                            <div class="text-xs mb-2 text-gray-600 dark:text-gray-400">${date.getDate()}</div>
+                            <div class="h-12 flex flex-col items-center justify-center ${statusClass} text-white rounded text-xs p-1" 
+                                 title="${statusText} - ${dayAppointments.length} appointments on ${dateStr}">
+                                <div class="font-bold">${dayAppointments.length}</div>
+                                <div class="text-xs opacity-90">${statusText}</div>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
+                
+                weeklyChart.innerHTML = chartHTML;
+                
+            } catch (error) {
+                console.error('Error loading weekly availability:', error);
+                weeklyChart.innerHTML = '<div class="col-span-7 text-center text-red-500 text-xs">Error loading availability</div>';
             }
-            
-            weeklyChart.innerHTML = chartHTML;
         }
 
         // Load available time slots for selected date
@@ -1564,7 +1608,7 @@ $stats = [
             const endTime = selectedDoctor?.available_time_end || '17:00';
             
             const slots = [];
-            const slotInterval = 15; // 15-minute intervals
+            const slotInterval = 30; // 30-minute intervals for better visualization
             
             // Convert time strings to minutes
             const startMinutes = timeToMinutes(startTime);
@@ -1575,34 +1619,57 @@ $stats = [
                 const timeStr = minutesToTime(minutes);
                 const isAvailable = isSlotAvailable(minutes, currentDuration);
                 
+                // Check if this slot is currently booked
+                const isBooked = bookedSlots.some(bookedSlot => {
+                    const bookedStart = timeToMinutes(bookedSlot.time);
+                    return Math.abs(bookedStart - minutes) < slotInterval;
+                });
+                
                 slots.push({
                     time: timeStr,
                     minutes: minutes,
-                    available: isAvailable
+                    available: isAvailable,
+                    booked: isBooked
                 });
             }
             
-            // Render slots
+            // Render slots with better visual representation
             let slotsHTML = '';
             slots.forEach(slot => {
-                const buttonClass = slot.available ? 
-                    'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 dark:bg-green-800 dark:hover:bg-green-700 dark:text-green-100 dark:border-green-600' :
-                    'bg-red-100 text-red-800 border-red-300 cursor-not-allowed dark:bg-red-800 dark:text-red-100 dark:border-red-600';
+                let buttonClass, iconClass, statusText;
+                
+                if (slot.booked) {
+                    buttonClass = 'bg-red-100 text-red-800 border-red-300 cursor-not-allowed dark:bg-red-800 dark:text-red-100 dark:border-red-600';
+                    iconClass = 'fas fa-times';
+                    statusText = 'Booked';
+                } else if (slot.available) {
+                    buttonClass = 'bg-green-100 hover:bg-green-200 text-green-800 border-green-300 hover:border-green-400 dark:bg-green-800 dark:hover:bg-green-700 dark:text-green-100 dark:border-green-600 cursor-pointer';
+                    iconClass = 'fas fa-check';
+                    statusText = 'Available';
+                } else {
+                    buttonClass = 'bg-gray-100 text-gray-600 border-gray-300 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600';
+                    iconClass = 'fas fa-clock';
+                    statusText = 'Unavailable';
+                }
                 
                 slotsHTML += `
                     <button type="button" 
-                            class="p-2 text-sm border rounded-lg transition-colors ${buttonClass}"
-                            ${slot.available ? `onclick="selectTimeSlot('${slot.time}')"` : 'disabled'}
-                            title="${slot.available ? 'Available' : 'Not available'}">
-                        ${slot.time}
+                            class="p-3 text-sm border-2 rounded-lg transition-all duration-200 ${buttonClass} flex flex-col items-center space-y-1"
+                            ${slot.available && !slot.booked ? `onclick="selectTimeSlot('${slot.time}')"` : 'disabled'}
+                            title="${statusText} - ${slot.time} (${currentDuration} min duration)">
+                        <i class="${iconClass} text-xs"></i>
+                        <span class="font-medium">${slot.time}</span>
+                        <span class="text-xs opacity-75">${statusText}</span>
                     </button>
                 `;
             });
             
             if (slots.length === 0) {
                 slotsHTML = `
-                    <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-4">
-                        No available slots for selected date
+                    <div class="col-span-3 text-center text-gray-500 dark:text-gray-400 py-8">
+                        <i class="fas fa-calendar-times text-2xl mb-2"></i>
+                        <div>No available slots for selected date</div>
+                        <div class="text-xs mt-1">Doctor may be unavailable or fully booked</div>
                     </div>
                 `;
             }
@@ -1632,14 +1699,20 @@ $stats = [
         function selectTimeSlot(time) {
             // Remove previous selection
             document.querySelectorAll('#timeSlots button').forEach(btn => {
-                btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-200', 'dark:bg-blue-700');
+                btn.classList.remove('ring-4', 'ring-blue-500', 'ring-opacity-50', 'transform', 'scale-105');
+                btn.classList.remove('bg-blue-100', 'dark:bg-blue-800', 'border-blue-400');
             });
             
             // Add selection to clicked button
-            event.target.classList.add('ring-2', 'ring-blue-500', 'bg-blue-200', 'dark:bg-blue-700');
+            const clickedButton = event.target.closest('button');
+            clickedButton.classList.add('ring-4', 'ring-blue-500', 'ring-opacity-50', 'transform', 'scale-105');
+            clickedButton.classList.add('bg-blue-100', 'dark:bg-blue-800', 'border-blue-400');
             
             // Set selected time
             document.getElementById('selectedTime').value = time;
+            
+            // Show confirmation
+            showNotification(`Selected time slot: ${time} (${currentDuration} minutes)`, 'success');
         }
 
         // Utility functions
