@@ -1072,7 +1072,7 @@ try {
             const formData = new FormData(form);
             
             try {
-                const response = await fetch(getApiPath('appointments_simple.php'), {
+                const response = await fetch(getApiPath('appointments.php'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
