@@ -1081,7 +1081,7 @@ try {
                         patient_id: formData.get('patient_id'),
                         doctor_id: formData.get('doctor_id'),
                         appointment_date: formData.get('appointment_date'),
-                        appointment_time: formData.get('appointment_time'),
+                        appointment_time: document.getElementById('adminSelectedTime').value || formData.get('appointment_time'),
                         appointment_type: formData.get('appointment_type') || 'consultation',
                         reason: formData.get('reason') || 'Admin scheduled appointment',
                         notes: formData.get('notes')
