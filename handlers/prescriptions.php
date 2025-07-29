@@ -61,12 +61,10 @@ try {
             $stmt->execute([$prescriptionId]);
             $medicines = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Output as downloadable HTML file
-            $filename = 'Prescription_' . $prescription['prescription_number'] . '_' . date('Y-m-d') . '.html';
+            // Use HTML optimized for PDF printing
             header('Content-Type: text/html');
-            header('Content-Disposition: attachment; filename="' . $filename . '"');
-            
-            echo '<!DOCTYPE html>
+        
+        echo '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
