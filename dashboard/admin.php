@@ -389,6 +389,10 @@ $accentColor = WebsiteSettings::getAccentColor();
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Value</label>
                                 <input type="text" id="vitalValue" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Enter vital value">
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
+                                <textarea id="vitalNotes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="2" placeholder="Additional notes..."></textarea>
+                            </div>
                             <button onclick="addVitalRecord()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg">
                                 <i class="fas fa-plus mr-2"></i>Add Vital Record
                             </button>
@@ -934,12 +938,10 @@ $accentColor = WebsiteSettings::getAccentColor();
                 html.classList.remove('dark');
                 themeIcon.className = 'fas fa-moon text-gray-600';
                 localStorage.setItem('theme', 'light');
-                if (window.showSuccess) showSuccess('Switched to light theme');
             } else {
                 html.classList.add('dark');
                 themeIcon.className = 'fas fa-sun text-yellow-400';
                 localStorage.setItem('theme', 'dark');
-                if (window.showSuccess) showSuccess('Switched to dark theme');
             }
         }
         
@@ -1607,13 +1609,89 @@ $accentColor = WebsiteSettings::getAccentColor();
         }
         
         function openVitalModal() {
-            if (window.showInfo) showInfo('Add vital record functionality');
+            // Show the vital record form that's already in the UI
+            document.getElementById('vitalsSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('vitalPatientSelect').focus();
         }
         
         function openCustomVitalModal() {
-            if (window.showInfo) showInfo('Manage custom vital types functionality');
+            // Create modal for adding custom vital types
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Custom Vital Type</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="customVitalForm" onsubmit="submitCustomVital(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Vital Name</label>
+                                <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., Heart Rate">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Unit</label>
+                                <input type="text" name="unit" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., bpm, mmHg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Normal Range (Optional)</label>
+                                <input type="text" name="normal_range" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., 60-100">
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                                Cancel
+                            </button>
+                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                Add Vital Type
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
         
+        // Submit Custom Vital Type
+        async function submitCustomVital(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const vitalData = {
+                name: formData.get('name'),
+                unit: formData.get('unit'),
+                normal_range: formData.get('normal_range') || null
+            };
+            
+            try {
+                const response = await fetch('../handlers/vitals.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'add_type',
+                        ...vitalData
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Custom vital type added successfully!');
+                    event.target.closest('.fixed').remove();
+                    loadVitalSelects(); // Refresh vital types dropdown
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to add vital type'));
+                }
+            } catch (error) {
+                console.error('Error adding vital type:', error);
+                alert('Error adding vital type: ' + error.message);
+            }
+        }
+
         // Form Submissions
         async function submitUser(event) {
             event.preventDefault();
@@ -1791,6 +1869,7 @@ $accentColor = WebsiteSettings::getAccentColor();
                 if (result.success) {
                     alert('Vital record added successfully!');
                     document.getElementById('vitalValue').value = '';
+                    document.getElementById('vitalNotes').value = '';
                     loadVitals();
                 } else {
                     alert('Error: ' + (result.message || 'Error adding vital record'));
