@@ -1660,8 +1660,11 @@ $accentColor = WebsiteSettings::getAccentColor();
             }
             appointmentData.action = 'book';
             
-            // Debug: Log the data being sent
-            console.log('Appointment data being sent:', appointmentData);
+            // Validate required fields
+            if (!appointmentData.patient_id || !appointmentData.doctor_id || !appointmentData.appointment_date || !appointmentData.appointment_time) {
+                alert('Please fill all required fields');
+                return;
+            }
             
             try {
                 const response = await fetch('../handlers/appointments.php', {

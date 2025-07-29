@@ -25,7 +25,8 @@ try {
                             CONCAT(up.first_name, ' ', up.last_name) as patient_name,
                             CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
                             d.specialization, d.license_number,
-                            pt.patient_code, pt.blood_group, pt.allergies
+                            COALESCE(pt.patient_code, CONCAT('P', LPAD(pt.patient_id, 3, '0'))) as patient_code,
+                            pt.blood_group, pt.allergies
                      FROM prescriptions p
                      JOIN patients pt ON p.patient_id = pt.patient_id
                      JOIN users up ON pt.user_id = up.id
@@ -50,7 +51,7 @@ try {
             $prescription = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$prescription) {
-                echo '<script>alert("Prescription not found or access denied"); window.close();</script>';
+                echo '<script>alert("Prescription not found"); window.close();</script>';
                 exit;
             }
             
@@ -64,6 +65,7 @@ try {
             $filename = 'Prescription_' . $prescription['prescription_number'] . '_' . date('Y-m-d') . '.html';
             header('Content-Type: text/html');
             header('Content-Disposition: attachment; filename="' . $filename . '"');
+            
             echo '<!DOCTYPE html>
 <html>
 <head>
@@ -132,10 +134,9 @@ try {
     </div>
     
     <script>
-        // Auto-download message
         window.onload = function() {
             setTimeout(function() {
-                alert('Prescription downloaded successfully! You can now print it from your downloads folder.');
+                alert("Prescription downloaded successfully!");
                 window.close();
             }, 1000);
         }
@@ -162,7 +163,7 @@ try {
                 $stmt->execute();
             } elseif ($userRole === 'doctor') {
                 // Doctor can see only their prescriptions
-                $doctorId = $_SESSION['doctor_id'];
+                $doctorId = $_SESSION['doctor_id'] ?? 0;
                 $query = "SELECT p.*, 
                                 CONCAT(up.first_name, ' ', up.last_name) as patient_name,
                                 COALESCE(pt.patient_code, CONCAT('P', LPAD(pt.patient_id, 3, '0'))) as patient_code
@@ -175,7 +176,7 @@ try {
                 $stmt->execute([$doctorId]);
             } elseif ($userRole === 'patient') {
                 // Patient can see only their prescriptions
-                $patientId = $_SESSION['patient_id'];
+                $patientId = $_SESSION['patient_id'] ?? 0;
                 $query = "SELECT p.*, 
                                 CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
                                 d.specialization
@@ -186,6 +187,8 @@ try {
                          ORDER BY p.prescription_date DESC";
                 $stmt = $conn->prepare($query);
                 $stmt->execute([$patientId]);
+            } else {
+                throw new Exception('Invalid user role');
             }
             
             $prescriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -203,7 +206,8 @@ try {
                             CONCAT(up.first_name, ' ', up.last_name) as patient_name,
                             CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
                             d.specialization, d.license_number,
-                            pt.patient_code, pt.blood_group, pt.allergies
+                            COALESCE(pt.patient_code, CONCAT('P', LPAD(pt.patient_id, 3, '0'))) as patient_code,
+                            pt.blood_group, pt.allergies
                      FROM prescriptions p
                      JOIN patients pt ON p.patient_id = pt.patient_id
                      JOIN users up ON pt.user_id = up.id
@@ -215,11 +219,11 @@ try {
             if ($userRole === 'doctor') {
                 $query .= " AND p.doctor_id = ?";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$prescriptionId, $_SESSION['doctor_id']]);
+                $stmt->execute([$prescriptionId, $_SESSION['doctor_id'] ?? 0]);
             } elseif ($userRole === 'patient') {
                 $query .= " AND p.patient_id = ?";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$prescriptionId, $_SESSION['patient_id']]);
+                $stmt->execute([$prescriptionId, $_SESSION['patient_id'] ?? 0]);
             } else {
                 $stmt = $conn->prepare($query);
                 $stmt->execute([$prescriptionId]);
@@ -243,6 +247,8 @@ try {
                 'success' => true,
                 'data' => $prescription
             ]);
+        } else {
+            throw new Exception('Invalid action');
         }
         
     } elseif ($method === 'POST') {
@@ -264,7 +270,7 @@ try {
             throw new Exception('Appointment ID, patient ID, and medicines are required');
         }
         
-        $doctorId = $_SESSION['doctor_id'];
+        $doctorId = $_SESSION['doctor_id'] ?? 0;
         
         // Generate prescription number
         $prescriptionNumber = 'RX' . str_pad($patientId, 3, '0', STR_PAD_LEFT) . '-' . date('Y') . '-' . rand(1000, 9999);
@@ -317,15 +323,14 @@ try {
             $conn->rollBack();
             throw $e;
         }
+    } else {
+        throw new Exception('Invalid request method');
     }
     
 } catch (Exception $e) {
-    error_log("Prescription handler error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage(),
-        'line' => $e->getLine(),
-        'file' => basename($e->getFile())
+        'message' => $e->getMessage()
     ]);
 }
 ?>
