@@ -1509,15 +1509,15 @@ $accentColor = WebsiteSettings::getAccentColor();
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (window.showSuccess) showSuccess('User created successfully!');
+                    alert('User created successfully!');
                     closeUserModal();
                     loadUsers();
                 } else {
-                    if (window.showError) showError(result.message || 'Error creating user');
+                    alert('Error: ' + (result.message || 'Error creating user'));
                 }
             } catch (error) {
                 console.error('Error creating user:', error);
-                if (window.showError) showError('Error creating user');
+                alert('Error creating user: ' + error.message);
             }
         }
         
@@ -1525,23 +1525,33 @@ $accentColor = WebsiteSettings::getAccentColor();
             event.preventDefault();
             const formData = new FormData(event.target);
             
+            // Convert FormData to JSON
+            const appointmentData = {};
+            for (let [key, value] of formData.entries()) {
+                appointmentData[key] = value;
+            }
+            appointmentData.action = 'book';
+            
             try {
-                const response = await fetch('../handlers/appointments.php?action=create', {
+                const response = await fetch('../handlers/appointments.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(appointmentData)
                 });
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (window.showSuccess) showSuccess('Appointment booked successfully!');
+                    alert('Appointment booked successfully!');
                     closeAppointmentModal();
                     loadAppointments();
                 } else {
-                    if (window.showError) showError(result.message || 'Error booking appointment');
+                    alert('Error: ' + (result.message || 'Error booking appointment'));
                 }
             } catch (error) {
                 console.error('Error booking appointment:', error);
-                if (window.showError) showError('Error booking appointment');
+                alert('Error booking appointment: ' + error.message);
             }
         }
         
@@ -1568,11 +1578,11 @@ $accentColor = WebsiteSettings::getAccentColor();
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (window.showSuccess) showSuccess('Doctor created successfully!');
+                    alert('Doctor created successfully!');
                     closeDoctorModal();
                     loadDoctors();
                 } else {
-                    if (window.showError) showError(result.message || 'Error creating doctor');
+                    alert('Error: ' + (result.message || 'Error creating doctor'));
                 }
             } catch (error) {
                 console.error('Error creating doctor:', error);
@@ -1603,11 +1613,11 @@ $accentColor = WebsiteSettings::getAccentColor();
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (window.showSuccess) showSuccess('Patient created successfully!');
+                    alert('Patient created successfully!');
                     closePatientModal();
                     loadPatients();
                 } else {
-                    if (window.showError) showError(result.message || 'Error creating patient');
+                    alert('Error: ' + (result.message || 'Error creating patient'));
                 }
             } catch (error) {
                 console.error('Error creating patient:', error);
@@ -1627,23 +1637,29 @@ $accentColor = WebsiteSettings::getAccentColor();
             }
             
             try {
-                const formData = new FormData();
-                formData.append('patient_id', patientId);
-                formData.append('vital_type_id', vitalTypeId);
-                formData.append('value', value);
+                const vitalData = {
+                    action: 'add_vital',
+                    patient_id: patientId,
+                    vital_type_id: vitalTypeId,
+                    value: value,
+                    notes: document.getElementById('vitalNotes').value || null
+                };
                 
-                const response = await fetch('../handlers/vitals.php?action=add_vital', {
+                const response = await fetch('../handlers/vitals.php', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(vitalData)
                 });
                 const result = await response.json();
                 
                 if (result.success) {
-                    if (window.showSuccess) showSuccess('Vital record added successfully!');
+                    alert('Vital record added successfully!');
                     document.getElementById('vitalValue').value = '';
                     loadVitals();
                 } else {
-                    if (window.showError) showError(result.message || 'Error adding vital record');
+                    alert('Error: ' + (result.message || 'Error adding vital record'));
                 }
             } catch (error) {
                 console.error('Error adding vital record:', error);

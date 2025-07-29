@@ -173,7 +173,7 @@ try {
         $input = json_decode(file_get_contents('php://input'), true);
         $action = $input['action'] ?? 'book';
 
-        if ($action === 'book') {
+        if ($action === 'book' || $action === 'create') {
             $patientId = $input['patient_id'] ?? null;
             $doctorId = $input['doctor_id'] ?? null;
             $appointmentDate = $input['appointment_date'] ?? null;
