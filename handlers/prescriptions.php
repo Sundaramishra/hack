@@ -320,9 +320,12 @@ try {
     }
     
 } catch (Exception $e) {
+    error_log("Prescription handler error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => $e->getMessage()
+        'message' => 'Error: ' . $e->getMessage(),
+        'line' => $e->getLine(),
+        'file' => basename($e->getFile())
     ]);
 }
 ?>

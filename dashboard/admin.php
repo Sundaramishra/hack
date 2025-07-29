@@ -740,9 +740,10 @@ $accentColor = WebsiteSettings::getAccentColor();
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Available Time Slots</label>
-                        <select name="appointmentTime" id="timeSlotSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option value="">Select date first...</option>
-                        </select>
+                        <div id="timeSlotsContainer" class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                            <div class="text-center text-gray-500 py-4 col-span-3">Select doctor and date first</div>
+                        </div>
+                        <input type="hidden" name="appointmentTime" id="selectedTimeSlot" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason</label>
@@ -1518,7 +1519,8 @@ $accentColor = WebsiteSettings::getAccentColor();
             document.getElementById('appointmentModal').classList.add('hidden');
             document.getElementById('appointmentForm').reset();
             document.getElementById('patientSearch').value = '';
-            document.getElementById('timeSlotSelect').innerHTML = '<option value="">Select date first...</option>';
+            document.getElementById('timeSlotsContainer').innerHTML = '<div class="text-center text-gray-500 py-4 col-span-3">Select doctor and date first</div>';
+            document.getElementById('selectedTimeSlot').value = '';
         }
         
         // Patient search functionality
@@ -1544,40 +1546,63 @@ $accentColor = WebsiteSettings::getAccentColor();
         async function loadTimeSlots() {
             const doctorId = document.getElementById('appointmentDoctorSelect').value;
             const date = document.getElementById('appointmentDate').value;
-            const timeSlotSelect = document.getElementById('timeSlotSelect');
+            const container = document.getElementById('timeSlotsContainer');
             
             if (!doctorId || !date) {
-                timeSlotSelect.innerHTML = '<option value="">Select doctor and date first</option>';
+                container.innerHTML = '<div class="text-center text-gray-500 py-4 col-span-3">Select doctor and date first</div>';
+                document.getElementById('selectedTimeSlot').value = '';
                 return;
             }
             
             try {
-                timeSlotSelect.innerHTML = '<option value="">Loading time slots...</option>';
+                container.innerHTML = '<div class="text-center text-gray-500 py-4 col-span-3"><i class="fas fa-spinner fa-spin mr-2"></i>Loading time slots...</div>';
                 
                 const response = await fetch(`../handlers/get_time_slots.php?doctor_id=${doctorId}&date=${date}`);
                 const result = await response.json();
                 
                 if (result.success) {
-                    timeSlotSelect.innerHTML = '<option value="">Select Time Slot</option>';
-                    
                     if (result.data.length === 0) {
-                        timeSlotSelect.innerHTML = '<option value="">No available slots</option>';
+                        container.innerHTML = '<div class="text-center text-gray-500 py-4 col-span-3">No available slots for this date</div>';
                         return;
                     }
                     
+                    container.innerHTML = '';
                     result.data.forEach(slot => {
-                        const option = document.createElement('option');
-                        option.value = slot.time;
-                        option.textContent = `${slot.time} ${slot.available ? '' : '(Booked)'}`;
-                        option.disabled = !slot.available;
-                        timeSlotSelect.appendChild(option);
+                        const slotDiv = document.createElement('div');
+                        slotDiv.className = `p-2 text-center text-sm rounded-lg cursor-pointer border-2 transition-all ${
+                            slot.available 
+                                ? 'border-gray-300 bg-white hover:border-blue-500 hover:bg-blue-50 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-blue-400' 
+                                : 'border-red-300 bg-red-50 text-red-500 cursor-not-allowed dark:bg-red-900/20 dark:border-red-600'
+                        }`;
+                        slotDiv.textContent = slot.time;
+                        
+                        if (slot.available) {
+                            slotDiv.onclick = function() {
+                                // Remove previous selection
+                                container.querySelectorAll('.border-blue-500').forEach(el => {
+                                    el.classList.remove('border-blue-500', 'bg-blue-500', 'text-white');
+                                    el.classList.add('border-gray-300', 'bg-white', 'hover:border-blue-500', 'hover:bg-blue-50');
+                                });
+                                
+                                // Add selection to clicked slot
+                                slotDiv.classList.remove('border-gray-300', 'bg-white', 'hover:border-blue-500', 'hover:bg-blue-50');
+                                slotDiv.classList.add('border-blue-500', 'bg-blue-500', 'text-white');
+                                
+                                // Set hidden input value
+                                document.getElementById('selectedTimeSlot').value = slot.time;
+                            };
+                        } else {
+                            slotDiv.innerHTML = `${slot.time}<br><small>Booked</small>`;
+                        }
+                        
+                        container.appendChild(slotDiv);
                     });
                 } else {
-                    timeSlotSelect.innerHTML = '<option value="">Error loading slots</option>';
+                    container.innerHTML = '<div class="text-center text-red-500 py-4 col-span-3">Error loading time slots</div>';
                 }
             } catch (error) {
                 console.error('Error loading time slots:', error);
-                timeSlotSelect.innerHTML = '<option value="">Error loading slots</option>';
+                container.innerHTML = '<div class="text-center text-red-500 py-4 col-span-3">Error loading time slots</div>';
             }
         }
         
