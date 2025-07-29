@@ -1517,7 +1517,7 @@ $accentColor = WebsiteSettings::getAccentColor();
                 }
             } catch (error) {
                 console.error('Error creating user:', error);
-                alert('Error creating user: ' + error.message);
+                alert('Error creating user. Check console for details.');
             }
         }
         
@@ -1551,7 +1551,7 @@ $accentColor = WebsiteSettings::getAccentColor();
                 }
             } catch (error) {
                 console.error('Error booking appointment:', error);
-                alert('Error booking appointment: ' + error.message);
+                alert('Error booking appointment. Check console for details.');
             }
         }
         
