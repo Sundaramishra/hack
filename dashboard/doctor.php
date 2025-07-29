@@ -579,8 +579,8 @@ $doctorId = $_SESSION['doctor_id'];
                                     <button onclick="viewPrescription(${prescription.id})" class="text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-800">
-                                        <i class="fas fa-print"></i>
+                                    <button onclick="printPrescription(${prescription.id})" class="text-red-600 hover:text-red-800" title="Save as PDF">
+                                        <i class="fas fa-file-pdf"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -1066,8 +1066,8 @@ $doctorId = $_SESSION['doctor_id'];
                                 
                                 <!-- Actions -->
                                 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <button onclick="printPrescription(${prescriptionId})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                                        <i class="fas fa-print mr-2"></i>Print
+                                    <button onclick="printPrescription(${prescriptionId})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                                        <i class="fas fa-file-pdf mr-2"></i>Save as PDF
                                     </button>
                                     <button onclick="this.closest('.fixed').remove()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
                                         Close
@@ -1096,12 +1096,12 @@ $doctorId = $_SESSION['doctor_id'];
         }
         
         function printPrescription(prescriptionId) {
-            // Open prescription in new window for printing
+            // Open prescription in new window for PDF save
             const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
             if (printWindow) {
                 printWindow.focus();
             } else {
-                showInfo('Please allow popups to print prescriptions');
+                showInfo('Please allow popups to save prescription as PDF');
             }
         }
     </script>

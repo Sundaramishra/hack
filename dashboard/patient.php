@@ -566,8 +566,8 @@ $patientId = $_SESSION['patient_id'];
                                 <button onclick="viewPrescriptionDetails(${prescription.id})" class="text-blue-600 hover:text-blue-800" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button onclick="printPrescription(${prescription.id})" class="text-green-600 hover:text-green-800" title="Print">
-                                    <i class="fas fa-print"></i>
+                                <button onclick="printPrescription(${prescription.id})" class="text-red-600 hover:text-red-800" title="Save as PDF">
+                                    <i class="fas fa-file-pdf"></i>
                                 </button>
                             </td>
                         </tr>
@@ -680,9 +680,13 @@ $patientId = $_SESSION['patient_id'];
             }
         }
         
-        // Print prescription (placeholder)
+        // Print prescription as PDF
         function printPrescription(prescriptionId) {
-            alert('Print functionality will be implemented');
+            // Open prescription in new window for PDF save
+            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
+            if (!printWindow) {
+                alert('Please allow popups to save prescription as PDF');
+            }
         }
         
         // Event listeners
