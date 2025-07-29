@@ -19,59 +19,70 @@ try {
     }
     
     // Get doctor's availability
-    $stmt = $conn->prepare("SELECT available_from, available_to, consultation_duration FROM doctors WHERE doctor_id = ?");
+    $doctorQuery = "SELECT available_from, available_to, consultation_duration, available_days 
+                   FROM doctors WHERE doctor_id = ?";
+    $stmt = $conn->prepare($doctorQuery);
     $stmt->execute([$doctorId]);
     $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$doctor) {
         throw new Exception('Doctor not found');
     }
+
+    // Check if doctor is available on this day
+    $dayOfWeek = date('D', strtotime($date));
+    $availableDays = explode(',', $doctor['available_days'] ?? 'Mon,Tue,Wed,Thu,Fri');
     
-    // Get existing appointments for this doctor on this date
-    $stmt = $conn->prepare("SELECT appointment_time, duration FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status != 'cancelled'");
+    if (!in_array($dayOfWeek, $availableDays)) {
+        echo json_encode([
+            'success' => true,
+            'data' => []
+        ]);
+        exit;
+    }
+
+    // Get existing appointments for this date
+    $appointmentQuery = "SELECT appointment_time, duration FROM appointments 
+                       WHERE doctor_id = ? AND appointment_date = ? AND status NOT IN ('cancelled')";
+    $stmt = $conn->prepare($appointmentQuery);
     $stmt->execute([$doctorId, $date]);
-    $bookedSlots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+    $existingAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     // Generate time slots
     $slots = [];
-    $startTime = strtotime($doctor['available_from']);
-    $endTime = strtotime($doctor['available_to']);
-    $slotDuration = $doctor['consultation_duration'] * 60; // Convert to seconds
-    
-    for ($time = $startTime; $time < $endTime; $time += $slotDuration) {
-        $timeStr = date('H:i:s', $time);
-        $timeDisplay = date('H:i', $time);
+    $startTime = strtotime($doctor['available_from'] ?? '09:00:00');
+    $endTime = strtotime($doctor['available_to'] ?? '17:00:00');
+    $duration = ($doctor['consultation_duration'] ?? 30) * 60; // Convert to seconds
+
+    for ($time = $startTime; $time < $endTime; $time += $duration) {
+        $slotTime = date('H:i:s', $time);
+        $slotEndTime = date('H:i:s', $time + $duration);
         
-        // Check if this slot is available
-        $available = true;
-        foreach ($bookedSlots as $booked) {
-            $bookedStart = strtotime($booked['appointment_time']);
-            $bookedEnd = $bookedStart + ($booked['duration'] * 60);
+        // Check if this slot conflicts with existing appointments
+        $isAvailable = true;
+        foreach ($existingAppointments as $appointment) {
+            $appointmentStart = strtotime($appointment['appointment_time']);
+            $appointmentEnd = $appointmentStart + (($appointment['duration'] ?? 30) * 60);
             
-            // Check for overlap
-            if ($time < $bookedEnd && ($time + $slotDuration) > $bookedStart) {
-                $available = false;
+            if (($time >= $appointmentStart && $time < $appointmentEnd) ||
+                ($time + $duration > $appointmentStart && $time + $duration <= $appointmentEnd)) {
+                $isAvailable = false;
                 break;
             }
         }
         
-        // Don't allow booking in the past
-        if ($date === date('Y-m-d') && $time <= time()) {
-            $available = false;
-        }
-        
         $slots[] = [
-            'time' => $timeDisplay,
-            'value' => $timeStr,
-            'available' => $available
+            'time' => $slotTime,
+            'available' => $isAvailable,
+            'formatted_time' => date('g:i A', $time)
         ];
     }
-    
+
     echo json_encode([
         'success' => true,
         'data' => $slots
     ]);
-    
+
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
