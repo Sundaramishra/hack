@@ -1931,6 +1931,47 @@ $accentColor = WebsiteSettings::getAccentColor();
             return colors[role] || 'bg-gray-100 text-gray-800';
         }
         
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function formatTime(timeString) {
+            if (!timeString) return 'N/A';
+            const time = new Date('2000-01-01 ' + timeString);
+            return time.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+        }
+        
+        function getAppointmentStatusColor(status) {
+            const colors = {
+                'scheduled': 'bg-blue-100 text-blue-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800',
+                'no_show': 'bg-gray-100 text-gray-800',
+                'rescheduled': 'bg-yellow-100 text-yellow-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        function getPrescriptionStatusColor(status) {
+            const colors = {
+                'active': 'bg-green-100 text-green-800',
+                'completed': 'bg-blue-100 text-blue-800',
+                'expired': 'bg-red-100 text-red-800',
+                'cancelled': 'bg-gray-100 text-gray-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+        
         // Settings Functions
         async function loadSettings() {
             try {
