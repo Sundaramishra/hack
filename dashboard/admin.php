@@ -723,27 +723,27 @@ $accentColor = WebsiteSettings::getAccentColor();
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient</label>
                         <div class="relative">
                             <input type="text" id="patientSearch" placeholder="Search patient by name..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onkeyup="searchPatients(this.value)">
-                            <select name="patientId" id="appointmentPatientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white mt-2">
+                            <select name="patient_id" id="appointmentPatientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white mt-2">
                                 <option value="">Loading patients...</option>
                             </select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Doctor</label>
-                        <select name="doctorId" id="appointmentDoctorSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <select name="doctor_id" id="appointmentDoctorSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">Loading doctors...</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
-                        <input type="date" name="appointmentDate" id="appointmentDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onchange="loadTimeSlots()">
+                        <input type="date" name="appointment_date" id="appointmentDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onchange="loadTimeSlots()">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Available Time Slots</label>
                         <div id="timeSlotsContainer" class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                             <div class="text-center text-gray-500 py-4 col-span-3">Select doctor and date first</div>
                         </div>
-                        <input type="hidden" name="appointmentTime" id="selectedTimeSlot" required>
+                        <input type="hidden" name="appointment_time" id="selectedTimeSlot" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason</label>
@@ -1659,6 +1659,9 @@ $accentColor = WebsiteSettings::getAccentColor();
                 appointmentData[key] = value;
             }
             appointmentData.action = 'book';
+            
+            // Debug: Log the data being sent
+            console.log('Appointment data being sent:', appointmentData);
             
             try {
                 const response = await fetch('../handlers/appointments.php', {
