@@ -417,26 +417,119 @@ $user = $auth->getCurrentUser();
             <div id="settingsSection" class="section hidden">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Website Settings</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- General Settings -->
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">General Settings</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Name</label>
-                                <input type="text" value="Hospital CRM" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <form id="generalSettingsForm" onsubmit="saveGeneralSettings(event)">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site Name</label>
+                                    <input type="text" id="siteName" name="site_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="Hospital CRM">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Email</label>
+                                    <input type="email" id="contactEmail" name="contact_email" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="admin@hospital.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Phone</label>
+                                    <input type="tel" id="contactPhone" name="contact_phone" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="+1234567890">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hospital Address</label>
+                                    <textarea id="address" name="address" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="123 Hospital Street, Medical City"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-save mr-2"></i>Save General Settings
+                                </button>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contact Email</label>
-                                <input type="email" value="admin@hospital.com" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </form>
+                    </div>
+                    
+                    <!-- Theme & Colors -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Theme & Colors</h3>
+                        <form id="themeSettingsForm" onsubmit="saveThemeSettings(event)">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="color" id="primaryColor" name="primary_color" class="w-16 h-10 border border-gray-300 dark:border-gray-600 rounded-md">
+                                        <input type="text" id="primaryColorText" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="#3B82F6">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Color</label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="color" id="secondaryColor" name="secondary_color" class="w-16 h-10 border border-gray-300 dark:border-gray-600 rounded-md">
+                                        <input type="text" id="secondaryColorText" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="#1E40AF">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Accent Color</label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="color" id="accentColor" name="accent_color" class="w-16 h-10 border border-gray-300 dark:border-gray-600 rounded-md">
+                                        <input type="text" id="accentColorText" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="#10B981">
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="darkModeEnabled" name="dark_mode_enabled" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="darkModeEnabled" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable Dark Mode Toggle</label>
+                                </div>
+                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-palette mr-2"></i>Save Theme Settings
+                                </button>
                             </div>
-                            <button onclick="showSuccess('Settings saved successfully!')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                                Save Settings
-                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Logo & Favicon -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Logo & Favicon</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Website Logo</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                                        <img id="logoPreview" src="" alt="Logo" class="w-full h-full object-contain rounded-lg hidden">
+                                        <i class="fas fa-image text-gray-400 text-2xl" id="logoPlaceholder"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" id="logoFile" accept="image/*" class="hidden" onchange="previewFile('logo')">
+                                        <button type="button" onclick="document.getElementById('logoFile').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                                            <i class="fas fa-upload mr-2"></i>Upload Logo
+                                        </button>
+                                        <button type="button" onclick="uploadFile('site_logo', 'logoFile')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm ml-2">
+                                            <i class="fas fa-save mr-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Favicon</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
+                                        <img id="faviconPreview" src="" alt="Favicon" class="w-full h-full object-contain rounded hidden">
+                                        <i class="fas fa-star text-gray-400 text-sm" id="faviconPlaceholder"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="file" id="faviconFile" accept="image/*,.ico" class="hidden" onchange="previewFile('favicon')">
+                                        <button type="button" onclick="document.getElementById('faviconFile').click()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                                            <i class="fas fa-upload mr-2"></i>Upload Favicon
+                                        </button>
+                                        <button type="button" onclick="uploadFile('favicon', 'faviconFile')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm ml-2">
+                                            <i class="fas fa-save mr-2"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
+                    <!-- System Info -->
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Info</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Information</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Version:</span>
@@ -449,6 +542,23 @@ $user = $auth->getCurrentUser();
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Database:</span>
                                 <span class="text-gray-900 dark:text-white">MySQL</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Last Updated:</span>
+                                <span id="lastUpdated" class="text-gray-900 dark:text-white">Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Maintenance Mode</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Enable to put website in maintenance</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="maintenanceMode" class="sr-only peer" onchange="toggleMaintenanceMode()">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -709,6 +819,9 @@ $user = $auth->getCurrentUser();
                 case 'vitals':
                     await loadVitals();
                     await loadVitalSelects();
+                    break;
+                case 'settings':
+                    await loadSettings();
                     break;
             }
         }
@@ -1330,6 +1443,256 @@ $user = $auth->getCurrentUser();
                 'patient': 'bg-green-100 text-green-800'
             };
             return colors[role] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // Settings Functions
+        async function loadSettings() {
+            try {
+                const response = await fetch('../handlers/website_settings.php?action=all');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const settings = {};
+                    result.data.forEach(setting => {
+                        settings[setting.setting_key] = setting.setting_value;
+                    });
+                    
+                    // Populate form fields
+                    document.getElementById('siteName').value = settings.site_name || '';
+                    document.getElementById('contactEmail').value = settings.contact_email || '';
+                    document.getElementById('contactPhone').value = settings.contact_phone || '';
+                    document.getElementById('address').value = settings.address || '';
+                    
+                    // Color inputs
+                    document.getElementById('primaryColor').value = settings.primary_color || '#3B82F6';
+                    document.getElementById('primaryColorText').value = settings.primary_color || '#3B82F6';
+                    document.getElementById('secondaryColor').value = settings.secondary_color || '#1E40AF';
+                    document.getElementById('secondaryColorText').value = settings.secondary_color || '#1E40AF';
+                    document.getElementById('accentColor').value = settings.accent_color || '#10B981';
+                    document.getElementById('accentColorText').value = settings.accent_color || '#10B981';
+                    
+                    // Checkboxes
+                    document.getElementById('darkModeEnabled').checked = settings.dark_mode_enabled === 'true';
+                    document.getElementById('maintenanceMode').checked = settings.maintenance_mode === 'true';
+                    
+                    // Preview images
+                    if (settings.site_logo) {
+                        document.getElementById('logoPreview').src = settings.site_logo;
+                        document.getElementById('logoPreview').classList.remove('hidden');
+                        document.getElementById('logoPlaceholder').classList.add('hidden');
+                    }
+                    
+                    if (settings.favicon) {
+                        document.getElementById('faviconPreview').src = settings.favicon;
+                        document.getElementById('faviconPreview').classList.remove('hidden');
+                        document.getElementById('faviconPlaceholder').classList.add('hidden');
+                    }
+                    
+                    // Last updated
+                    const lastUpdated = result.data.reduce((latest, setting) => {
+                        const date = new Date(setting.updated_at);
+                        return date > latest ? date : latest;
+                    }, new Date(0));
+                    
+                    document.getElementById('lastUpdated').textContent = lastUpdated.toLocaleDateString();
+                    
+                    // Sync color inputs
+                    syncColorInputs();
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                if (window.showError) showError('Error loading settings');
+            }
+        }
+        
+        function syncColorInputs() {
+            // Sync color picker with text input
+            document.getElementById('primaryColor').addEventListener('input', function() {
+                document.getElementById('primaryColorText').value = this.value;
+            });
+            document.getElementById('primaryColorText').addEventListener('input', function() {
+                document.getElementById('primaryColor').value = this.value;
+            });
+            
+            document.getElementById('secondaryColor').addEventListener('input', function() {
+                document.getElementById('secondaryColorText').value = this.value;
+            });
+            document.getElementById('secondaryColorText').addEventListener('input', function() {
+                document.getElementById('secondaryColor').value = this.value;
+            });
+            
+            document.getElementById('accentColor').addEventListener('input', function() {
+                document.getElementById('accentColorText').value = this.value;
+            });
+            document.getElementById('accentColorText').addEventListener('input', function() {
+                document.getElementById('accentColor').value = this.value;
+            });
+        }
+        
+        async function saveGeneralSettings(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const settings = {};
+            
+            for (let [key, value] of formData.entries()) {
+                settings[key] = value;
+            }
+            
+            try {
+                const response = await fetch('../handlers/website_settings.php?action=update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ settings })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('General settings saved successfully!');
+                } else {
+                    if (window.showError) showError(result.message || 'Error saving settings');
+                }
+            } catch (error) {
+                console.error('Error saving general settings:', error);
+                if (window.showError) showError('Error saving general settings');
+            }
+        }
+        
+        async function saveThemeSettings(event) {
+            event.preventDefault();
+            
+            const settings = {
+                primary_color: document.getElementById('primaryColor').value,
+                secondary_color: document.getElementById('secondaryColor').value,
+                accent_color: document.getElementById('accentColor').value,
+                dark_mode_enabled: document.getElementById('darkModeEnabled').checked ? 'true' : 'false'
+            };
+            
+            try {
+                const response = await fetch('../handlers/website_settings.php?action=update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ settings })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('Theme settings saved successfully!');
+                    // Apply colors immediately
+                    applyThemeColors(settings);
+                } else {
+                    if (window.showError) showError(result.message || 'Error saving theme settings');
+                }
+            } catch (error) {
+                console.error('Error saving theme settings:', error);
+                if (window.showError) showError('Error saving theme settings');
+            }
+        }
+        
+        function applyThemeColors(settings) {
+            // Apply CSS custom properties for dynamic theming
+            const root = document.documentElement;
+            root.style.setProperty('--primary-color', settings.primary_color);
+            root.style.setProperty('--secondary-color', settings.secondary_color);
+            root.style.setProperty('--accent-color', settings.accent_color);
+        }
+        
+        function previewFile(type) {
+            const fileInput = document.getElementById(type + 'File');
+            const preview = document.getElementById(type + 'Preview');
+            const placeholder = document.getElementById(type + 'Placeholder');
+            
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+        
+        async function uploadFile(settingKey, fileInputId) {
+            const fileInput = document.getElementById(fileInputId);
+            
+            if (!fileInput.files || !fileInput.files[0]) {
+                if (window.showError) showError('Please select a file first');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('setting_key', settingKey);
+            
+            try {
+                const response = await fetch('../handlers/website_settings.php?action=upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) showSuccess('File uploaded successfully!');
+                    // Update favicon if needed
+                    if (settingKey === 'favicon') {
+                        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+                        link.type = 'image/x-icon';
+                        link.rel = 'shortcut icon';
+                        link.href = result.file_path;
+                        document.getElementsByTagName('head')[0].appendChild(link);
+                    }
+                } else {
+                    if (window.showError) showError(result.message || 'Error uploading file');
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                if (window.showError) showError('Error uploading file');
+            }
+        }
+        
+        async function toggleMaintenanceMode() {
+            const isEnabled = document.getElementById('maintenanceMode').checked;
+            
+            const settings = {
+                maintenance_mode: isEnabled ? 'true' : 'false'
+            };
+            
+            try {
+                const response = await fetch('../handlers/website_settings.php?action=update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ settings })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (window.showSuccess) {
+                        showSuccess(isEnabled ? 'Maintenance mode enabled' : 'Maintenance mode disabled');
+                    }
+                } else {
+                    if (window.showError) showError(result.message || 'Error updating maintenance mode');
+                    // Revert checkbox state
+                    document.getElementById('maintenanceMode').checked = !isEnabled;
+                }
+            } catch (error) {
+                console.error('Error toggling maintenance mode:', error);
+                if (window.showError) showError('Error updating maintenance mode');
+                // Revert checkbox state
+                document.getElementById('maintenanceMode').checked = !isEnabled;
+            }
         }
         
         // Initialize
