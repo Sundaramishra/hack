@@ -1871,8 +1871,9 @@ $accentColor = WebsiteSettings::getAccentColor();
             `;
             document.body.appendChild(modal);
             
-            // Fetch prescription details
-            fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}`)
+            // Fetch prescription details with CSRF token
+            const csrfToken = '<?php echo $_SESSION['csrf_token'] ?? ''; ?>';
+            fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}&token=${csrfToken}`)
                 .then(response => response.json())
                 .then(result => {
                     if (result.success) {
@@ -2012,8 +2013,9 @@ $accentColor = WebsiteSettings::getAccentColor();
         }
         
         function printPrescription(prescriptionId) {
-            // Open prescription in new window for PDF save
-            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
+            // Open prescription in new window for PDF save with CSRF token
+            const csrfToken = '<?php echo $_SESSION['csrf_token'] ?? ''; ?>';
+            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}&token=${csrfToken}`, '_blank');
             if (!printWindow) {
                 alert('Please allow popups to save prescription as PDF');
             }

@@ -26,11 +26,47 @@ try {
         $_SESSION[$rateLimitKey] = ['count' => 0, 'timestamp' => time()];
     }
     
+    // Generate CSRF token if not exists
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    
+    // CSRF validation for sensitive actions (except list action)
+    if (isset($_GET['action']) && $_GET['action'] !== 'list') {
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'], $token)) {
+            error_log("SECURITY ALERT: CSRF token mismatch for user ID: {$userId}, action: {$_GET['action']}");
+            if ($method === 'GET') {
+                echo '<script>alert("Security error: Invalid request token"); window.close();</script>';
+                exit;
+            } else {
+                throw new Exception('Security error: Invalid request token');
+            }
+        }
+    }
+    
     if ($method === 'GET') {
         $action = $_GET['action'] ?? 'list';
         
         if ($action === 'print' && isset($_GET['id'])) {
             $prescriptionId = $_GET['id'];
+            
+            // Input validation and sanitization
+            if (!is_numeric($prescriptionId) || $prescriptionId <= 0) {
+                error_log("SECURITY ALERT: Invalid prescription ID attempted: {$prescriptionId} by user ID: {$userId}");
+                echo '<script>alert("Invalid prescription ID"); window.close();</script>';
+                exit;
+            }
+            
+            $prescriptionId = (int)$prescriptionId; // Type cast to integer
+            
+            // Rate limiting check
+            $_SESSION[$rateLimitKey]['count']++;
+            if ($_SESSION[$rateLimitKey]['count'] > 10) {
+                error_log("SECURITY ALERT: Rate limit exceeded for prescription access by user ID: {$userId}");
+                echo '<script>alert("Too many attempts. Please try again later."); window.close();</script>';
+                exit;
+            }
             
             // Get prescription details for printing
             $query = "SELECT p.*, 
@@ -274,6 +310,21 @@ try {
             
         } elseif ($action === 'details' && isset($_GET['id'])) {
             $prescriptionId = $_GET['id'];
+            
+            // Input validation and sanitization
+            if (!is_numeric($prescriptionId) || $prescriptionId <= 0) {
+                error_log("SECURITY ALERT: Invalid prescription ID attempted in details: {$prescriptionId} by user ID: {$userId}");
+                throw new Exception('Invalid prescription ID');
+            }
+            
+            $prescriptionId = (int)$prescriptionId; // Type cast to integer
+            
+            // Rate limiting check
+            $_SESSION[$rateLimitKey]['count']++;
+            if ($_SESSION[$rateLimitKey]['count'] > 10) {
+                error_log("SECURITY ALERT: Rate limit exceeded for prescription details access by user ID: {$userId}");
+                throw new Exception('Too many attempts. Please try again later.');
+            }
             
             // Get prescription details with medicines
             $query = "SELECT p.*, 

@@ -581,7 +581,8 @@ $patientId = $_SESSION['patient_id'];
         // View prescription details
         async function viewPrescriptionDetails(prescriptionId) {
             try {
-                const response = await fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}`);
+                const csrfToken = '<?php echo $_SESSION['csrf_token'] ?? ''; ?>';
+                const response = await fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}&token=${csrfToken}`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -682,8 +683,9 @@ $patientId = $_SESSION['patient_id'];
         
         // Print prescription as PDF
         function printPrescription(prescriptionId) {
-            // Open prescription in new window for PDF save
-            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
+            // Open prescription in new window for PDF save with CSRF token
+            const csrfToken = '<?php echo $_SESSION['csrf_token'] ?? ''; ?>';
+            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}&token=${csrfToken}`, '_blank');
             if (!printWindow) {
                 alert('Please allow popups to save prescription as PDF');
             }
