@@ -151,7 +151,7 @@ try {
                 $query = "SELECT p.*, 
                                 CONCAT(up.first_name, ' ', up.last_name) as patient_name,
                                 CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
-                                pt.patient_code
+                                COALESCE(pt.patient_code, CONCAT('P', LPAD(pt.patient_id, 3, '0'))) as patient_code
                          FROM prescriptions p
                          JOIN patients pt ON p.patient_id = pt.patient_id
                          JOIN users up ON pt.user_id = up.id
@@ -165,7 +165,7 @@ try {
                 $doctorId = $_SESSION['doctor_id'];
                 $query = "SELECT p.*, 
                                 CONCAT(up.first_name, ' ', up.last_name) as patient_name,
-                                pt.patient_code
+                                COALESCE(pt.patient_code, CONCAT('P', LPAD(pt.patient_id, 3, '0'))) as patient_code
                          FROM prescriptions p
                          JOIN patients pt ON p.patient_id = pt.patient_id
                          JOIN users up ON pt.user_id = up.id
