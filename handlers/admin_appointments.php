@@ -21,9 +21,9 @@ try {
             CONCAT(pu.first_name, ' ', pu.last_name) as patient_name,
             CONCAT(du.first_name, ' ', du.last_name) as doctor_name
         FROM appointments a
-        JOIN patients p ON a.patient_id = p.id
+        JOIN patients p ON a.patient_id = p.patient_id
         JOIN users pu ON p.user_id = pu.id
-        JOIN doctors d ON a.doctor_id = d.id
+        JOIN doctors d ON a.doctor_id = d.doctor_id
         JOIN users du ON d.user_id = du.id
         ORDER BY a.appointment_date DESC, a.appointment_time DESC
         LIMIT 10

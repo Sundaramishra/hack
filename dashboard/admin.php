@@ -1045,10 +1045,17 @@ $accentColor = WebsiteSettings::getAccentColor();
                 
                 // Load recent appointments
                 const appointmentsResponse = await fetch('../handlers/admin_appointments.php');
+                if (!appointmentsResponse.ok) {
+                    throw new Error(`Appointments API error! status: ${appointmentsResponse.status}`);
+                }
                 const appointmentsResult = await appointmentsResponse.json();
                 
                 if (appointmentsResult.success) {
                     displayRecentAppointments(appointmentsResult.data);
+                } else {
+                    console.error('Recent appointments error:', appointmentsResult.message);
+                    document.getElementById('recentAppointments').innerHTML = 
+                        '<tr><td colspan="4" class="px-4 py-8 text-center text-red-500">Error: ' + (appointmentsResult.message || 'Failed to load appointments') + '</td></tr>';
                 }
             } catch (error) {
                 console.error('Error loading dashboard stats:', error);
@@ -1056,6 +1063,10 @@ $accentColor = WebsiteSettings::getAccentColor();
                 document.getElementById('totalDoctors').textContent = 'Error';
                 document.getElementById('totalPatients').textContent = 'Error';
                 document.getElementById('totalAppointments').textContent = 'Error';
+                
+                // Show error in recent appointments too
+                document.getElementById('recentAppointments').innerHTML = 
+                    '<tr><td colspan="4" class="px-4 py-8 text-center text-red-500">Error loading data: ' + error.message + '</td></tr>';
             }
         }
         
@@ -1283,13 +1294,22 @@ $accentColor = WebsiteSettings::getAccentColor();
         async function loadPrescriptions() {
             try {
                 const response = await fetch('../handlers/prescriptions.php?action=list');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const result = await response.json();
                 
                 if (result.success) {
                     displayPrescriptions(result.data);
+                } else {
+                    console.error('Prescriptions API error:', result.message);
+                    document.getElementById('prescriptionsTable').innerHTML = 
+                        '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Error: ' + (result.message || 'Failed to load prescriptions') + '</td></tr>';
                 }
             } catch (error) {
                 console.error('Error loading prescriptions:', error);
+                document.getElementById('prescriptionsTable').innerHTML = 
+                    '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Error loading prescriptions: ' + error.message + '</td></tr>';
             }
         }
         
