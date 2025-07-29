@@ -721,9 +721,12 @@ $accentColor = WebsiteSettings::getAccentColor();
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Patient</label>
-                        <select name="patientId" id="appointmentPatientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option value="">Loading patients...</option>
-                        </select>
+                        <div class="relative">
+                            <input type="text" id="patientSearch" placeholder="Search patient by name..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onkeyup="searchPatients(this.value)">
+                            <select name="patientId" id="appointmentPatientSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white mt-2">
+                                <option value="">Loading patients...</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Doctor</label>
@@ -733,11 +736,13 @@ $accentColor = WebsiteSettings::getAccentColor();
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
-                        <input type="date" name="appointmentDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <input type="date" name="appointmentDate" id="appointmentDate" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" onchange="loadTimeSlots()">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time</label>
-                        <input type="time" name="appointmentTime" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Available Time Slots</label>
+                        <select name="appointmentTime" id="timeSlotSelect" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select date first...</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reason</label>
@@ -1396,10 +1401,17 @@ $accentColor = WebsiteSettings::getAccentColor();
                 const patientsResult = await patientsResponse.json();
                 
                 if (patientsResult.success) {
+                    // Store all patients for search functionality
+                    allPatients = patientsResult.data.map(patient => ({
+                        patient_id: patient.patient_id,
+                        name: `${patient.first_name} ${patient.last_name}`,
+                        patient_code: patient.patient_code || `P${patient.patient_id.toString().padStart(3, '0')}`
+                    }));
+                    
                     const patientSelect = document.getElementById('appointmentPatientSelect');
                     patientSelect.innerHTML = '<option value="">Select Patient</option>';
-                    patientsResult.data.forEach(patient => {
-                        patientSelect.innerHTML += `<option value="${patient.id}">${patient.first_name} ${patient.last_name}</option>`;
+                    allPatients.forEach(patient => {
+                        patientSelect.innerHTML += `<option value="${patient.patient_id}">${patient.name} (${patient.patient_code})</option>`;
                     });
                 }
                 
@@ -1411,8 +1423,11 @@ $accentColor = WebsiteSettings::getAccentColor();
                     const doctorSelect = document.getElementById('appointmentDoctorSelect');
                     doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
                     doctorsResult.data.forEach(doctor => {
-                        doctorSelect.innerHTML += `<option value="${doctor.id}">Dr. ${doctor.first_name} ${doctor.last_name}</option>`;
+                        doctorSelect.innerHTML += `<option value="${doctor.doctor_id}">Dr. ${doctor.first_name} ${doctor.last_name} - ${doctor.specialization}</option>`;
                     });
+                    
+                    // Add change event to reload time slots when doctor changes
+                    doctorSelect.onchange = loadTimeSlots;
                 }
             } catch (error) {
                 console.error('Error loading appointment selects:', error);
@@ -1491,11 +1506,79 @@ $accentColor = WebsiteSettings::getAccentColor();
         
         function openAppointmentModal() {
             document.getElementById('appointmentModal').classList.remove('hidden');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+            
+            loadAppointmentSelects();
         }
         
         function closeAppointmentModal() {
             document.getElementById('appointmentModal').classList.add('hidden');
             document.getElementById('appointmentForm').reset();
+            document.getElementById('patientSearch').value = '';
+            document.getElementById('timeSlotSelect').innerHTML = '<option value="">Select date first...</option>';
+        }
+        
+        // Patient search functionality
+        let allPatients = [];
+        
+        function searchPatients(searchTerm) {
+            const select = document.getElementById('appointmentPatientSelect');
+            const filteredPatients = allPatients.filter(patient => 
+                patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                patient.patient_code.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            select.innerHTML = '<option value="">Select Patient</option>';
+            filteredPatients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.patient_id;
+                option.textContent = `${patient.name} (${patient.patient_code})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Load time slots based on selected doctor and date
+        async function loadTimeSlots() {
+            const doctorId = document.getElementById('appointmentDoctorSelect').value;
+            const date = document.getElementById('appointmentDate').value;
+            const timeSlotSelect = document.getElementById('timeSlotSelect');
+            
+            if (!doctorId || !date) {
+                timeSlotSelect.innerHTML = '<option value="">Select doctor and date first</option>';
+                return;
+            }
+            
+            try {
+                timeSlotSelect.innerHTML = '<option value="">Loading time slots...</option>';
+                
+                const response = await fetch(`../handlers/get_time_slots.php?doctor_id=${doctorId}&date=${date}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    timeSlotSelect.innerHTML = '<option value="">Select Time Slot</option>';
+                    
+                    if (result.data.length === 0) {
+                        timeSlotSelect.innerHTML = '<option value="">No available slots</option>';
+                        return;
+                    }
+                    
+                    result.data.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot.time;
+                        option.textContent = `${slot.time} ${slot.available ? '' : '(Booked)'}`;
+                        option.disabled = !slot.available;
+                        timeSlotSelect.appendChild(option);
+                    });
+                } else {
+                    timeSlotSelect.innerHTML = '<option value="">Error loading slots</option>';
+                }
+            } catch (error) {
+                console.error('Error loading time slots:', error);
+                timeSlotSelect.innerHTML = '<option value="">Error loading slots</option>';
+            }
         }
         
         function openVitalModal() {
@@ -1868,8 +1951,8 @@ $accentColor = WebsiteSettings::getAccentColor();
                                 
                                 <!-- Actions -->
                                 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <button onclick="printPrescription(${prescriptionId})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                                        <i class="fas fa-print mr-2"></i>Print
+                                    <button onclick="printPrescription(${prescriptionId})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                        <i class="fas fa-download mr-2"></i>Download
                                     </button>
                                     <button onclick="this.closest('.fixed').remove()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
                                         Close
@@ -1898,7 +1981,11 @@ $accentColor = WebsiteSettings::getAccentColor();
         }
         
         function printPrescription(prescriptionId) {
-            if (window.showInfo) showInfo('Print prescription functionality - ID: ' + prescriptionId);
+            // Open prescription download in new window
+            const downloadWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
+            if (!downloadWindow) {
+                alert('Please allow popups to download prescriptions');
+            }
         }
         
         function editVital(vitalId) {

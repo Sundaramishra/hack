@@ -60,8 +60,10 @@ try {
             $stmt->execute([$prescriptionId]);
             $medicines = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            // Output print-friendly HTML
+            // Output as downloadable HTML file
+            $filename = 'Prescription_' . $prescription['prescription_number'] . '_' . date('Y-m-d') . '.html';
             header('Content-Type: text/html');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
             echo '<!DOCTYPE html>
 <html>
 <head>
@@ -130,11 +132,12 @@ try {
     </div>
     
     <script>
-        // Auto-print when page loads
+        // Auto-download message
         window.onload = function() {
             setTimeout(function() {
-                window.print();
-            }, 500);
+                alert('Prescription downloaded successfully! You can now print it from your downloads folder.');
+                window.close();
+            }, 1000);
         }
     </script>
 </body>
