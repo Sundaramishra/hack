@@ -1982,8 +1982,8 @@ $accentColor = WebsiteSettings::getAccentColor();
                                 
                                 <!-- Actions -->
                                 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                    <button onclick="printPrescription(${prescriptionId})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
-                                        <i class="fas fa-download mr-2"></i>Download
+                                    <button onclick="printPrescription(${prescriptionId})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                                        <i class="fas fa-file-pdf mr-2"></i>Save as PDF
                                     </button>
                                     <button onclick="this.closest('.fixed').remove()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
                                         Close
@@ -2012,10 +2012,10 @@ $accentColor = WebsiteSettings::getAccentColor();
         }
         
         function printPrescription(prescriptionId) {
-            // Open prescription download in new window
-            const downloadWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
-            if (!downloadWindow) {
-                alert('Please allow popups to download prescriptions');
+            // Open prescription in new window for PDF save
+            const printWindow = window.open(`../handlers/prescriptions.php?action=print&id=${prescriptionId}`, '_blank');
+            if (!printWindow) {
+                alert('Please allow popups to save prescription as PDF');
             }
         }
         

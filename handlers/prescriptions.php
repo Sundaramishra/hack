@@ -70,14 +70,60 @@ try {
     <meta charset="UTF-8">
     <title>Prescription - ' . htmlspecialchars($prescription['prescription_number']) . '</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-        .prescription-info { margin-bottom: 20px; }
-        .patient-info, .doctor-info { display: inline-block; width: 48%; vertical-align: top; }
-        .medicines { margin-top: 20px; }
-        .medicine-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
-        .print-btn { text-align: center; margin: 20px 0; }
-        @media print { .print-btn { display: none; } }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: white;
+            color: black;
+        }
+        .header { 
+            text-align: center; 
+            border-bottom: 2px solid #333; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+        }
+        .prescription-info { 
+            margin-bottom: 20px; 
+            overflow: hidden;
+        }
+        .patient-info, .doctor-info { 
+            display: inline-block; 
+            width: 48%; 
+            vertical-align: top; 
+            margin-bottom: 15px;
+        }
+        .medicines { 
+            margin-top: 20px; 
+        }
+        .medicine-item { 
+            border: 1px solid #ddd; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            page-break-inside: avoid;
+        }
+        .print-btn { 
+            text-align: center; 
+            margin: 20px 0; 
+        }
+        .print-btn button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        @media print { 
+            .print-btn { display: none; }
+            body { margin: 0; }
+            .header { border-bottom: 2px solid #000; }
+        }
+        @page {
+            size: A4;
+            margin: 1in;
+        }
     </style>
 </head>
 <body>
@@ -127,16 +173,21 @@ try {
     ' . ($prescription['follow_up_date'] ? '<div><h3>Follow-up Date</h3><p>' . date('F j, Y', strtotime($prescription['follow_up_date'])) . '</p></div>' : '') . '
     
     <div class="print-btn">
-        <button onclick="window.print()">Print Prescription</button>
+        <button onclick="printToPDF()">Save as PDF</button>
         <button onclick="window.close()">Close</button>
     </div>
     
     <script>
+        function printToPDF() {
+            // Open print dialog which allows saving as PDF
+            window.print();
+        }
+        
         window.onload = function() {
+            // Auto-open print dialog for PDF save
             setTimeout(function() {
-                alert("Prescription downloaded successfully!");
-                window.close();
-            }, 1000);
+                printToPDF();
+            }, 500);
         }
     </script>
 </body>

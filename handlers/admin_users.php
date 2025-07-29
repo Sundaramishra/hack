@@ -130,8 +130,8 @@ try {
                     $experienceYears = $input['experience_years'] ?? 0;
                     $consultationFee = $input['consultation_fee'] ?? 0.00;
 
-                    if (!$specialization || !$licenseNumber) {
-                        throw new Exception('Specialization and license number are required for doctors');
+                    if (!$specialization) {
+                        throw new Exception('Specialization is required for doctors');
                     }
 
                     $doctorQuery = "INSERT INTO doctors (user_id, specialization, license_number, qualification, experience_years, consultation_fee)
