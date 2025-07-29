@@ -747,6 +747,29 @@ $patientId = $_SESSION['patient_id'];
                 }
             });
         });
+        
+        // View prescription from appointment
+        function viewPrescription(appointmentId) {
+            // Find prescription by appointment ID and view it
+            fetch(`../handlers/prescriptions.php?action=list`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const prescription = result.data.find(p => p.appointment_id == appointmentId);
+                        if (prescription) {
+                            viewPrescriptionDetails(prescription.id);
+                        } else {
+                            showError('No prescription found for this appointment');
+                        }
+                    } else {
+                        showError('Error loading prescriptions');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error finding prescription:', error);
+                    showError('Error loading prescription');
+                });
+        }
     </script>
 </body>
 </html>

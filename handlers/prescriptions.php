@@ -17,7 +17,131 @@ try {
     if ($method === 'GET') {
         $action = $_GET['action'] ?? 'list';
         
-        if ($action === 'list') {
+        if ($action === 'print' && isset($_GET['id'])) {
+            $prescriptionId = $_GET['id'];
+            
+            // Get prescription details for printing
+            $query = "SELECT p.*, 
+                            CONCAT(up.first_name, ' ', up.last_name) as patient_name,
+                            CONCAT(ud.first_name, ' ', ud.last_name) as doctor_name,
+                            d.specialization, d.license_number,
+                            pt.patient_code, pt.blood_group, pt.allergies
+                     FROM prescriptions p
+                     JOIN patients pt ON p.patient_id = pt.patient_id
+                     JOIN users up ON pt.user_id = up.id
+                     JOIN doctors d ON p.doctor_id = d.doctor_id
+                     JOIN users ud ON d.user_id = ud.id
+                     WHERE p.id = ?";
+            
+            // Check access based on role
+            if ($userRole === 'doctor') {
+                $query .= " AND p.doctor_id = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$prescriptionId, $_SESSION['doctor_id']]);
+            } elseif ($userRole === 'patient') {
+                $query .= " AND p.patient_id = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$prescriptionId, $_SESSION['patient_id']]);
+            } else {
+                $stmt = $conn->prepare($query);
+                $stmt->execute([$prescriptionId]);
+            }
+            
+            $prescription = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$prescription) {
+                echo '<script>alert("Prescription not found or access denied"); window.close();</script>';
+                exit;
+            }
+            
+            // Get medicines for this prescription
+            $medicineQuery = "SELECT * FROM prescription_medicines WHERE prescription_id = ? ORDER BY id";
+            $stmt = $conn->prepare($medicineQuery);
+            $stmt->execute([$prescriptionId]);
+            $medicines = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Output print-friendly HTML
+            header('Content-Type: text/html');
+            echo '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Prescription - ' . htmlspecialchars($prescription['prescription_number']) . '</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .prescription-info { margin-bottom: 20px; }
+        .patient-info, .doctor-info { display: inline-block; width: 48%; vertical-align: top; }
+        .medicines { margin-top: 20px; }
+        .medicine-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+        .print-btn { text-align: center; margin: 20px 0; }
+        @media print { .print-btn { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Medical Prescription</h1>
+        <p>Prescription #: ' . htmlspecialchars($prescription['prescription_number']) . '</p>
+        <p>Date: ' . date('F j, Y', strtotime($prescription['prescription_date'])) . '</p>
+    </div>
+    
+    <div class="prescription-info">
+        <div class="doctor-info">
+            <h3>Doctor Information</h3>
+            <p><strong>Name:</strong> Dr. ' . htmlspecialchars($prescription['doctor_name']) . '</p>
+            <p><strong>Specialization:</strong> ' . htmlspecialchars($prescription['specialization']) . '</p>
+            ' . ($prescription['license_number'] ? '<p><strong>License:</strong> ' . htmlspecialchars($prescription['license_number']) . '</p>' : '') . '
+        </div>
+        
+        <div class="patient-info">
+            <h3>Patient Information</h3>
+            <p><strong>Name:</strong> ' . htmlspecialchars($prescription['patient_name']) . '</p>
+            <p><strong>Patient ID:</strong> ' . htmlspecialchars($prescription['patient_code']) . '</p>
+            ' . ($prescription['blood_group'] ? '<p><strong>Blood Group:</strong> ' . htmlspecialchars($prescription['blood_group']) . '</p>' : '') . '
+            ' . ($prescription['allergies'] ? '<p><strong>Allergies:</strong> ' . htmlspecialchars($prescription['allergies']) . '</p>' : '') . '
+        </div>
+    </div>
+    
+    ' . ($prescription['diagnosis'] ? '<div><h3>Diagnosis</h3><p>' . htmlspecialchars($prescription['diagnosis']) . '</p></div>' : '') . '
+    
+    <div class="medicines">
+        <h3>Prescribed Medicines</h3>';
+        
+        foreach ($medicines as $medicine) {
+            echo '<div class="medicine-item">
+                <h4>' . htmlspecialchars($medicine['medicine_name']) . '</h4>
+                <p><strong>Dosage:</strong> ' . htmlspecialchars($medicine['dosage']) . '</p>
+                <p><strong>Frequency:</strong> ' . htmlspecialchars($medicine['frequency']) . '</p>
+                <p><strong>Duration:</strong> ' . htmlspecialchars($medicine['duration']) . '</p>
+                <p><strong>Quantity:</strong> ' . ($medicine['quantity'] ?: 1) . '</p>
+                ' . ($medicine['instructions'] ? '<p><strong>Instructions:</strong> ' . htmlspecialchars($medicine['instructions']) . '</p>' : '') . '
+            </div>';
+        }
+        
+        echo '</div>
+    
+    ' . ($prescription['notes'] ? '<div><h3>Additional Notes</h3><p>' . htmlspecialchars($prescription['notes']) . '</p></div>' : '') . '
+    
+    ' . ($prescription['follow_up_date'] ? '<div><h3>Follow-up Date</h3><p>' . date('F j, Y', strtotime($prescription['follow_up_date'])) . '</p></div>' : '') . '
+    
+    <div class="print-btn">
+        <button onclick="window.print()">Print Prescription</button>
+        <button onclick="window.close()">Close</button>
+    </div>
+    
+    <script>
+        // Auto-print when page loads
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        }
+    </script>
+</body>
+</html>';
+            exit;
+            
+        } elseif ($action === 'list') {
             // Get prescriptions based on user role
             if ($userRole === 'admin') {
                 // Admin can see all prescriptions

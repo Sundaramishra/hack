@@ -813,8 +813,8 @@ $accentColor = WebsiteSettings::getAccentColor();
                         <input type="text" name="specialization" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="e.g., Cardiology">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">License Number</label>
-                        <input type="text" name="license_number" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">License Number <span class="text-gray-500">(Optional)</span></label>
+                        <input type="text" name="license_number" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Experience (Years)</label>
@@ -1064,7 +1064,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (appointments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">No recent appointments</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No recent appointments</td></tr>';
                 return;
             }
             
@@ -1106,7 +1106,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No users found</td></tr>';
                 return;
             }
             
@@ -1157,7 +1157,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (doctors.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No doctors found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No doctors found</td></tr>';
                 return;
             }
             
@@ -1204,7 +1204,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (patients.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No patients found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No patients found</td></tr>';
                 return;
             }
             
@@ -1251,7 +1251,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (appointments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No appointments found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No appointments found</td></tr>';
                 return;
             }
             
@@ -1298,7 +1298,7 @@ $accentColor = WebsiteSettings::getAccentColor();
             tbody.innerHTML = '';
             
             if (prescriptions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No prescriptions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No prescriptions found</td></tr>';
                 return;
             }
             
@@ -1702,7 +1702,163 @@ $accentColor = WebsiteSettings::getAccentColor();
         }
         
         function viewPrescription(prescriptionId) {
-            if (window.showInfo) showInfo('View prescription functionality - ID: ' + prescriptionId);
+            // Create and show prescription modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Prescription Details</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="prescriptionContent" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-2xl text-blue-500 mb-2"></i>
+                        <p class="text-gray-600 dark:text-gray-400">Loading prescription details...</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Fetch prescription details
+            fetch(`../handlers/prescriptions.php?action=details&id=${prescriptionId}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        const prescription = result.data;
+                        document.getElementById('prescriptionContent').innerHTML = `
+                            <div class="space-y-6 text-left">
+                                <!-- Header -->
+                                <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="text-xl font-bold text-gray-900 dark:text-white">Prescription #${prescription.prescription_number}</h4>
+                                            <p class="text-gray-600 dark:text-gray-400">Date: ${formatDate(prescription.prescription_date)}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-semibold text-gray-900 dark:text-white">Dr. ${prescription.doctor_name}</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">${prescription.specialization}</p>
+                                            ${prescription.license_number ? `<p class="text-xs text-gray-500">License: ${prescription.license_number}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Patient Info -->
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                    <h5 class="font-semibold text-gray-900 dark:text-white mb-2">Patient Information</h5>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-gray-600 dark:text-gray-400">Name:</span>
+                                            <span class="ml-2 font-medium text-gray-900 dark:text-white">${prescription.patient_name}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-600 dark:text-gray-400">Patient ID:</span>
+                                            <span class="ml-2 font-medium text-gray-900 dark:text-white">${prescription.patient_code}</span>
+                                        </div>
+                                        ${prescription.blood_group ? `
+                                        <div>
+                                            <span class="text-gray-600 dark:text-gray-400">Blood Group:</span>
+                                            <span class="ml-2 font-medium text-gray-900 dark:text-white">${prescription.blood_group}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${prescription.allergies ? `
+                                        <div>
+                                            <span class="text-gray-600 dark:text-gray-400">Allergies:</span>
+                                            <span class="ml-2 font-medium text-red-600">${prescription.allergies}</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                
+                                <!-- Diagnosis -->
+                                ${prescription.diagnosis ? `
+                                <div>
+                                    <h5 class="font-semibold text-gray-900 dark:text-white mb-2">Diagnosis</h5>
+                                    <p class="text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">${prescription.diagnosis}</p>
+                                </div>
+                                ` : ''}
+                                
+                                <!-- Medicines -->
+                                <div>
+                                    <h5 class="font-semibold text-gray-900 dark:text-white mb-3">Prescribed Medicines</h5>
+                                    <div class="space-y-3">
+                                        ${prescription.medicines.map(medicine => `
+                                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <h6 class="font-medium text-gray-900 dark:text-white">${medicine.medicine_name}</h6>
+                                                    <span class="text-sm text-gray-600 dark:text-gray-400">Qty: ${medicine.quantity || 1}</span>
+                                                </div>
+                                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                                    <div>
+                                                        <span class="text-gray-600 dark:text-gray-400">Dosage:</span>
+                                                        <span class="ml-1 font-medium text-gray-900 dark:text-white">${medicine.dosage}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-gray-600 dark:text-gray-400">Frequency:</span>
+                                                        <span class="ml-1 font-medium text-gray-900 dark:text-white">${medicine.frequency}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="text-gray-600 dark:text-gray-400">Duration:</span>
+                                                        <span class="ml-1 font-medium text-gray-900 dark:text-white">${medicine.duration}</span>
+                                                    </div>
+                                                </div>
+                                                ${medicine.instructions ? `
+                                                <div class="mt-2">
+                                                    <span class="text-gray-600 dark:text-gray-400">Instructions:</span>
+                                                    <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">${medicine.instructions}</p>
+                                                </div>
+                                                ` : ''}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                
+                                <!-- Notes -->
+                                ${prescription.notes ? `
+                                <div>
+                                    <h5 class="font-semibold text-gray-900 dark:text-white mb-2">Additional Notes</h5>
+                                    <p class="text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">${prescription.notes}</p>
+                                </div>
+                                ` : ''}
+                                
+                                <!-- Follow-up -->
+                                ${prescription.follow_up_date ? `
+                                <div>
+                                    <h5 class="font-semibold text-gray-900 dark:text-white mb-2">Follow-up Date</h5>
+                                    <p class="text-gray-700 dark:text-gray-300 font-medium">${formatDate(prescription.follow_up_date)}</p>
+                                </div>
+                                ` : ''}
+                                
+                                <!-- Actions -->
+                                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                    <button onclick="printPrescription(${prescriptionId})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                        <i class="fas fa-print mr-2"></i>Print
+                                    </button>
+                                    <button onclick="this.closest('.fixed').remove()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('prescriptionContent').innerHTML = `
+                            <div class="text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-2xl text-red-500 mb-2"></i>
+                                <p class="text-red-600 dark:text-red-400">${result.message || 'Failed to load prescription details'}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading prescription:', error);
+                    document.getElementById('prescriptionContent').innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-exclamation-triangle text-2xl text-red-500 mb-2"></i>
+                            <p class="text-red-600 dark:text-red-400">Error loading prescription details</p>
+                        </div>
+                    `;
+                });
         }
         
         function printPrescription(prescriptionId) {
