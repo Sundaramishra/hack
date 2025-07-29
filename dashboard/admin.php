@@ -1,10 +1,19 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../includes/settings.php';
 
 $auth = new Auth();
 $auth->requireRole('admin');
 
 $user = $auth->getCurrentUser();
+
+// Load website settings
+$siteName = WebsiteSettings::getSiteName();
+$siteLogo = WebsiteSettings::getSiteLogo();
+$favicon = WebsiteSettings::getFavicon();
+$primaryColor = WebsiteSettings::getPrimaryColor();
+$secondaryColor = WebsiteSettings::getSecondaryColor();
+$accentColor = WebsiteSettings::getAccentColor();
 ?>
 
 <!DOCTYPE html>
@@ -12,10 +21,25 @@ $user = $auth->getCurrentUser();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Hospital CRM</title>
+    <title>Admin Dashboard - <?php echo htmlspecialchars($siteName); ?></title>
+    <link rel="shortcut icon" href="<?php echo htmlspecialchars($favicon); ?>" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="../assets/js/notifications.js"></script>
+    <style>
+        :root {
+            --primary-color: <?php echo $primaryColor; ?>;
+            --secondary-color: <?php echo $secondaryColor; ?>;
+            --accent-color: <?php echo $accentColor; ?>;
+        }
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .text-primary { color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
+        .bg-secondary { background-color: var(--secondary-color) !important; }
+        .text-secondary { color: var(--secondary-color) !important; }
+        .bg-accent { background-color: var(--accent-color) !important; }
+        .text-accent { color: var(--accent-color) !important; }
+    </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -33,7 +57,7 @@ $user = $auth->getCurrentUser();
                     <i class="fas fa-hospital text-white"></i>
                 </div>
                 <div class="ml-3">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Hospital CRM</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white"><?php echo htmlspecialchars($siteName); ?></h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
                 </div>
             </div>
@@ -41,7 +65,7 @@ $user = $auth->getCurrentUser();
         
         <!-- Navigation -->
         <nav class="mt-6">
-            <a href="javascript:void(0)" onclick="showSection('dashboard')" class="nav-link active flex items-center px-6 py-3 text-white bg-blue-500">
+            <a href="javascript:void(0)" onclick="showSection('dashboard')" class="nav-link active flex items-center px-6 py-3 text-white bg-primary">
                 <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
             </a>
             <a href="javascript:void(0)" onclick="showSection('users')" class="nav-link flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -756,14 +780,14 @@ $user = $auth->getCurrentUser();
             
             // Update navigation
             document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active', 'bg-blue-500', 'text-white');
+                link.classList.remove('active', 'bg-primary', 'text-white');
                 link.classList.add('text-gray-700', 'dark:text-gray-300');
             });
             
             // Find and highlight active link
             const activeLink = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
             if (activeLink) {
-                activeLink.classList.add('active', 'bg-blue-500', 'text-white');
+                activeLink.classList.add('active', 'bg-primary', 'text-white');
                 activeLink.classList.remove('text-gray-700', 'dark:text-gray-300');
             }
             

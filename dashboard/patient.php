@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../includes/settings.php';
 
 $auth = new Auth();
 $auth->requireRole('patient');
@@ -7,6 +8,14 @@ $auth->requireRole('patient');
 require_once '../config/database.php';
 $database = new Database();
 $conn = $database->getConnection();
+
+// Load website settings
+$siteName = WebsiteSettings::getSiteName();
+$siteLogo = WebsiteSettings::getSiteLogo();
+$favicon = WebsiteSettings::getFavicon();
+$primaryColor = WebsiteSettings::getPrimaryColor();
+$secondaryColor = WebsiteSettings::getSecondaryColor();
+$accentColor = WebsiteSettings::getAccentColor();
 
 $user = $auth->getCurrentUser();
 $patientId = $_SESSION['patient_id'];

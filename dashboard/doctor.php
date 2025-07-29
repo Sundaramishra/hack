@@ -1,8 +1,17 @@
 <?php
 require_once '../includes/auth.php';
+require_once '../includes/settings.php';
 
 $auth = new Auth();
 $auth->requireRole('doctor');
+
+// Load website settings
+$siteName = WebsiteSettings::getSiteName();
+$siteLogo = WebsiteSettings::getSiteLogo();
+$favicon = WebsiteSettings::getFavicon();
+$primaryColor = WebsiteSettings::getPrimaryColor();
+$secondaryColor = WebsiteSettings::getSecondaryColor();
+$accentColor = WebsiteSettings::getAccentColor();
 
 require_once '../config/database.php';
 $database = new Database();

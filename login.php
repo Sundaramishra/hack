@@ -1,8 +1,17 @@
 <?php
 require_once 'includes/auth.php';
+require_once 'includes/settings.php';
 
 $auth = new Auth();
 $error = '';
+
+// Load website settings
+$siteName = WebsiteSettings::getSiteName();
+$siteLogo = WebsiteSettings::getSiteLogo();
+$favicon = WebsiteSettings::getFavicon();
+$primaryColor = WebsiteSettings::getPrimaryColor();
+$secondaryColor = WebsiteSettings::getSecondaryColor();
+$accentColor = WebsiteSettings::getAccentColor();
 
 // Redirect if already logged in
 if ($auth->isLoggedIn()) {
@@ -34,9 +43,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital CRM - Login</title>
+    <title><?php echo htmlspecialchars($siteName); ?> - Login</title>
+    <link rel="shortcut icon" href="<?php echo htmlspecialchars($favicon); ?>" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="assets/js/notifications.js"></script>
+    <style>
+        :root {
+            --primary-color: <?php echo $primaryColor; ?>;
+            --secondary-color: <?php echo $secondaryColor; ?>;
+            --accent-color: <?php echo $accentColor; ?>;
+        }
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .text-primary { color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
+        .hover\:bg-primary:hover { background-color: var(--secondary-color) !important; }
+        .from-primary { --tw-gradient-from: var(--primary-color) !important; }
+        .to-secondary { --tw-gradient-to: var(--secondary-color) !important; }
+    </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -56,10 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <!-- Header -->
             <div class="text-center">
-                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                <div class="mx-auto h-16 w-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mb-4">
                     <i class="fas fa-hospital text-white text-2xl"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Hospital CRM</h2>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white"><?php echo htmlspecialchars($siteName); ?></h2>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Sign in to your account</p>
             </div>
             
@@ -115,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     <button 
                         type="submit" 
-                        class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 font-medium"
+                        class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-lg hover:bg-primary focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 font-medium"
                     >
                         <i class="fas fa-sign-in-alt mr-2"></i>Sign In
                     </button>
