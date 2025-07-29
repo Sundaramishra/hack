@@ -13,6 +13,18 @@ try {
     
     $method = $_SERVER['REQUEST_METHOD'];
     $userRole = $_SESSION['role'];
+    $userId = $_SESSION['user_id'] ?? 0;
+    
+    // Rate limiting for prescription access attempts
+    $rateLimitKey = 'prescription_attempts_' . $userId;
+    if (!isset($_SESSION[$rateLimitKey])) {
+        $_SESSION[$rateLimitKey] = ['count' => 0, 'timestamp' => time()];
+    }
+    
+    // Reset counter every 5 minutes
+    if (time() - $_SESSION[$rateLimitKey]['timestamp'] > 300) {
+        $_SESSION[$rateLimitKey] = ['count' => 0, 'timestamp' => time()];
+    }
     
     if ($method === 'GET') {
         $action = $_GET['action'] ?? 'list';
@@ -51,7 +63,20 @@ try {
             $prescription = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$prescription) {
-                echo '<script>alert("Prescription not found"); window.close();</script>';
+                echo '<script>alert("Prescription not found or access denied"); window.close();</script>';
+                exit;
+            }
+            
+            // Additional security check - verify user has permission to view this prescription
+            if ($userRole === 'patient' && $prescription['patient_id'] != $_SESSION['patient_id']) {
+                error_log("SECURITY ALERT: Patient ID {$_SESSION['patient_id']} attempted to access prescription ID {$prescriptionId} belonging to patient ID {$prescription['patient_id']}");
+                echo '<script>alert("Access denied - This prescription does not belong to you"); window.close();</script>';
+                exit;
+            }
+            
+            if ($userRole === 'doctor' && $prescription['doctor_id'] != $_SESSION['doctor_id']) {
+                error_log("SECURITY ALERT: Doctor ID {$_SESSION['doctor_id']} attempted to access prescription ID {$prescriptionId} belonging to doctor ID {$prescription['doctor_id']}");
+                echo '<script>alert("Access denied - This prescription was not issued by you"); window.close();</script>';
                 exit;
             }
             
@@ -282,6 +307,17 @@ try {
             
             if (!$prescription) {
                 throw new Exception('Prescription not found or access denied');
+            }
+            
+            // Additional security check - verify user has permission to view this prescription
+            if ($userRole === 'patient' && $prescription['patient_id'] != ($_SESSION['patient_id'] ?? 0)) {
+                error_log("SECURITY ALERT: Patient ID {$_SESSION['patient_id']} attempted to access prescription details ID {$prescriptionId} belonging to patient ID {$prescription['patient_id']}");
+                throw new Exception('Access denied - This prescription does not belong to you');
+            }
+            
+            if ($userRole === 'doctor' && $prescription['doctor_id'] != ($_SESSION['doctor_id'] ?? 0)) {
+                error_log("SECURITY ALERT: Doctor ID {$_SESSION['doctor_id']} attempted to access prescription details ID {$prescriptionId} belonging to doctor ID {$prescription['doctor_id']}");
+                throw new Exception('Access denied - This prescription was not issued by you');
             }
             
             // Get medicines for this prescription
