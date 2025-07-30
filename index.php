@@ -104,20 +104,105 @@ error_reporting(E_ALL);
     font-weight: 900;
   }
   .hero-quote .real { color: #222; }
+  
+  /* Interactive Elements */
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .floating-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(244, 75, 18, 0.1), rgba(244, 75, 18, 0.05));
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .floating-circle-1 {
+    width: 100px;
+    height: 100px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+  
+  .floating-circle-2 {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+  }
+  
+  .floating-circle-3 {
+    width: 80px;
+    height: 80px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(120deg); }
+    66% { transform: translateY(10px) rotate(240deg); }
+  }
+  
+  .interactive-video {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .interactive-video:hover {
+    filter: brightness(1.1);
+  }
+  
+  .interactive-word {
+    display: inline-block;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .interactive-word:hover {
+    text-shadow: 0 0 20px rgba(244, 75, 18, 0.5);
+  }
+  
+  /* Scroll Animations */
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+  }
+  
+  .fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
   </style>
 
   <section class="hero-section relative overflow-hidden pt-4 pb-2">
- 
+    <!-- Interactive Background Elements -->
+    <div class="floating-elements">
+      <div class="floating-circle floating-circle-1"></div>
+      <div class="floating-circle floating-circle-2"></div>
+      <div class="floating-circle floating-circle-3"></div>
+    </div>
     
-   
-    <div class="hero-video">
-      <video autoplay loop muted playsinline style="width:380px;max-width:93vw;background:#fff;border-radius:13px;">
+    <div class="hero-video interactive-video">
+      <video autoplay loop muted playsinline style="width:380px;max-width:93vw;background:#fff;border-radius:13px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
         <source src="uploads/hero-reels/animation.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
     </div>
-    <div class="hero-quote" style="margin-top:2.2vw;">
-      <span class="smart">Smart</span> strategy. <span class="loud">Loud</span> creativity. <span class="real">Real</span> results.
+    <div class="hero-quote interactive-text" style="margin-top:2.2vw;">
+      <span class="smart interactive-word" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">Smart</span> strategy. <span class="loud interactive-word" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">Loud</span> creativity. <span class="real interactive-word" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">Real</span> results.
     </div>
   </section>
 
@@ -287,12 +372,25 @@ error_reporting(E_ALL);
       box-shadow: 0 10px 40px 0 rgba(44,44,44,0.07);
       overflow: hidden;
       z-index: 2;
-      transition: box-shadow 0.22s, border 0.12s, transform 0.14s, background 0.15s, height 0.13s, padding 0.13s;
+      transition: all 0.3s ease;
       animation: glassFadeIn 0.93s cubic-bezier(.22,1.08,.29,1.01) both;
       opacity: 0;
       cursor: pointer;
       position: relative;
       will-change: transform, box-shadow, opacity;
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      background: rgba(255,255,255,0.12);
+      border: 2.5px solid rgba(244,75,18,0.3);
+      box-shadow: 0 20px 60px 0 rgba(244,75,18,0.15);
+    }
+    
+    .glass-card:hover .title {
+      color: #FF6B3D !important;
+      text-shadow: 0 0 10px rgba(244,75,18,0.3);
+    }
       animation-delay: var(--delay, 0s);
       text-align: center;
       font-size: 1.05rem;
@@ -924,7 +1022,101 @@ error_reporting(E_ALL);
     });
   })();
   window.addEventListener('DOMContentLoaded', update3dSlider);
-  window.addEventListener('resize', update3dSlider);
+window.addEventListener('resize', update3dSlider);
+
+// Interactive Scroll Animations
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    // Add fade-in-up class to elements
+    const elementsToAnimate = document.querySelectorAll('.glass-card, .team-row-1, .team-row-2, .portfolio-card');
+    elementsToAnimate.forEach(el => {
+        el.classList.add('fade-in-up');
+        observer.observe(el);
+    });
+}
+
+// Parallax Effect for Floating Elements
+function initParallaxEffect() {
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.floating-circle');
+        
+        parallaxElements.forEach((el, index) => {
+            const speed = 0.5 + (index * 0.2);
+            el.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.1}deg)`;
+        });
+    });
+}
+
+// Interactive Card Click Effects
+function initCardInteractions() {
+    const cards = document.querySelectorAll('.glass-card, .portfolio-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Create ripple effect
+            const ripple = document.createElement('div');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: radial-gradient(circle, rgba(244,75,18,0.3) 0%, transparent 70%);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            
+            this.style.position = 'relative';
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// Add ripple animation CSS
+const rippleCSS = `
+    @keyframes ripple {
+        to {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+`;
+
+const style = document.createElement('style');
+style.textContent = rippleCSS;
+document.head.appendChild(style);
+
+// Initialize all interactive features
+document.addEventListener('DOMContentLoaded', () => {
+    initScrollAnimations();
+    initParallaxEffect();
+    initCardInteractions();
+});
   window.addEventListener('keydown', function(e){
     if (e.key === 'ArrowLeft') featured3dPrev();
     if (e.key === 'ArrowRight') featured3dNext();

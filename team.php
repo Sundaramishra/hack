@@ -76,7 +76,45 @@
              <?php endfor; ?>
      </div>
   </div>
+  
+  <!-- Interactive Team Card Styles -->
   <style>
+    .luxury-team-card {
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    
+    .luxury-team-card:hover {
+      transform: translateY(-15px) scale(1.05);
+      box-shadow: 0 25px 50px rgba(244, 75, 18, 0.2);
+    }
+    
+    .luxury-team-card:hover .team-photo {
+      transform: scale(1.1);
+      filter: brightness(1.1);
+    }
+    
+    .luxury-team-card.clicked {
+      animation: pulse 0.6s ease-out;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    .team-row-1, .team-row-2 {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.8s ease;
+    }
+    
+    .team-row-1.visible, .team-row-2.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
     .team-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -201,5 +239,87 @@
     }
   </style>
 </section>
+
+<!-- Interactive Team JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Scroll Animation Observer
+  const observerOptions = {
+    threshold: 0.2,
+    rootMargin: '0px 0px -100px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, observerOptions);
+
+  // Observe team rows
+  const teamRows = document.querySelectorAll('.team-row-1, .team-row-2');
+  teamRows.forEach(row => {
+    observer.observe(row);
+  });
+
+  // Add click interactions to team cards
+  const teamCards = document.querySelectorAll('.luxury-team-card');
+  teamCards.forEach(card => {
+    card.addEventListener('click', function(event) {
+      // Add clicked animation
+      this.classList.add('clicked');
+      
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        this.classList.remove('clicked');
+      }, 600);
+      
+      // Add ripple effect
+      const ripple = document.createElement('div');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = event.clientX - rect.left - size / 2;
+      const y = event.clientY - rect.top - size / 2;
+      
+      ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+        background: radial-gradient(circle, rgba(244,75,18,0.3) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: scale(0);
+        animation: teamRipple 0.8s ease-out;
+        pointer-events: none;
+        z-index: 1000;
+      `;
+      
+      this.style.position = 'relative';
+      this.style.overflow = 'hidden';
+      this.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 800);
+    });
+  });
+
+  // Add team ripple animation
+  const teamRippleCSS = `
+    @keyframes teamRipple {
+      to {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+  `;
+  
+  const style = document.createElement('style');
+  style.textContent = teamRippleCSS;
+  document.head.appendChild(style);
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>
