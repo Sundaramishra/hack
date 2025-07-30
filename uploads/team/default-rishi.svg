@@ -1,0 +1,7 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#F5F5F5"/>
+  <circle cx="200" cy="150" r="70" fill="#CCCCCC"/>
+  <rect x="120" y="240" width="160" height="120" rx="10" fill="#CCCCCC"/>
+  <text x="200" y="350" font-family="Arial" font-size="24" text-anchor="middle" fill="#666666">Rishi Rathod</text>
+  <text x="200" y="380" font-family="Arial" font-size="18" text-anchor="middle" fill="#F44B12">Brand Designer</text>
+</svg>
