@@ -16,7 +16,7 @@
     <?php
     // Fetch team members from database
     $teamMembers = [];
-    $result = mysqli_query($conn, "SELECT name, position, bio, image FROM team WHERE status='active' ORDER BY id ASC LIMIT 5");
+    $result = mysqli_query($conn, "SELECT name, position, bio, image FROM team ORDER BY id ASC LIMIT 5");
     if ($result) {
       while ($row = mysqli_fetch_assoc($result)) {
         $teamMembers[] = $row;

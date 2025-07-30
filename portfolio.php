@@ -34,18 +34,45 @@
                     return $b['id'] <=> $a['id'];
                 });
                 foreach ($portfolioItems as $item) {
-                    echo '<a href="portfolio-detail.php?id=' . $item['id'] . '" class="rounded-xl bg-[#292929] border border-gray-400/40 shadow-lg aspect-video flex items-center justify-center transition-transform duration-300 hover:scale-105 overflow-hidden group" style="min-height: 180px;">';
+                    $title = !empty($item['brand_name']) ? $item['brand_name'] : (!empty($item['title']) ? $item['title'] : 'Portfolio Item');
+                    $description = !empty($item['description']) ? substr(strip_tags($item['description']), 0, 100) . '...' : '';
+                    
+                    echo '<div class="portfolio-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl group">';
+                    echo '<a href="portfolio-detail.php?id=' . $item['id'] . '" class="block">';
+                    
+                    // Image section
+                    echo '<div class="aspect-video bg-gray-200 overflow-hidden">';
                     if (!empty($item['thumbnail'])) {
-                        echo '<img src="' . htmlspecialchars($item['thumbnail']) . '" alt="' . htmlspecialchars(isset($item['brand_name']) && $item['brand_name'] !== null && $item['brand_name'] !== '' ? $item['brand_name'] : (isset($item['title']) ? $item['title'] : 'Portfolio Item')) . '" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">';
+                        echo '<img src="' . htmlspecialchars($item['thumbnail']) . '" alt="' . htmlspecialchars($title) . '" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">';
                     } else {
-                        echo '<div class="w-full h-full flex items-center justify-center text-gray-500"><i class="fas fa-image text-3xl"></i></div>';
+                        echo '<div class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-image text-4xl"></i></div>';
                     }
+                    echo '</div>';
+                    
+                    // Content section
+                    echo '<div class="p-4">';
+                    echo '<h3 class="text-lg font-bold text-[#F44B12] mb-2 line-clamp-2" style="font-family: \'Montserrat\', sans-serif;">' . htmlspecialchars($title) . '</h3>';
+                    if ($description) {
+                        echo '<p class="text-gray-600 text-sm line-clamp-3">' . htmlspecialchars($description) . '</p>';
+                    }
+                    echo '</div>';
+                    
                     echo '</a>';
+                    echo '</div>';
                 }
             } else {
                 // Fallback: One placeholder card if no items
-                echo '<div class="rounded-xl bg-[#292929] border border-gray-400/40 shadow-lg aspect-video flex items-center justify-center" style="min-height: 180px;">';
-                echo '<div class="w-full h-full flex items-center justify-center text-gray-500"><i class="fas fa-image text-3xl"></i></div>';
+                echo '<div class="portfolio-card bg-white rounded-xl shadow-lg overflow-hidden">';
+                echo '<div class="aspect-video bg-gray-200 flex items-center justify-center">';
+                echo '<div class="text-center text-gray-400">';
+                echo '<i class="fas fa-image text-4xl mb-2"></i>';
+                echo '<p class="text-sm">No portfolio items available</p>';
+                echo '</div>';
+                echo '</div>';
+                echo '<div class="p-4">';
+                echo '<h3 class="text-lg font-bold text-[#F44B12] mb-2" style="font-family: \'Montserrat\', sans-serif;">Coming Soon</h3>';
+                echo '<p class="text-gray-600 text-sm">Portfolio items will be displayed here.</p>';
+                echo '</div>';
                 echo '</div>';
             }
             ?>
@@ -53,6 +80,36 @@
     </div>
 </section>
 
+<!-- Portfolio Card Styles -->
+<style>
+.portfolio-card {
+    transition: all 0.3s ease;
+}
 
+.portfolio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(244, 75, 18, 0.15);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (max-width: 640px) {
+    .portfolio-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
 
 <?php include 'includes/footer.php'; ?>
