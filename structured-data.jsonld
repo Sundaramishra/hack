@@ -1,0 +1,39 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "[Your Name]",
+  "jobTitle": "Full Stack Developer & Digital Marketing Expert",
+  "description": "A results-driven, creative, and highly skilled developer with a passion for building modern web applications and driving digital growth. Expert in both front-end and back-end technologies, with a proven track record in SEO, SEM, social media marketing, and conversion optimization.",
+  "url": "https://yourdomain.com/",
+  "sameAs": [
+    "[Your LinkedIn]",
+    "[Your Website]"
+  ],
+  "alumniOf": {
+    "@type": "CollegeOrUniversity",
+    "name": "[Your University]"
+  },
+  "knowsAbout": [
+    "Web Development", "Digital Marketing", "SEO", "SEM", "UI/UX Design", "Cloud Services", "Mobile App Development"
+  ],
+  "award": [
+    "Best Web Developer by [Industry Organization]"
+  ],
+  "hasCredential": [
+    {
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "Certification",
+      "name": "Google Analytics Certified"
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "Certification",
+      "name": "Google Ads Certified"
+    },
+    {
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "Certification",
+      "name": "AWS Certified Developer"
+    }
+  ]
+}

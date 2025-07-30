@@ -1,0 +1,21 @@
+{
+  "name": "Vbind Marketing",
+  "short_name": "Vbind",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#F44B12",
+  "description": "Luxury Web, Digital Marketing, and SEO Agency.",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
