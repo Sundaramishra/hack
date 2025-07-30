@@ -1,13 +1,7 @@
 /* Base Styles */
-   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600&display=swap');
 
-    @font-face {
-        font-family: 'Gotham';
-        src: url('fonts/Gotham-Bold.woff2') format('woff2'),
-             url('fonts/Gotham-Bold.woff') format('woff');
-        font-weight: bold;
-        font-style: normal;
-    }
+    /* Gotham font replaced with Montserrat from Google Fonts */
 
     .font-medium {
         font-family: 'Poppins', sans-serif;
@@ -16,7 +10,7 @@
 
     .font-extrabold,
     .font-bold {
-        font-family: 'Gotham', sans-serif;
+        font-family: 'Montserrat', sans-serif;
         font-weight: bold;
     }.service-card {
         border-radius: 0.5rem;
@@ -30,22 +24,101 @@
 html {
     scroll-behavior: smooth;
 }
-/* Inside your CSS file */
-@font-face {
-    font-family: 'Gotham';
-    src: url('path/to/your/gotham-regular.woff2') format('woff2'),
-         url('path/to/your/gotham-regular.woff') format('woff');
-    font-weight: normal; /* Or specific weights like 400, 700, etc. */
-    font-style: normal; /* Or specific styles like italic */
-  }
-  
-  /* Then, you can use it in your styles */
-  body {
-    font-family: 'Gotham', sans-serif; /* Always include a fallback font */
-  }
+/* Using Montserrat from Google Fonts instead of Gotham */
 body {
+    font-family: 'Montserrat', sans-serif; /* Always include a fallback font */
     overflow-x: hidden;
     position: relative;
+}
+
+/* Fix Responsive Overlapping */
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+    .container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: 0 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1200px;
+        padding: 0 2rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .container {
+        max-width: 1280px;
+        padding: 0 2rem;
+    }
+}
+
+/* Prevent horizontal scroll */
+* {
+    box-sizing: border-box;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col, [class*="col-"] {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+/* Glow Effect for Special Sections */
+.glow-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.glow-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    right: -50px;
+    bottom: -50px;
+    background: radial-gradient(circle at center, rgba(244, 75, 18, 0.15) 0%, transparent 70%);
+    animation: glow-pulse 3s ease-in-out infinite alternate;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes glow-pulse {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.glow-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(244, 75, 18, 0.2);
+    box-shadow: 0 8px 32px rgba(244, 75, 18, 0.1);
+    transition: all 0.3s ease;
+}
+
+.glow-card:hover {
+    box-shadow: 0 12px 48px rgba(244, 75, 18, 0.2);
+    transform: translateY(-5px);
 }
 
 /* Custom Scrollbar */

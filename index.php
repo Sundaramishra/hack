@@ -122,7 +122,7 @@ error_reporting(E_ALL);
   </section>
 
 <!-- OUR EXPERTISE SECTION -->
-<section class="expertise-section section-overlap relative mb-12">
+<section class="expertise-section section-overlap relative mb-12 glow-section">
   <style>
     .expertise-section {
       background: var(--glass-bg);
