@@ -23,7 +23,7 @@
 <!-- Portfolio Gallery Section with Premium Black/Orange Gradient -->
 <section class="relative px-2 pb-8 pt-0" style="background: radial-gradient(ellipse at bottom right, #F44B12 0%, transparent 50%), radial-gradient(ellipse at bottom left, #F44B12 0%, transparent 40%), linear-gradient(135deg, #242322 80%, #F44B12 120%); border-radius: 60px 60px 0 0;">
     <div class="container mx-auto px-4 pt-0 pb-20">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 lg:gap-10 pt-10 justify-items-center">
             <?php
             // Get and sort portfolio items as before (descending, newest first)
             $portfolioItems = getPortfolioItems();

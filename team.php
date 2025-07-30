@@ -34,10 +34,11 @@
       $teamMembers = array_slice($teamMembers, 0, 5);
     }
     ?>
-    <div class="team-grid grid grid-cols-1 md:grid-cols-2 md:gap-x-16 md:gap-y-8 lg:grid-cols-5 lg:gap-x-8 lg:gap-y-10 justify-items-center">
-      <?php foreach ($teamMembers as $i => $m): ?>
+    <!-- First Row - 2 Cards -->
+    <div class="team-row-1 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 justify-items-center mb-12">
+      <?php for ($i = 0; $i < 2 && $i < count($teamMembers); $i++): $m = $teamMembers[$i]; ?>
       <div class="luxury-team-card group relative my-4 mx-auto" style="background:#fff;">
-        <div class="card-img-wrap relative overflow-hidden rounded-lg" style="height:180px;">
+        <div class="card-img-wrap relative overflow-hidden rounded-lg" style="height:200px; width:200px;">
           <img src="<?= htmlspecialchars($m["image"]) ?>" alt="<?= htmlspecialchars($m["name"]) ?>" class="team-photo w-full h-full object-cover rounded-lg shadow-md" />
         </div>
         <!-- Hover overlay - name and position -->
@@ -51,8 +52,29 @@
           <span class="block text-[#2B2B2A] font-semibold text-sm"><?= htmlspecialchars($m["position"]) ?></span>
         </div>
       </div>
-      <?php endforeach; ?>
+      <?php endfor; ?>
     </div>
+    
+    <!-- Second Row - 3 Cards -->
+    <div class="team-row-2 grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 justify-items-center">
+      <?php for ($i = 2; $i < 5 && $i < count($teamMembers); $i++): $m = $teamMembers[$i]; ?>
+      <div class="luxury-team-card group relative my-4 mx-auto" style="background:#fff;">
+        <div class="card-img-wrap relative overflow-hidden rounded-lg" style="height:200px; width:200px;">
+          <img src="<?= htmlspecialchars($m["image"]) ?>" alt="<?= htmlspecialchars($m["name"]) ?>" class="team-photo w-full h-full object-cover rounded-lg shadow-md" />
+        </div>
+        <!-- Hover overlay - name and position -->
+        <div class="team-hover-name absolute left-0 right-0 bottom-14 z-10 flex flex-col items-center opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+          <div class="team-hover-name-label bg-white text-[#F44B12] font-bold px-6 py-2 rounded-t-xl text-base shadow-md uppercase mb-0"><?= strtoupper($m["name"]) ?></div>
+          <div class="team-hover-name-desc bg-white text-[#2B2B2A] px-4 py-2 rounded-b-xl text-sm shadow-md font-semibold"><?= htmlspecialchars($m["position"]) ?></div>
+        </div>
+        <!-- Name and position below card (appear on hover only) -->
+        <div class="team-name-below absolute w-full left-0 bottom-0 z-10 text-center bg-white text-[#F44B12] font-bold text-base rounded-b-xl shadow-md py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+          <?= strtoupper($m["name"]) ?><br>
+          <span class="block text-[#2B2B2A] font-semibold text-sm"><?= htmlspecialchars($m["position"]) ?></span>
+        </div>
+      </div>
+             <?php endfor; ?>
+     </div>
   </div>
   <style>
     .team-grid {
