@@ -531,15 +531,37 @@ error_reporting(E_ALL);
     $brandLogos = [];
     
     try {
-      $query = "SELECT logo_path FROM brand_logos ORDER BY id";
-      $result = mysqli_query($conn, $query);
-      if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-          $brandLogos[] = $row;
+      // Debug: Check if table exists
+      $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'brand_logos'");
+      $tableExists = mysqli_num_rows($checkTable) > 0;
+      
+      if (!$tableExists) {
+        echo '<div style="color:red; text-align:center; padding:20px;">Table brand_logos does not exist!</div>';
+      } else {
+        // Debug: Check columns
+        $checkColumns = mysqli_query($conn, "SHOW COLUMNS FROM brand_logos");
+        $columns = [];
+        while ($col = mysqli_fetch_assoc($checkColumns)) {
+          $columns[] = $col['Field'];
+        }
+        
+        $query = "SELECT logo_path FROM brand_logos ORDER BY id";
+        $result = mysqli_query($conn, $query);
+        
+        if (!$result) {
+          echo '<div style="color:red; text-align:center; padding:20px;">Query failed: ' . mysqli_error($conn) . '</div>';
+        } else {
+          $rowCount = mysqli_num_rows($result);
+          echo '<div style="color:blue; text-align:center; padding:10px;">Table exists. Columns: ' . implode(', ', $columns) . '. Rows found: ' . $rowCount . '</div>';
+          
+          while ($row = mysqli_fetch_assoc($result)) {
+            $brandLogos[] = $row;
+          }
         }
       }
     } catch (Exception $e) {
       error_log("Brand logos query error: " . $e->getMessage());
+      echo '<div style="color:red; text-align:center; padding:20px;">Exception: ' . $e->getMessage() . '</div>';
     }
     
     if (!empty($brandLogos)) {
