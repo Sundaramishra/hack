@@ -200,30 +200,29 @@ error_reporting(E_ALL);
         min-width: 90vw !important;
         margin: 0 auto !important;
         padding: 0 !important;
-        grid-template-columns: 1fr 1fr !important;
-        grid-template-rows: 1fr 1fr !important;
-        gap: 0.7rem 0.7rem !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: repeat(4, 1fr) !important;
+        gap: 1rem !important;
         box-sizing: border-box;
-        aspect-ratio: 1 / 1;
-        height: 90vw !important;
-        min-height: 90vw !important;
-        max-height: 90vw !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
       }
       .glass-card {
-        padding: 0.6rem 0.6rem !important;
+        padding: 1rem !important;
         font-size: 0.80rem !important;
-        min-height: unset !important;
+        min-height: 120px !important;
         min-width: unset !important;
-        height: 100% !important;
+        height: auto !important;
         width: 100% !important;
-        aspect-ratio: 1 / 1 !important;
         border-radius: 8px !important;
         display: flex !important;
         flex-direction: column !important;
-        justify-content: flex-start !important;
+        justify-content: center !important;
         align-items: center !important;
-        background: transparent !important;
-        box-shadow: none !important;
+        background: rgba(255,255,255,0.07) !important;
+        border: 2.5px solid rgba(244,75,18,0.15) !important;
+        box-shadow: 0 10px 40px 0 rgba(44,44,44,0.07) !important;
       }
       .glass-card .title {
         font-size: 0.95rem !important;
@@ -239,20 +238,19 @@ error_reporting(E_ALL);
         line-height: 1.2;
       }
       .glass-card ul {
-        font-size: 0.63rem !important;
-        line-height: 1.15 !important;
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
         width: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
         word-break: break-word !important;
         white-space: normal !important;
-        flex: 0 1 auto !important;
+        flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important; /* <<< Center contents vertically */
         align-items: center !important;      /* <<< Center contents horizontally */
         text-align: center !important;       /* <<< Center text */
-        height: 100% !important;             /* Make the ul fill the card */
       }
       .glass-card li {
         margin-bottom: 0.13em !important;
@@ -520,22 +518,30 @@ error_reporting(E_ALL);
   <div class="brands-grid">
     <?php
     $brandLogos = getBrandLogos();
-    // Pattern: 3,4,3,4,3,4,...
-    $pattern = [3,4];
-    $k = 0;
-    $rowCount = 0;
-    while ($k < count($brandLogos)) {
-      $row = $pattern[$rowCount % 2];
-      echo '<div class="brands-row">';
-      for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-        $logo = $brandLogos[$k];
-        echo '<img src="'.htmlspecialchars($logo['logo_path']).'" alt="'.htmlspecialchars($logo['brand_name']).'" class="brands-logo">';
+    
+    // Debug output
+    if (empty($brandLogos)) {
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">Loading brands...</div>';
+    } else {
+      // Pattern: 4,3,4,3,4,3,...
+      $pattern = [4,3];
+      $k = 0;
+      $rowCount = 0;
+      while ($k < count($brandLogos)) {
+        $row = $pattern[$rowCount % 2];
+        echo '<div class="brands-row">';
+        for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+          $logo = $brandLogos[$k];
+          $logoPath = htmlspecialchars($logo['logo_path']);
+          $brandName = htmlspecialchars($logo['brand_name']);
+          echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+        }
+        echo '</div>';
+        $rowCount++;
       }
-      echo '</div>';
-      $rowCount++;
     }
     ?>
-  
+  </div>
 </section>
   <!-- Responsive Featured Work Section: Modern Carousel for Web Designer/Animator -->
  <!-- Responsive Featured Work Section: Modern Carousel with Pro-Level Colors, Layout, and Button Design -->
@@ -771,26 +777,42 @@ error_reporting(E_ALL);
       <?php
         $portfolioItems = getPortfolioItems();
         $slides = [];
-        foreach ($portfolioItems as $item) {
-          $img = htmlspecialchars($item['thumbnail'] ?? '');
-          $title = htmlspecialchars($item['title'] ?? '');
-          $brand = htmlspecialchars($item['brand_name'] ?? '');
-          $desc = htmlspecialchars($item['description'] ?? '');
-          $descShort = mb_strimwidth(strip_tags($desc), 0, 68, '...');
-          $portfolioUrl = "portfolio-detail.php?id=".(isset($item['id']) ? intval($item['id']) : 0);
-          $slides[] = [
-            'img' => $img,
-            'title' => $title,
-            'brand' => $brand,
-            'desc' => $descShort,
-            'url' => $portfolioUrl
+        
+        if (!empty($portfolioItems)) {
+          // Limit to 5 items only
+          $portfolioItems = array_slice($portfolioItems, 0, 5);
+          
+          foreach ($portfolioItems as $item) {
+            $img = htmlspecialchars($item['thumbnail'] ?? '');
+            $title = htmlspecialchars($item['brand_name'] ?? ''); // Use brand_name as title
+            $brand = htmlspecialchars($item['brand_name'] ?? '');
+            $desc = htmlspecialchars($item['description'] ?? '');
+            $descShort = mb_strimwidth(strip_tags($desc), 0, 68, '...');
+            $portfolioUrl = "portfolio-detail.php?id=".(isset($item['id']) ? intval($item['id']) : 0);
+            $slides[] = [
+              'img' => $img,
+              'title' => $title,
+              'brand' => $brand,
+              'desc' => $descShort,
+              'url' => $portfolioUrl
+            ];
+          }
+        } else {
+          // Fallback slides if no database data
+          $slides = [
+            ['img' => 'uploads/portfolio/thumbnails/portfolio1.jpg', 'title' => 'Project 1', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
+            ['img' => 'uploads/portfolio/thumbnails/portfolio2.jpg', 'title' => 'Project 2', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
+            ['img' => 'uploads/portfolio/thumbnails/portfolio3.jpg', 'title' => 'Project 3', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
+            ['img' => 'uploads/portfolio/thumbnails/portfolio4.jpg', 'title' => 'Project 4', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
+            ['img' => 'uploads/portfolio/thumbnails/portfolio5.jpg', 'title' => 'Project 5', 'brand' => '', 'desc' => 'Creative project', 'url' => '#']
           ];
         }
+        
         $total = count($slides);
         for ($i = 0; $i < $total; $i++) {
           $slide = $slides[$i];
           echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'" tabindex="0" onclick="window.location.href=\''.$slide['url'].'\'" onkeydown="if(event.key===\'Enter\'){window.location.href=\''.$slide['url'].'\'}">';
-          echo '<img src="'.$slide['img'].'" alt="'.$slide['title'].'">';
+          echo '<img src="'.$slide['img'].'" alt="'.$slide['title'].'" onerror="this.src=\'data:image/svg+xml;base64,'.base64_encode('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\" viewBox=\"0 0 300 400\"><rect width=\"300\" height=\"400\" fill=\"#252525\"/><text x=\"150\" y=\"200\" text-anchor=\"middle\" fill=\"#F44B12\" font-family=\"Arial\" font-size=\"16\">'.$slide['title'].'</text></svg>').'\'">';
           echo '<div class="featured-3d-slide-title-overlay" style="display:none"></div>';
           echo '</div>';
         }

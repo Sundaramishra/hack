@@ -100,6 +100,23 @@ INSERT INTO team (name, position, bio, image, linkedin, instagram) VALUES
 ('Om Vishwakarma', 'CGI Specialist', 'Om brings digital creations to life with his expertise in 3D modeling, animation, and visual effects.', 'uploads/team/default-om.jpg', 'https://www.linkedin.com/', 'https://www.instagram.com/'),
 ('Rishi Rathod', 'Brand Designer', 'Rishi combines artistic talent with strategic thinking to create memorable brand identities and visual assets.', 'uploads/team/default-rishi.jpg', 'https://www.linkedin.com/', 'https://www.instagram.com/');
 
+-- Insert sample brand logos
+INSERT INTO brand_logos (brand_name, logo_path) VALUES
+('Somesa Modular Kitchen', 'uploads/brand-logos/68106f1c49f9c.png'),
+('Rental Space', 'uploads/brand-logos/68106f7d12509.png'),
+('Vaibhav Hair & Beyond', 'uploads/brand-logos/68106fd465ca7.png'),
+('Gravityy Motors', 'uploads/brand-logos/6812781080b8a.png'),
+('Crystal Detailing Studio', 'uploads/brand-logos/681cb36b03a77.png'),
+('Vartak Competitive Academy', 'uploads/brand-logos/681cb3838011d.png');
+
+-- Insert sample portfolio items
+INSERT INTO portfolio (brand_name, description, categories, services_provided, thumbnail) VALUES
+('Ishwar Motors', 'Complete branding and digital marketing for automotive dealership', 'Branding, Digital Marketing', 'Brand Identity, Social Media, Website Design', 'uploads/portfolio/thumbnails/6811d54113cd0.png'),
+('Vaibhav Hair & Beyond', 'Salon branding and social media management', 'Branding, Social Media', 'Brand Identity, Social Media Management, Photography', 'uploads/portfolio/thumbnails/6811f6b8ed516.png'),
+('Dum de Biryani', 'Restaurant branding and marketing campaigns', 'Branding, Food Marketing', 'Brand Identity, Menu Design, Social Media', 'uploads/portfolio/thumbnails/6811f6ef30b34.jpg'),
+('Somesa Modular Kitchen', 'Kitchen showroom branding and digital presence', 'Branding, Interior Design', 'Brand Identity, Showroom Design, Digital Marketing', 'uploads/portfolio/thumbnails/68123a644d6de.jpg'),
+('Crystal Detailing Studio', 'Car detailing service complete branding', 'Branding, Automotive', 'Brand Identity, Service Packaging, Marketing Materials', 'uploads/portfolio/thumbnails/6811d54113cd0.png');
+
 -- Create necessary directories
 -- Note: These commands should be executed by PHP scripts, not SQL
 -- mkdir -p uploads/team
