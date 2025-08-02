@@ -153,7 +153,7 @@ body {
 
 /* Big Post - spans 2x2 (2 columns, 2 rows) */
 .pg-bigpost {
-  font-size: 2.5rem;
+  font-size: 3rem;
   letter-spacing: 1.5px;
   grid-row: 1/3;
   grid-column: 1/3;
@@ -161,12 +161,12 @@ body {
 
 /* Regular Posts */
 .pg-post {
-  font-size: 2rem;
+  font-size: 2.5rem;
   letter-spacing: 1px;
 }
 
 .pg-post.small {
-  font-size: 1.25rem;
+  font-size: 1.8rem;
 }
 
 /* Stories - span from row 2 to row 3 */
