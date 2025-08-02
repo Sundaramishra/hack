@@ -531,7 +531,7 @@ error_reporting(E_ALL);
     $brandLogos = [];
     
     try {
-      $query = "SELECT brand_name, logo_path FROM brand_logos ORDER BY id";
+      $query = "SELECT logo_path FROM brand_logos ORDER BY id";
       $result = mysqli_query($conn, $query);
       if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
@@ -548,42 +548,40 @@ error_reporting(E_ALL);
       $mobilePattern = [2,2,2];
       $k = 0;
       
-      // Desktop layout
-      echo '<div class="brands-desktop">';
-      while ($k < count($brandLogos)) {
-        foreach($desktopPattern as $row) {
-          if ($k >= count($brandLogos)) break;
-          echo '<div class="brands-row">';
-          for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-            $logo = $brandLogos[$k];
-            $logoPath = htmlspecialchars($logo['logo_path']);
-            $brandName = htmlspecialchars($logo['brand_name']);
-            echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+              // Desktop layout
+        echo '<div class="brands-desktop">';
+        while ($k < count($brandLogos)) {
+          foreach($desktopPattern as $row) {
+            if ($k >= count($brandLogos)) break;
+            echo '<div class="brands-row">';
+            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+              $logo = $brandLogos[$k];
+              $logoPath = htmlspecialchars($logo['logo_path']);
+              echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+            }
+            echo '</div>';
           }
-          echo '</div>';
         }
-      }
-      echo '</div>';
+        echo '</div>';
       
-      // Mobile layout
-      $k = 0;
-      echo '<div class="brands-mobile">';
-      while ($k < count($brandLogos)) {
-        foreach($mobilePattern as $row) {
-          if ($k >= count($brandLogos)) break;
-          echo '<div class="brands-row">';
-          for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-            $logo = $brandLogos[$k];
-            $logoPath = htmlspecialchars($logo['logo_path']);
-            $brandName = htmlspecialchars($logo['brand_name']);
-            echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+              // Mobile layout
+        $k = 0;
+        echo '<div class="brands-mobile">';
+        while ($k < count($brandLogos)) {
+          foreach($mobilePattern as $row) {
+            if ($k >= count($brandLogos)) break;
+            echo '<div class="brands-row">';
+            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+              $logo = $brandLogos[$k];
+              $logoPath = htmlspecialchars($logo['logo_path']);
+              echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+            }
+            echo '</div>';
           }
-          echo '</div>';
         }
-      }
-      echo '</div>';
+        echo '</div>';
     } else {
-      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database. Query: SELECT brand_name, logo_path FROM brand_logos ORDER BY id</div>';
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database. Query: SELECT logo_path FROM brand_logos ORDER BY id</div>';
     }
     ?>
   </div>
