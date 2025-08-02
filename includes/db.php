@@ -42,7 +42,7 @@ if (getenv('REPLIT_DB_URL') || getenv('PGHOST')) {
     $host = "localhost";
     $username = "root";
     $password = "";
-    $database = "vbind_db";
+    $database = "u523895309_vbind_agency";
 
     // Check if database exists, if not create it
     $temp_conn = mysqli_connect($host, $username, $password);
