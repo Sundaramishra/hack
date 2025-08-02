@@ -101,11 +101,11 @@ body {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 25vh 15vh 25vh 25vh;
+  grid-template-rows: 25vh 20vh 25vh 50vh;
   gap: 20px 20px;
   position: relative;
   z-index: 1;
-  min-height: 90vh;
+  min-height: 120vh;
 }
 
 /* Orange glow effect behind reels (last row) */
@@ -120,7 +120,7 @@ body {
   bottom: 12px; 
   z-index: 0;
   width: 95%; 
-  height: 25vh;
+  height: 50vh;
   margin: auto;
   background: radial-gradient(circle, #f44b124c 34%, transparent 85%);
   filter: blur(4px);
@@ -180,8 +180,8 @@ body {
 /* Grid Positioning - 4 Rows Layout */
 .pg-post.post2 { grid-row: 1; grid-column: 3; }
 .pg-post.post3 { grid-row: 1; grid-column: 4; }
-.pg-post.post4 { grid-row: 2; grid-column: 1; }
-.pg-post.post5 { grid-row: 2; grid-column: 2; }
+.pg-post.post4 { grid-row: 3; grid-column: 1; }
+.pg-post.post5 { grid-row: 3; grid-column: 2; }
 .pg-story.story1 { grid-row: 2/4; grid-column: 3; }
 .pg-story.story2 { grid-row: 2/4; grid-column: 4; }
 .pg-reel.reel1 { grid-row: 4; grid-column: 1; }
