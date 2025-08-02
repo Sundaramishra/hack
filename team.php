@@ -64,12 +64,12 @@ require_once 'includes/functions.php';
   .team-wrap{position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 18px;}
 
   /* ---------- ROWS LIKE MOCKUP ---------- */
-  .team-row{display:flex; gap:30px; justify-content:center; flex-wrap:nowrap;}
+  .team-row{display:flex; gap:20px; justify-content:center; flex-wrap:nowrap;}
   .team-row.row-1{margin-bottom:40px;}
-  .team-row.row-2{gap:24px;}
+  .team-row.row-2{gap:18px;}
 
   /* ---------- CARD ---------- */
-  .tcard{width:270px; max-width:92vw; aspect-ratio: 4/5; position:relative;
+  .tcard{width:250px; max-width:92vw; aspect-ratio: 4/5; position:relative;
     transform-origin:center bottom; transition:transform .25s, filter .25s;
     display:flex; align-items:flex-end; justify-content:center; cursor:pointer;
   }
