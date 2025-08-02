@@ -4,12 +4,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
+body {
+  background: #000 !important;
+  margin: 0;
+  padding: 0;
+}
+
 .portfolio-wrap {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto 0 auto;
   padding: 0 0 40px 0;
   font-family: 'Montserrat',sans-serif;
+  background: #000;
+  min-height: 100vh;
 }
 .portfolio-title {
   text-align: center;
