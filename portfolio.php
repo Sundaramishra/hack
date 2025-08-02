@@ -161,11 +161,10 @@ body {
   font-size: 1.25rem;
 }
 
-/* Stories - span 2 rows */
+/* Stories - same height as other items */
 .pg-story {
   font-size: 2rem;
   letter-spacing: 1px;
-  grid-row: span 2;
 }
 
 /* Reels */
@@ -176,14 +175,14 @@ body {
 /* Grid Positioning */
 .pg-post.post2 { grid-row: 1; grid-column: 2; }
 .pg-post.post3 { grid-row: 1; grid-column: 3; }
-.pg-post.post4 { grid-row: 2; grid-column: 2; }
-.pg-post.post5 { grid-row: 2; grid-column: 3; }
-.pg-story.story1 { grid-row: 1/3; grid-column: 2; }
-.pg-story.story2 { grid-row: 1/3; grid-column: 3; }
+.pg-post.post4 { grid-row: 3; grid-column: 1; }
+.pg-post.post5 { grid-row: 3; grid-column: 2; }
+.pg-story.story1 { grid-row: 2; grid-column: 2; }
+.pg-story.story2 { grid-row: 2; grid-column: 3; }
 .pg-reel.reel1 { grid-row: 4; grid-column: 1; }
 .pg-reel.reel2 { grid-row: 4; grid-column: 2; }
 .pg-reel.reel3 { grid-row: 4; grid-column: 3; }
-.pg-reel.reel4 { grid-row: 3; grid-column: 1; }
+.pg-reel.reel4 { grid-row: 3; grid-column: 3; }
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 900px) {
