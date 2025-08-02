@@ -583,7 +583,7 @@ error_reporting(E_ALL);
       }
       echo '</div>';
     } else {
-      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database.</div>';
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database. Query: SELECT brand_name, logo_path FROM brand_logos ORDER BY id</div>';
     }
     ?>
   </div>
@@ -662,28 +662,24 @@ error_reporting(E_ALL);
   }
   .featured-3d-slider-track {
     width: 100%; min-height: 430px; height: 430px;
-    display: flex; align-items: center; justify-content: center; gap: 20px;
+    display: flex; align-items: center; justify-content: center;
     position: relative; margin-bottom: 0;
-    overflow: hidden;
-    transition: transform 0.5s ease;
+    perspective: 1200px;
+    transform-style: preserve-3d;
   }
   .featured-3d-slide {
-    flex: 0 0 300px;
-    width: 300px;
-    height: 400px;
+    position: absolute;
+    width: 280px;
+    height: 380px;
     background: var(--main-grey);
-    border-radius: 15px;
+    border-radius: 20px;
     border: 3px solid var(--main-accent);
     overflow: hidden;
     cursor: pointer;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-  }
-  
-  .featured-3d-slide:hover {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 0 20px 40px rgba(244, 75, 18, 0.3);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    pointer-events: none;
   }
   .featured-3d-slide img {
     width: 100%; 
@@ -692,17 +688,37 @@ error_reporting(E_ALL);
     border-radius: 12px;
     display: block;
   }
-  /* Simple slider container */
-  .slider-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
+  /* 3D Slider positioning classes */
+  .featured-3d-slide.is-center {
+    transform: translateZ(0) scale(1.1);
+    z-index: 5;
+    opacity: 1;
+    pointer-events: auto;
+    box-shadow: 0 20px 50px rgba(244, 75, 18, 0.4);
   }
-  
-  .slider-wrapper {
-    display: flex;
-    transition: transform 0.5s ease;
-    gap: 20px;
+  .featured-3d-slide.is-left1 {
+    transform: translateX(-200px) translateZ(-100px) rotateY(25deg) scale(0.9);
+    z-index: 3;
+    opacity: 1;
+  }
+  .featured-3d-slide.is-left2 {
+    transform: translateX(-350px) translateZ(-200px) rotateY(35deg) scale(0.8);
+    z-index: 2;
+    opacity: 0.7;
+  }
+  .featured-3d-slide.is-right1 {
+    transform: translateX(200px) translateZ(-100px) rotateY(-25deg) scale(0.9);
+    z-index: 3;
+    opacity: 1;
+  }
+  .featured-3d-slide.is-right2 {
+    transform: translateX(350px) translateZ(-200px) rotateY(-35deg) scale(0.8);
+    z-index: 2;
+    opacity: 0.7;
+  }
+  .featured-3d-slide.is-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
   
   .slide-info {
@@ -779,8 +795,7 @@ error_reporting(E_ALL);
       width: 128px !important; max-width: 128px !important; min-width: 128px;
       height: 220px !important; min-height: 220px; max-height: 220px;
     }
-    .featured-3d-slide {
-      flex: 0 0 250px;
+    .featured-3d-slide.is-center {
       width: 250px;
       height: 320px;
     }
@@ -801,142 +816,113 @@ error_reporting(E_ALL);
         <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
-    <div class="slider-container">
-      <div class="slider-wrapper" id="sliderWrapper">
-        <?php
-          // Direct database query for portfolio items - limit to 5 for slider
-          $slides = [];
-          
-          try {
-            $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
-            $result = mysqli_query($conn, $query);
-            if ($result) {
-              while ($row = mysqli_fetch_assoc($result)) {
-                $slides[] = [
-                  'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
-                  'title' => htmlspecialchars($row['title'] ?? ''),
-                  'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
-                ];
-              }
+    <div class="featured-3d-slider-track" id="featured3dSliderTrack">
+      <?php
+        // Direct database query for portfolio items - limit to 5 for slider
+        $slides = [];
+        
+        try {
+          $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
+          $result = mysqli_query($conn, $query);
+          if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+              $slides[] = [
+                'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+                'title' => htmlspecialchars($row['title'] ?? ''),
+                'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+              ];
             }
-          } catch (Exception $e) {
-            error_log("Portfolio query error: " . $e->getMessage());
           }
-          
-          // If no slides in database, use demo data as fallback
-          if (empty($slides)) {
-            $slides = [
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project1.webp', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project2.webp', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project3.webp', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project4.webp', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project5.webp', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
-            ];
-          }
-          
-          // Render slides
-          foreach ($slides as $i => $slide) {
-            $img = htmlspecialchars($slide['image_path']);
-            $title = htmlspecialchars($slide['title']);
-            echo '<div class="featured-3d-slide" data-slide="'.$i.'">';
-              echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.style.background=\'linear-gradient(135deg,#2a2a2a,#1f1f1f)\';">';
-              echo '<div class="slide-info">';
-                echo '<h3>'.$title.'</h3>';
-                echo '<p>'.htmlspecialchars($slide['subtitle']).'</p>';
-              echo '</div>';
-            echo '</div>';
-          }
-        ?>
-      </div>
+        } catch (Exception $e) {
+          error_log("Portfolio query error: " . $e->getMessage());
+        }
+        
+        // If no slides in database, use demo data as fallback
+        if (empty($slides)) {
+          $slides = [
+            [ 'image_path'=>'uploads/portfolio/thumbnails/project1.webp', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
+            [ 'image_path'=>'uploads/portfolio/thumbnails/project2.webp', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
+            [ 'image_path'=>'uploads/portfolio/thumbnails/project3.webp', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
+            [ 'image_path'=>'uploads/portfolio/thumbnails/project4.webp', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
+            [ 'image_path'=>'uploads/portfolio/thumbnails/project5.webp', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
+          ];
+        }
+        
+        // Render slides
+        foreach ($slides as $i => $slide) {
+          $img = htmlspecialchars($slide['image_path']);
+          $title = htmlspecialchars($slide['title']);
+          echo '<div class="featured-3d-slide" data-slide="'.$i.'">';
+            echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.style.background=\'linear-gradient(135deg,#2a2a2a,#1f1f1f)\';">';
+          echo '</div>';
+        }
+      ?>
     </div>
     <a href="portfolio-detail.php" class="featured-3d-viewall-btn">View All Portfolio</a>
   </div>
 </div>
 <script>
-  const slider = document.getElementById('sliderWrapper');
-  const slides = document.querySelectorAll('.featured-3d-slide');
-  let currentIndex = 0;
+  const track = document.getElementById('featured3dSliderTrack');
+  const slidesEls = Array.from(track.querySelectorAll('.featured-3d-slide'));
+  let current = 0;
   let autoplayTimer = null;
+  const AUTOPLAY_MS = 5000;
 
-  function updateSlider() {
-    if (slides.length === 0) return;
-    const slideWidth = slides[0].offsetWidth + 20; // width + gap
-    const offset = -currentIndex * slideWidth;
-    slider.style.transform = `translateX(${offset}px)`;
+  function relPos(i, total){
+    const rel = ((i - current) % total + total) % total;
+    const half = Math.floor(total/2);
+    return rel > half ? rel - total : rel;
   }
 
-  function nextSlide() {
-    currentIndex = (currentIndex + 1) % slides.length;
-    updateSlider();
-  }
+  function applyPositions(){
+    const total = slidesEls.length;
+    slidesEls.forEach(el=>{
+      el.className='featured-3d-slide';
+      el.style.opacity='0';
+      el.style.pointerEvents='none';
+      el.setAttribute('aria-current','false');
+    });
+    if(!total) return;
 
-  function prevSlide() {
-    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-    updateSlider();
-  }
-
-  function startAutoplay() {
-    stopAutoplay();
-    autoplayTimer = setInterval(nextSlide, 4000);
-  }
-
-  function stopAutoplay() {
-    if (autoplayTimer) {
-      clearInterval(autoplayTimer);
-      autoplayTimer = null;
-    }
-  }
-
-  // Arrow buttons
-  document.getElementById('featured3dArrowRight').addEventListener('click', () => {
-    nextSlide();
-    startAutoplay();
-  });
-
-  document.getElementById('featured3dArrowLeft').addEventListener('click', () => {
-    prevSlide();
-    startAutoplay();
-  });
-
-  // Touch swipe
-  let startX = 0;
-  slider.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-    stopAutoplay();
-  });
-
-  slider.addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = startX - endX;
-    
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        nextSlide();
+    const show = [-2,-1,0,1,2]; // five visible always
+    slidesEls.forEach((el,i)=>{
+      const d = relPos(i,total);
+      if(show.includes(d)){
+        el.style.opacity='1';
+        el.style.pointerEvents='auto';
+        if(d===0){ el.classList.add('is-center'); el.setAttribute('aria-current','true'); }
+        else if(d===-1) el.classList.add('is-left1');
+        else if(d===-2) el.classList.add('is-left2');
+        else if(d=== 1) el.classList.add('is-right1');
+        else if(d=== 2) el.classList.add('is-right2');
       } else {
-        prevSlide();
+        el.classList.add('is-hidden');
       }
-    }
-    startAutoplay();
-  });
+    });
+  }
 
-  // Keyboard navigation
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') {
-      nextSlide();
-      startAutoplay();
-    } else if (e.key === 'ArrowLeft') {
-      prevSlide();
-      startAutoplay();
-    }
-  });
+  function next(){ current=(current+1)%slidesEls.length; applyPositions(); }
+  function prev(){ current=(current-1+slidesEls.length)%slidesEls.length; applyPositions(); }
 
-  // Initialize
-  window.addEventListener('load', () => {
-    updateSlider();
-    startAutoplay();
-  });
+  function startAuto(){ stopAuto(); autoplayTimer=setInterval(next, AUTOPLAY_MS); }
+  function stopAuto(){ if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer=null; } }
 
-  window.addEventListener('resize', updateSlider);
+  document.getElementById('featured3dArrowRight').addEventListener('click', ()=>{ next(); startAuto(); });
+  document.getElementById('featured3dArrowLeft').addEventListener('click',  ()=>{ prev(); startAuto(); });
+
+  // keyboard
+  window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ next(); startAuto(); } if(e.key==='ArrowLeft'){ prev(); startAuto(); } });
+
+  // touch swipe
+  (function(){
+    let sx=0, sy=0, dx=0, dy=0;
+    track.addEventListener('touchstart', (e)=>{ if(!e.touches[0])return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; stopAuto(); }, {passive:true});
+    track.addEventListener('touchmove',  (e)=>{ if(!e.touches[0])return; dx=e.touches[0].clientX-sx; dy=e.touches[0].clientY-sy; }, {passive:true});
+    track.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>30 && Math.abs(dx)>Math.abs(dy)){ (dx<0)?next():prev(); } dx=dy=0; startAuto(); });
+  })();
+
+  window.addEventListener('load', ()=>{ applyPositions(); startAuto(); });
+  window.addEventListener('resize', applyPositions);
 </script>
 </section>
   <?php include 'includes/footer.php'; ?>
