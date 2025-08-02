@@ -28,12 +28,26 @@ body {
   margin-top: 40px;
   margin-bottom: 5px;
   letter-spacing: .2px;
+  background: #fff;
+  padding: 20px 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  display: inline-block;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 .portfolio-sub {
   text-align: center;
   font-size: 1.1rem;
   color: #383838;
   margin-bottom: 30px;
+  background: #fff;
+  padding: 15px 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+  display: inline-block;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 .portfolio-topflex {
   display: flex;
@@ -246,19 +260,37 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  .portfolio-title {
+    font-size: 1.8rem;
+    padding: 15px 25px;
+    margin-top: 30px;
+  }
+  
+  .portfolio-sub {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+}
+
 @media (max-width: 480px) {
   .portfolio-wrap {
     padding: 0 10px 40px 10px;
   }
   
   .portfolio-title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+    padding: 12px 20px;
     margin-top: 20px;
+    border-radius: 12px;
   }
   
   .portfolio-sub {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    padding: 10px 15px;
+    border-radius: 8px;
   }
+}
   
   .portfolio-grid {
     grid-template-columns: 1fr;
