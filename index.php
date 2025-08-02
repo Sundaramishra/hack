@@ -526,17 +526,21 @@ error_reporting(E_ALL);
   </div>
   <div class="brands-grid">
     <?php
-    // Use function to get brand logos
-    $brandLogos = getBrandLogos();
+    // Manual database query for brand logos - CORRECT COLUMNS
+    $brandLogos = [];
     
-    // Debug output
-    echo '<div style="background:#ffeb3b; color:#000; padding:10px; margin:10px; border-radius:5px; font-size:12px;">';
-    echo 'DEBUG: Brand logos count: ' . count($brandLogos) . '<br>';
-    if (!empty($brandLogos)) {
-        echo 'First logo data: ';
-        echo '<pre style="font-size:10px;">' . print_r($brandLogos[0], true) . '</pre>';
+    try {
+      // Brand_logos table has: id, brand_name, logo_path, created_at, updated_at
+      $query = "SELECT logo_path FROM brand_logos ORDER BY id";
+      $result = mysqli_query($conn, $query);
+      if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+          $brandLogos[] = $row;
+        }
+      }
+    } catch (Exception $e) {
+      error_log("Brand logos query error: " . $e->getMessage());
     }
-    echo '</div>';
     
     if (!empty($brandLogos)) {
       // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
@@ -812,26 +816,24 @@ error_reporting(E_ALL);
     </div>
     <div class="featured-3d-slider-track" id="featured3dSliderTrack">
       <?php
-        // Use function to get featured slider data
-        $portfolioItems = getFeaturedSlider();
+        // Manual database query for portfolio items - CORRECT COLUMNS
         $slides = [];
         
-        // Debug output
-        echo '<div style="background:#e3f2fd; color:#000; padding:10px; margin:10px; border-radius:5px; font-size:12px;">';
-        echo 'DEBUG: Portfolio items count: ' . count($portfolioItems) . '<br>';
-        if (!empty($portfolioItems)) {
-            echo 'First portfolio item: ';
-            echo '<pre style="font-size:10px;">' . print_r($portfolioItems[0], true) . '</pre>';
-        }
-        echo '</div>';
-        
-        // Convert portfolio items to slider format
-        foreach ($portfolioItems as $row) {
-          $slides[] = [
-            'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
-            'title' => htmlspecialchars($row['title'] ?? ''),
-            'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
-          ];
+        try {
+          // Portfolio table has: id, brand_name, description, categories, services_provided, timeline, brand_essence, brand_agenda, thumbnail, video_path
+          $query = "SELECT id, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
+          $result = mysqli_query($conn, $query);
+          if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+              $slides[] = [
+                'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+                'title' => htmlspecialchars($row['brand_name'] ?? ''), // Use brand_name as title
+                'subtitle' => htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+              ];
+            }
+          }
+        } catch (Exception $e) {
+          error_log("Portfolio query error: " . $e->getMessage());
         }
         
         // If no slides in database, use demo data as fallback

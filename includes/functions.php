@@ -312,7 +312,8 @@ function getFeaturedSlider() {
     global $conn;
     $slides = [];
     
-    $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
+    // Portfolio table has: id, brand_name, description, categories, services_provided, timeline, brand_essence, brand_agenda, thumbnail, video_path
+    $query = "SELECT id, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
     $result = runQuery($query);
     
     if ($result && getNumRows($result) > 0) {
