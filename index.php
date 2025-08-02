@@ -775,46 +775,37 @@ error_reporting(E_ALL);
     </div>
     <div class="featured-3d-slider-track" id="featured3dSliderTrack">
       <?php
+        // Get portfolio items from database - limit to 5 for slider
         $portfolioItems = getPortfolioItems();
         $slides = [];
         
         if (!empty($portfolioItems)) {
-          // Limit to 5 items only
+          // Limit to 5 items only for slider
           $portfolioItems = array_slice($portfolioItems, 0, 5);
           
           foreach ($portfolioItems as $item) {
-            $img = htmlspecialchars($item['thumbnail'] ?? '');
-            $title = htmlspecialchars($item['brand_name'] ?? ''); // Use brand_name as title
-            $brand = htmlspecialchars($item['brand_name'] ?? '');
-            $desc = htmlspecialchars($item['description'] ?? '');
-            $descShort = mb_strimwidth(strip_tags($desc), 0, 68, '...');
-            $portfolioUrl = "portfolio-detail.php?id=".(isset($item['id']) ? intval($item['id']) : 0);
             $slides[] = [
-              'img' => $img,
-              'title' => $title,
-              'brand' => $brand,
-              'desc' => $descShort,
-              'url' => $portfolioUrl
+              'img' => htmlspecialchars($item['thumbnail'] ?? ''),
+              'title' => htmlspecialchars($item['title'] ?? ''),
+              'brand' => htmlspecialchars($item['brand_name'] ?? ''),
+              'desc' => htmlspecialchars(mb_strimwidth(strip_tags($item['description'] ?? ''), 0, 68, '...')),
+              'url' => "portfolio-detail.php?id=".(isset($item['id']) ? intval($item['id']) : 0)
             ];
           }
-        } else {
-          // Fallback slides if no database data
-          $slides = [
-            ['img' => 'uploads/portfolio/thumbnails/portfolio1.jpg', 'title' => 'Project 1', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
-            ['img' => 'uploads/portfolio/thumbnails/portfolio2.jpg', 'title' => 'Project 2', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
-            ['img' => 'uploads/portfolio/thumbnails/portfolio3.jpg', 'title' => 'Project 3', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
-            ['img' => 'uploads/portfolio/thumbnails/portfolio4.jpg', 'title' => 'Project 4', 'brand' => '', 'desc' => 'Creative project', 'url' => '#'],
-            ['img' => 'uploads/portfolio/thumbnails/portfolio5.jpg', 'title' => 'Project 5', 'brand' => '', 'desc' => 'Creative project', 'url' => '#']
-          ];
         }
         
-        $total = count($slides);
-        for ($i = 0; $i < $total; $i++) {
-          $slide = $slides[$i];
-          echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'" tabindex="0" onclick="window.location.href=\''.$slide['url'].'\'" onkeydown="if(event.key===\'Enter\'){window.location.href=\''.$slide['url'].'\'}">';
-          echo '<img src="'.$slide['img'].'" alt="'.$slide['title'].'" onerror="this.src=\'data:image/svg+xml;base64,'.base64_encode('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\" viewBox=\"0 0 300 400\"><rect width=\"300\" height=\"400\" fill=\"#252525\"/><text x=\"150\" y=\"200\" text-anchor=\"middle\" fill=\"#F44B12\" font-family=\"Arial\" font-size=\"16\">'.$slide['title'].'</text></svg>').'\'">';
-          echo '<div class="featured-3d-slide-title-overlay" style="display:none"></div>';
-          echo '</div>';
+        // If no data from database, show message
+        if (empty($slides)) {
+          echo '<div style="color:#fff; text-align:center; padding:40px;">No portfolio items found. Please add portfolio items from admin dashboard.</div>';
+        } else {
+          $total = count($slides);
+          for ($i = 0; $i < $total; $i++) {
+            $slide = $slides[$i];
+            echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'" tabindex="0" onclick="window.location.href=\''.$slide['url'].'\'" onkeydown="if(event.key===\'Enter\'){window.location.href=\''.$slide['url'].'\'}">';
+            echo '<img src="'.$slide['img'].'" alt="'.$slide['title'].'">';
+            echo '<div class="featured-3d-slide-title-overlay" style="display:none"></div>';
+            echo '</div>';
+          }
         }
       ?>
     </div>

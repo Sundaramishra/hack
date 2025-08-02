@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS team (
 -- Portfolio items table
 CREATE TABLE IF NOT EXISTS portfolio (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
     brand_name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     categories VARCHAR(255) NOT NULL,
@@ -110,12 +111,12 @@ INSERT INTO brand_logos (brand_name, logo_path) VALUES
 ('Vartak Competitive Academy', 'uploads/brand-logos/681cb3838011d.png');
 
 -- Insert sample portfolio items
-INSERT INTO portfolio (brand_name, description, categories, services_provided, thumbnail) VALUES
-('Ishwar Motors', 'Complete branding and digital marketing for automotive dealership', 'Branding, Digital Marketing', 'Brand Identity, Social Media, Website Design', 'uploads/portfolio/thumbnails/6811d54113cd0.png'),
-('Vaibhav Hair & Beyond', 'Salon branding and social media management', 'Branding, Social Media', 'Brand Identity, Social Media Management, Photography', 'uploads/portfolio/thumbnails/6811f6b8ed516.png'),
-('Dum de Biryani', 'Restaurant branding and marketing campaigns', 'Branding, Food Marketing', 'Brand Identity, Menu Design, Social Media', 'uploads/portfolio/thumbnails/6811f6ef30b34.jpg'),
-('Somesa Modular Kitchen', 'Kitchen showroom branding and digital presence', 'Branding, Interior Design', 'Brand Identity, Showroom Design, Digital Marketing', 'uploads/portfolio/thumbnails/68123a644d6de.jpg'),
-('Crystal Detailing Studio', 'Car detailing service complete branding', 'Branding, Automotive', 'Brand Identity, Service Packaging, Marketing Materials', 'uploads/portfolio/thumbnails/6811d54113cd0.png');
+INSERT INTO portfolio (title, brand_name, description, categories, services_provided, thumbnail) VALUES
+('Ishwar Motors', 'Ishwar Motors', 'Complete branding and digital marketing for automotive dealership', 'Branding, Digital Marketing', 'Brand Identity, Social Media, Website Design', 'uploads/portfolio/thumbnails/6811d54113cd0.png'),
+('Vaibhav Hair & Beyond', 'Vaibhav Hair & Beyond', 'Salon branding and social media management', 'Branding, Social Media', 'Brand Identity, Social Media Management, Photography', 'uploads/portfolio/thumbnails/6811f6b8ed516.png'),
+('Dum de Biryani', 'Dum de Biryani', 'Restaurant branding and marketing campaigns', 'Branding, Food Marketing', 'Brand Identity, Menu Design, Social Media', 'uploads/portfolio/thumbnails/6811f6ef30b34.jpg'),
+('Somesa Modular Kitchen', 'Somesa Modular Kitchen', 'Kitchen showroom branding and digital presence', 'Branding, Interior Design', 'Brand Identity, Showroom Design, Digital Marketing', 'uploads/portfolio/thumbnails/68123a644d6de.jpg'),
+('Crystal Detailing Studio', 'Crystal Detailing Studio', 'Car detailing service complete branding', 'Branding, Automotive', 'Brand Identity, Service Packaging, Marketing Materials', 'uploads/portfolio/thumbnails/6811d54113cd0.png');
 
 -- Create necessary directories
 -- Note: These commands should be executed by PHP scripts, not SQL
