@@ -1,602 +1,303 @@
 <?php include 'includes/header.php'; ?>
 
+<!-- Montserrat font for perfect match -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
 <style>
-:root {
-  --orange: #F44B12;
-  --dark: #2B2B2A;
-  --light-gray: #f8f9fa;
-  --border-gray: #e0e0e0;
+.portfolio-wrap {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto 0 auto;
+  padding: 0 0 40px 0;
+  font-family: 'Montserrat',sans-serif;
 }
-
-body {
-  background: #fff;
-  color: var(--dark);
-  margin: 0;
-  font-family: 'Montserrat', Arial, sans-serif;
-}
-
-.portfolio-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-/* Portfolio Header */
-.portfolio-header {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
 .portfolio-title {
-  font-size: 3.5rem;
-  font-weight: 900;
-  color: var(--dark);
-  margin-bottom: 15px;
-  letter-spacing: -1px;
+  text-align: center;
+  color: #F44B12;
+  font-family: 'Montserrat',sans-serif;
+  font-weight: 800;
+  font-size: 2.1rem;
+  margin-top: 40px;
+  margin-bottom: 5px;
+  letter-spacing: .2px;
 }
-
-.portfolio-subtitle {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--orange);
-  margin-bottom: 0;
+.portfolio-sub {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #383838;
+  margin-bottom: 30px;
 }
-
-/* Client Info Section - 40vh height */
-.client-section {
-  height: 40vh;
-  min-height: 300px;
+.portfolio-topflex {
   display: flex;
-  gap: 30px;
-  margin-bottom: 60px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-}
-
-.client-blank-box {
-  width: 30%;
-  background: linear-gradient(135deg, var(--orange), #ff6a30);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 40vh;
+  width: 100%;
+  border-radius: 30px 30px 0 0;
+  background: linear-gradient(120deg, #2d2421 65%, #f44b1237 100%);
+  box-shadow: 0 9px 26px #0001;
+  margin-bottom: 32px;
   position: relative;
+  align-items: stretch;
+  gap: 0;
 }
-
-.client-blank-box::before {
-  content: '';
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border: 3px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
+.portfolio-blankbox {
+  flex: 0 0 30%;
+  min-width: 120px;
+  background: #232322;
+  border-radius: 13px;
+  margin: 32px 0 32px 36px;
+  box-shadow: 0 2px 15px 0 #0002, 0 0px 2px #fff1 inset;
+  border: 1.7px solid #fff2;
+  min-height: 140px;
+  max-width: 230px;
 }
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-.client-info {
-  width: 70%;
-  background: #fff;
-  padding: 40px;
+.portfolio-clientinfo {
+  flex: 1 1 0;
+  padding: 32px 18px 10px 36px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
-.client-name {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: var(--dark);
-  margin-bottom: 10px;
-}
-
-.client-description {
-  font-size: 1.2rem;
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 30px;
-}
-
-.our-role {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--orange);
-  margin-bottom: 15px;
-}
-
-.role-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.role-list li {
+.portfolio-clientinfo .client-label {
+  color: #F44B12;
   font-size: 1rem;
-  color: var(--dark);
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border-gray);
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+.portfolio-clientinfo .client-title {
+  color: #fff;
+  font-size: 1.16rem;
+  font-weight: bold;
+  letter-spacing: .6px;
+  margin-bottom: 8px;
+}
+.portfolio-clientinfo .portfolio-role-label {
+  color: #F44B12;
+  font-weight: bold;
+}
+.portfolio-clientinfo .portfolio-role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 23px;
+  margin-top: 4px;
+}
+.portfolio-clientinfo .portfolio-role-list span {
+  font-size: .97rem;
+  color: #fff;
+  font-weight: 600;
 }
 
-.role-list li:last-child {
-  border-bottom: none;
-}
-
-/* Portfolio Grid */
+/* PORTFOLIO GRID - Proper Responsive Layout */
 .portfolio-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 20px;
-  max-width: 1200px;
   margin: 0 auto;
+  max-width: 880px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 180px 180px 160px 160px;
+  gap: 18px 18px;
+  position: relative;
+  z-index: 1;
 }
 
-/* Grid Items */
-.grid-item {
-  border-radius: 15px;
-  overflow: hidden;
-  position: relative;
-  background: var(--light-gray);
+/* Orange glow effect behind reels (last row) */
+.portfolio-grid::after {
+  content: '';
+  display: block;
+  grid-column: 1/-1;
+  grid-row: 4;
+  position: absolute;
+  left: 0; 
+  right: 0; 
+  bottom: 12px; 
+  z-index: 0;
+  width: 95%; 
+  height: 85px;
+  margin: auto;
+  background: radial-gradient(circle, #f44b124c 34%, transparent 85%);
+  filter: blur(4px);
+}
+
+/* Grid Items Base Styles */
+.pg-bigpost, .pg-post, .pg-story, .pg-reel {
+  background: #fff;
+  color: #222;
+  font-weight: 900;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px #0002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.grid-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(244, 75, 18, 0.2);
+.pg-bigpost, .pg-post, .pg-story, .pg-reel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(244, 75, 18, 0.15);
 }
 
-.grid-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+/* Big Post - spans 2 rows in first column */
+.pg-bigpost {
+  font-size: 2.5rem;
+  letter-spacing: 1.5px;
+  grid-row: 1/3;
+  grid-column: 1/2;
 }
 
-/* iPhone 5.5 inch size reference: ~375px width */
-.post-large {
+/* Regular Posts */
+.pg-post {
+  font-size: 2rem;
+  letter-spacing: 1px;
+}
+
+.pg-post.small {
+  font-size: 1.25rem;
+}
+
+/* Stories - span 2 rows */
+.pg-story {
+  font-size: 2rem;
+  letter-spacing: 1px;
   grid-row: span 2;
-  height: 600px; /* iPhone 5.5 inch height equivalent */
 }
 
-.post-small {
-  height: 285px; /* Half of large post */
+/* Reels */
+.pg-reel {
+  font-size: 1.3rem;
 }
 
-.story {
-  grid-column: span 2;
-  height: 285px;
-  background: linear-gradient(45deg, var(--orange), #ff6a30);
-  position: relative;
-}
+/* Grid Positioning */
+.pg-post.post2 { grid-row: 1; grid-column: 2; }
+.pg-post.post3 { grid-row: 1; grid-column: 3; }
+.pg-post.post4 { grid-row: 2; grid-column: 2; }
+.pg-post.post5 { grid-row: 2; grid-column: 3; }
+.pg-story.story1 { grid-row: 1/3; grid-column: 2; }
+.pg-story.story2 { grid-row: 1/3; grid-column: 3; }
+.pg-reel.reel1 { grid-row: 4; grid-column: 1; }
+.pg-reel.reel2 { grid-row: 4; grid-column: 2; }
+.pg-reel.reel3 { grid-row: 4; grid-column: 3; }
+.pg-reel.reel4 { grid-row: 3; grid-column: 1; }
 
-.story::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent, rgba(244, 75, 18, 0.3));
-  border-radius: 15px;
-}
-
-.reel {
-  height: 285px;
-  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-  position: relative;
-  overflow: hidden;
-}
-
-.reel::after {
-  content: '';
-  position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, var(--orange), transparent 70%);
-  opacity: 0.3;
-  z-index: -1;
-  filter: blur(20px);
-}
-
-.reel-overlay {
-  position: absolute;
-  bottom: 15px;
-  left: 15px;
-  right: 15px;
-  color: white;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* Grid Layout */
-.grid-item:nth-child(1) { /* Large Post */
-  grid-column: 1;
-  grid-row: 1 / span 2;
-}
-
-.grid-item:nth-child(2) { /* Small Post 1 */
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.grid-item:nth-child(3) { /* Small Post 2 */
-  grid-column: 3;
-  grid-row: 1;
-}
-
-.grid-item:nth-child(4) { /* Small Post 3 */
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.grid-item:nth-child(5) { /* Small Post 4 */
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.grid-item:nth-child(6) { /* Story */
-  grid-column: 1 / span 2;
-  grid-row: 3;
-}
-
-.grid-item:nth-child(7) { /* Reel 1 */
-  grid-column: 3;
-  grid-row: 3;
-}
-
-.grid-item:nth-child(8) { /* Story 2 */
-  grid-column: 1 / span 2;
-  grid-row: 4;
-}
-
-.grid-item:nth-child(9) { /* Reel 2 */
-  grid-column: 3;
-  grid-row: 4;
-}
-
-.grid-item:nth-child(10) { /* Reel 3 */
-  grid-column: 1;
-  grid-row: 5;
-}
-
-.grid-item:nth-child(11) { /* Reel 4 */
-  grid-column: 2;
-  grid-row: 5;
-}
-
-.grid-item:nth-child(12) { /* Reel 5 */
-  grid-column: 3;
-  grid-row: 5;
-}
-
-/* Content Labels */
-.content-label {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.label-post { background: var(--orange); }
-.label-story { background: #e91e63; }
-.label-reel { background: #9c27b0; }
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .portfolio-container {
-    padding: 30px 15px;
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+  .portfolio-topflex { 
+    flex-direction: column; 
+    min-height: unset; 
+    border-radius: 22px; 
   }
-  
-  .portfolio-title {
-    font-size: 2.8rem;
+  .portfolio-blankbox {
+    margin: 22px auto 12px auto;
   }
-  
-  .portfolio-subtitle {
-    font-size: 1.5rem;
+  .portfolio-clientinfo {
+    padding: 8px 9px;
   }
-}
-
-@media (max-width: 968px) {
-  .client-section {
-    flex-direction: column;
-    height: auto;
-    min-height: auto;
-  }
-  
-  .client-blank-box {
-    width: 100%;
-    height: 200px;
-  }
-  
-  .client-info {
-    width: 100%;
-    padding: 30px;
-  }
-  
-  .client-name {
-    font-size: 2rem;
-  }
-  
-  .portfolio-grid {
-    grid-template-columns: 1fr 1fr;
+  .portfolio-grid { 
+    max-width: 99vw;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-rows: 160px 160px 140px 140px;
     gap: 15px;
   }
-  
-  .post-large {
-    height: 500px;
-  }
-  
-  .post-small {
-    height: 235px;
-  }
-  
-  .story {
-    height: 235px;
-  }
-  
-  .reel {
-    height: 235px;
-  }
-  
-  /* Tablet Grid Layout */
-  .grid-item:nth-child(1) { /* Large Post */
-    grid-column: 1;
-    grid-row: 1 / span 2;
-  }
-  
-  .grid-item:nth-child(2) { /* Small Post 1 */
-    grid-column: 2;
-    grid-row: 1;
-  }
-  
-  .grid-item:nth-child(3) { /* Small Post 2 */
-    grid-column: 2;
-    grid-row: 2;
-  }
-  
-  .grid-item:nth-child(4) { /* Story */
-    grid-column: 1 / span 2;
-    grid-row: 3;
-  }
-  
-  .grid-item:nth-child(5) { /* Small Post 3 */
-    grid-column: 1;
-    grid-row: 4;
-  }
-  
-  .grid-item:nth-child(6) { /* Small Post 4 */
-    grid-column: 2;
-    grid-row: 4;
-  }
-  
-  .grid-item:nth-child(7) { /* Reel 1 */
-    grid-column: 1;
-    grid-row: 5;
-  }
-  
-  .grid-item:nth-child(8) { /* Reel 2 */
-    grid-column: 2;
-    grid-row: 5;
-  }
-  
-  .grid-item:nth-child(9) { /* Story 2 */
-    grid-column: 1 / span 2;
-    grid-row: 6;
-  }
-  
-  .grid-item:nth-child(10) { /* Reel 3 */
-    grid-column: 1;
-    grid-row: 7;
-  }
-  
-  .grid-item:nth-child(11) { /* Reel 4 */
-    grid-column: 2;
-    grid-row: 7;
-  }
-  
-  .grid-item:nth-child(12) { /* Reel 5 */
-    grid-column: 1 / span 2;
-    grid-row: 8;
-  }
 }
 
-@media (max-width: 768px) {
-  .portfolio-title {
-    font-size: 2.2rem;
+@media (max-width: 670px) {
+  .portfolio-grid { 
+    grid-template-columns: 1fr 1fr; 
+    grid-template-rows: 160px 160px 140px 140px 120px;
+    gap: 12px;
   }
   
-  .portfolio-subtitle {
-    font-size: 1.3rem;
-  }
+  /* Mobile Layout Positioning */
+  .pg-bigpost { grid-row: 1/3; grid-column: 1/2; }
+  .pg-post.post2 { grid-row: 1; grid-column: 2; }
+  .pg-post.post3 { grid-row: 2; grid-column: 2; }
+  .pg-post.post4 { grid-row: 3; grid-column: 1; }
+  .pg-post.post5 { grid-row: 3; grid-column: 2; }
+  .pg-story.story1 { grid-row: 4; grid-column: 1/3; }
+  .pg-story.story2 { display: none; } /* Hide second story on mobile */
+  .pg-reel.reel1 { grid-row: 5; grid-column: 1; }
+  .pg-reel.reel2 { grid-row: 5; grid-column: 2; }
+  .pg-reel.reel3 { display: none; } /* Hide third reel on mobile */
+  .pg-reel.reel4 { display: none; } /* Hide fourth reel on mobile */
   
-  .client-info {
-    padding: 25px;
-  }
-  
-  .client-name {
-    font-size: 1.8rem;
-  }
-  
-  .portfolio-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  
-  .post-large {
-    height: 400px;
-  }
-  
-  .post-small {
-    height: 200px;
-  }
-  
-  .story {
-    height: 180px;
-  }
-  
-  .reel {
-    height: 200px;
-  }
-  
-  /* Mobile Grid Layout - Single Column */
-  .grid-item:nth-child(n) {
-    grid-column: 1;
-    grid-row: auto;
+  /* Adjust glow for mobile */
+  .portfolio-grid::after {
+    grid-row: 5;
+    height: 60px;
   }
 }
 
 @media (max-width: 480px) {
-  .portfolio-container {
-    padding: 20px 10px;
+  .portfolio-wrap {
+    padding: 0 10px 40px 10px;
   }
   
   .portfolio-title {
     font-size: 1.8rem;
+    margin-top: 20px;
   }
   
-  .portfolio-subtitle {
-    font-size: 1.1rem;
-  }
-  
-  .client-info {
-    padding: 20px;
-  }
-  
-  .client-name {
-    font-size: 1.5rem;
-  }
-  
-  .client-description {
+  .portfolio-sub {
     font-size: 1rem;
   }
   
-  .post-large {
-    height: 350px;
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 200px 120px 120px 120px 120px 140px;
+    gap: 10px;
   }
   
-  .post-small {
-    height: 180px;
-  }
+  /* Single Column Layout */
+  .pg-bigpost { grid-row: 1; grid-column: 1; }
+  .pg-post.post2 { grid-row: 2; grid-column: 1; }
+  .pg-post.post3 { grid-row: 3; grid-column: 1; }
+  .pg-post.post4 { grid-row: 4; grid-column: 1; }
+  .pg-post.post5 { grid-row: 5; grid-column: 1; }
+  .pg-story.story1 { grid-row: 6; grid-column: 1; }
+  .pg-story.story2 { display: none; }
+  .pg-reel.reel1, .pg-reel.reel2, .pg-reel.reel3, .pg-reel.reel4 { display: none; }
   
-  .story {
-    height: 150px;
-  }
+  /* Remove glow on mobile */
+  .portfolio-grid::after { display: none; }
   
-  .reel {
-    height: 180px;
-  }
+  .pg-bigpost { font-size: 2rem; }
+  .pg-post { font-size: 1.5rem; }
+  .pg-post.small { font-size: 1.1rem; }
+  .pg-story { font-size: 1.5rem; }
 }
 </style>
 
-<div class="portfolio-container">
-  <!-- Portfolio Header -->
-  <div class="portfolio-header">
-    <h1 class="portfolio-title">Portfolio</h1>
-    <h2 class="portfolio-subtitle">Vartak's Competitive Academy</h2>
-  </div>
-
-  <!-- Client Info Section -->
-  <div class="client-section">
-    <div class="client-blank-box"></div>
-    <div class="client-info">
-      <h3 class="client-name">Vartak's Competitive Academy</h3>
-      <p class="client-description">
-        A leading educational institution focused on competitive exam preparation. 
-        We helped them establish a strong digital presence and create engaging content 
-        that resonates with students and parents alike.
-      </p>
-      <div class="our-role">Our Role:</div>
-      <ul class="role-list">
-        <li>Brand Identity Design</li>
-        <li>Social Media Management</li>
-        <li>Content Creation & Strategy</li>
-        <li>Digital Marketing Campaigns</li>
-        <li>Video Production & Editing</li>
-      </ul>
+<div class="portfolio-wrap">
+  <div class="portfolio-title">Portfolio</div>
+  <div class="portfolio-sub">Vartak's Competitive Academy</div>
+  
+  <div class="portfolio-topflex">
+    <div class="portfolio-blankbox"></div>
+    <div class="portfolio-clientinfo">
+      <div class="client-label">Client</div>
+      <div class="client-title">VARTAK'S COMPETITIVE ACADEMY</div>
+      <div style="margin-bottom:6px;">
+        <span class="portfolio-role-label">Our Role</span>
+        <div class="portfolio-role-list" style="margin-top:4px;">
+          <span>SOCIAL MEDIA MANAGEMENT</span>
+          <span>DESIGNING</span>
+          <span>INSTITUTE AWARENESS THROUGH ADS</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Portfolio Grid -->
+  <!-- GRID -->
   <div class="portfolio-grid">
-    
-    <!-- Large Post (iPhone 5.5 inch size) -->
-    <div class="grid-item post-large">
-      <div class="content-label label-post">Post</div>
-      <img src="uploads/portfolio/thumbnails/project1.webp" alt="Main Post" onerror="this.style.background='linear-gradient(135deg, #f0f0f0, #e0e0e0)'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='<div style=\'color:#999; font-size:1.2rem; font-weight:600;\'>Main Post</div>';">
-    </div>
-
-    <!-- Small Post 1 -->
-    <div class="grid-item post-small">
-      <div class="content-label label-post">Post</div>
-      <img src="uploads/portfolio/thumbnails/project2.webp" alt="Post 2" onerror="this.style.background='linear-gradient(135deg, #f0f0f0, #e0e0e0)'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='<div style=\'color:#999; font-size:1rem; font-weight:600;\'>Post 2</div>';">
-    </div>
-
-    <!-- Small Post 2 -->
-    <div class="grid-item post-small">
-      <div class="content-label label-post">Post</div>
-      <img src="uploads/portfolio/thumbnails/project3.webp" alt="Post 3" onerror="this.style.background='linear-gradient(135deg, #f0f0f0, #e0e0e0)'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='<div style=\'color:#999; font-size:1rem; font-weight:600;\'>Post 3</div>';">
-    </div>
-
-    <!-- Small Post 3 -->
-    <div class="grid-item post-small">
-      <div class="content-label label-post">Post</div>
-      <img src="uploads/portfolio/thumbnails/project4.webp" alt="Post 4" onerror="this.style.background='linear-gradient(135deg, #f0f0f0, #e0e0e0)'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='<div style=\'color:#999; font-size:1rem; font-weight:600;\'>Post 4</div>';">
-    </div>
-
-    <!-- Small Post 4 -->
-    <div class="grid-item post-small">
-      <div class="content-label label-post">Post</div>
-      <img src="uploads/portfolio/thumbnails/project5.webp" alt="Post 5" onerror="this.style.background='linear-gradient(135deg, #f0f0f0, #e0e0e0)'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.innerHTML='<div style=\'color:#999; font-size:1rem; font-weight:600;\'>Post 5</div>';">
-    </div>
-
-    <!-- Story 1 -->
-    <div class="grid-item story">
-      <div class="content-label label-story">Story</div>
-      <div class="reel-overlay">Educational Stories</div>
-    </div>
-
-    <!-- Reel 1 -->
-    <div class="grid-item reel">
-      <div class="content-label label-reel">Reel</div>
-      <div class="reel-overlay">Study Tips Reel</div>
-    </div>
-
-    <!-- Story 2 -->
-    <div class="grid-item story">
-      <div class="content-label label-story">Story</div>
-      <div class="reel-overlay">Success Stories</div>
-    </div>
-
-    <!-- Reel 2 -->
-    <div class="grid-item reel">
-      <div class="content-label label-reel">Reel</div>
-      <div class="reel-overlay">Motivation Reel</div>
-    </div>
-
-    <!-- Reel 3 -->
-    <div class="grid-item reel">
-      <div class="content-label label-reel">Reel</div>
-      <div class="reel-overlay">Campus Tour</div>
-    </div>
-
-    <!-- Reel 4 -->
-    <div class="grid-item reel">
-      <div class="content-label label-reel">Reel</div>
-      <div class="reel-overlay">Results Reel</div>
-    </div>
-
-    <!-- Reel 5 -->
-    <div class="grid-item reel">
-      <div class="content-label label-reel">Reel</div>
-      <div class="reel-overlay">Faculty Intro</div>
-    </div>
-
+    <div class="pg-bigpost">Post</div>
+    <div class="pg-post post2 small">Post</div>
+    <div class="pg-post post3 small">Post</div>
+    <div class="pg-post post4 small">Post</div>
+    <div class="pg-post post5 small">Post</div>
+    <div class="pg-story story1">Story</div>
+    <div class="pg-story story2">Story</div>
+    <div class="pg-reel reel1">Reel</div>
+    <div class="pg-reel reel2">Reel</div>
+    <div class="pg-reel reel3">Reel</div>
+    <div class="pg-reel reel4">Reel</div>
   </div>
 </div>
 
