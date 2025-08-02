@@ -511,6 +511,15 @@ error_reporting(E_ALL);
       .brands-logo { max-width: 44vw; min-width: 12vw; }
       .brands-row { gap: 0.6vw; margin-bottom: 0.7rem; }
     }
+    
+    /* Responsive brand layout classes */
+    .brands-mobile { display: none; }
+    .brands-desktop { display: block; }
+    
+    @media (max-width: 600px) {
+      .brands-mobile { display: block; }
+      .brands-desktop { display: none; }
+    }
   </style>
   <div class="text-center mb-8">
     <div class="brands-heading">Brands We've <span style="color:#111; font-family:'Montserrat', Arial, sans-serif; font-weight:900;">Worked With</span></div>
@@ -518,27 +527,48 @@ error_reporting(E_ALL);
   <div class="brands-grid">
     <?php
     $brandLogos = getBrandLogos();
-    
-    // Debug output
-    if (empty($brandLogos)) {
-      echo '<div style="text-align:center; color:#F44B12; padding:20px;">Loading brands...</div>';
-    } else {
-      // Pattern: 4,3,4,3,4,3,...
-      $pattern = [4,3];
+    if (!empty($brandLogos)) {
+      // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
+      $desktopPattern = [3,4,3];
+      $mobilePattern = [2,2,2];
       $k = 0;
-      $rowCount = 0;
+      
+      // Desktop layout
+      echo '<div class="brands-desktop">';
       while ($k < count($brandLogos)) {
-        $row = $pattern[$rowCount % 2];
-        echo '<div class="brands-row">';
-        for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-          $logo = $brandLogos[$k];
-          $logoPath = htmlspecialchars($logo['logo_path']);
-          $brandName = htmlspecialchars($logo['brand_name']);
-          echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+        foreach($desktopPattern as $row) {
+          if ($k >= count($brandLogos)) break;
+          echo '<div class="brands-row">';
+          for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+            $logo = $brandLogos[$k];
+            $logoPath = htmlspecialchars($logo['logo_path']);
+            $brandName = htmlspecialchars($logo['brand_name']);
+            echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+          }
+          echo '</div>';
         }
-        echo '</div>';
-        $rowCount++;
       }
+      echo '</div>';
+      
+      // Mobile layout
+      $k = 0;
+      echo '<div class="brands-mobile">';
+      while ($k < count($brandLogos)) {
+        foreach($mobilePattern as $row) {
+          if ($k >= count($brandLogos)) break;
+          echo '<div class="brands-row">';
+          for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+            $logo = $brandLogos[$k];
+            $logoPath = htmlspecialchars($logo['logo_path']);
+            $brandName = htmlspecialchars($logo['brand_name']);
+            echo '<img src="'.$logoPath.'" alt="'.$brandName.'" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
+          }
+          echo '</div>';
+        }
+      }
+      echo '</div>';
+    } else {
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">Loading brands...</div>';
     }
     ?>
   </div>
