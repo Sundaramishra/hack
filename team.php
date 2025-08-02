@@ -66,10 +66,10 @@ require_once 'includes/functions.php';
   /* ---------- ROWS LIKE MOCKUP ---------- */
   .team-row{display:flex; gap:34px; justify-content:center; flex-wrap:nowrap;}
   .team-row.row-1{margin-bottom:40px;}
-  .team-row.row-2{gap:32px;}
+  .team-row.row-2{gap:28px;}
 
   /* ---------- CARD ---------- */
-  .tcard{width:290px; max-width:92vw; aspect-ratio: 4/5; position:relative;
+  .tcard{width:280px; max-width:92vw; aspect-ratio: 4/5; position:relative;
     transform-origin:center bottom; transition:transform .25s, filter .25s;
     display:flex; align-items:flex-end; justify-content:center; cursor:pointer;
   }
@@ -119,12 +119,14 @@ require_once 'includes/functions.php';
 
   /* ---------- Responsive ---------- */
   @media (max-width: 1200px){
-    .tcard{ width:260px; }
-    .team-row{ gap:28px; }
+    .tcard{ width:250px; }
+    .team-row{ gap:24px; }
+    .team-row.row-2{ gap:20px; }
   }
   @media (max-width: 1024px){
     .team-row{ flex-wrap:wrap; }
     .tcard{ width:240px; }
+    .team-row.row-2{ gap:18px; }
   }
   @media (max-width: 768px){
     .team-row{ gap:22px; }
