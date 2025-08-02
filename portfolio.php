@@ -213,8 +213,12 @@ body {
   .portfolio-grid { 
     max-width: 99vw;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 160px 80px 160px;
+    grid-template-rows: 20vh 15vh 20vh 40vh;
     gap: 12px;
+    min-height: 95vh;
+  }
+  .portfolio-grid::after {
+    height: 40vh;
   }
 }
 
