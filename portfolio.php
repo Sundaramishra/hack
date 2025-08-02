@@ -97,10 +97,10 @@ body {
 /* PORTFOLIO GRID - Proper Responsive Layout */
 .portfolio-grid {
   margin: 0 auto;
-  max-width: 880px;
+  max-width: 1200px;
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 180px 180px 160px 160px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 180px 90px 180px;
   gap: 18px 18px;
   position: relative;
   z-index: 1;
@@ -111,14 +111,14 @@ body {
   content: '';
   display: block;
   grid-column: 1/-1;
-  grid-row: 4;
+  grid-row: 3;
   position: absolute;
   left: 0; 
   right: 0; 
   bottom: 12px; 
   z-index: 0;
   width: 95%; 
-  height: 85px;
+  height: 160px;
   margin: auto;
   background: radial-gradient(circle, #f44b124c 34%, transparent 85%);
   filter: blur(4px);
@@ -143,12 +143,12 @@ body {
   box-shadow: 0 8px 25px rgba(244, 75, 18, 0.15);
 }
 
-/* Big Post - spans 2 rows in first column */
+/* Big Post - spans 2x2 (2 columns, 2 rows) */
 .pg-bigpost {
   font-size: 2.5rem;
   letter-spacing: 1.5px;
   grid-row: 1/3;
-  grid-column: 1/2;
+  grid-column: 1/3;
 }
 
 /* Regular Posts */
