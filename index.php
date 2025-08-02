@@ -529,6 +529,15 @@ error_reporting(E_ALL);
     // Use function to get brand logos
     $brandLogos = getBrandLogos();
     
+    // Debug output
+    echo '<div style="background:#ffeb3b; color:#000; padding:10px; margin:10px; border-radius:5px; font-size:12px;">';
+    echo 'DEBUG: Brand logos count: ' . count($brandLogos) . '<br>';
+    if (!empty($brandLogos)) {
+        echo 'First logo data: ';
+        echo '<pre style="font-size:10px;">' . print_r($brandLogos[0], true) . '</pre>';
+    }
+    echo '</div>';
+    
     if (!empty($brandLogos)) {
       // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
       $desktopPattern = [3,4,3];
@@ -806,6 +815,15 @@ error_reporting(E_ALL);
         // Use function to get featured slider data
         $portfolioItems = getFeaturedSlider();
         $slides = [];
+        
+        // Debug output
+        echo '<div style="background:#e3f2fd; color:#000; padding:10px; margin:10px; border-radius:5px; font-size:12px;">';
+        echo 'DEBUG: Portfolio items count: ' . count($portfolioItems) . '<br>';
+        if (!empty($portfolioItems)) {
+            echo 'First portfolio item: ';
+            echo '<pre style="font-size:10px;">' . print_r($portfolioItems[0], true) . '</pre>';
+        }
+        echo '</div>';
         
         // Convert portfolio items to slider format
         foreach ($portfolioItems as $row) {
