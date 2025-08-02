@@ -337,17 +337,67 @@ body {
 
   <!-- GRID -->
   <div class="portfolio-grid">
-    <div class="pg-bigpost">Post</div>
-    <div class="pg-post post2 small">Post</div>
-    <div class="pg-post post3 small">Post</div>
-    <div class="pg-post post4 small">Post</div>
-    <div class="pg-post post5 small">Post</div>
-    <div class="pg-story story1">Story</div>
-    <div class="pg-story story2">Story</div>
-    <div class="pg-reel reel1">Reel</div>
-    <div class="pg-reel reel2">Reel</div>
-    <div class="pg-reel reel3">Reel</div>
-    <div class="pg-reel reel4">Reel</div>
+    <?php
+    // Get portfolio items from database
+    $portfolioItems = getPortfolioItems();
+    if (!empty($portfolioItems)) {
+      // Sort descending by id (newest first)
+      usort($portfolioItems, function($a, $b) {
+        return $b['id'] <=> $a['id'];
+      });
+      
+      // Take first 11 items for our grid
+      $gridItems = array_slice($portfolioItems, 0, 11);
+      
+      // Grid positions mapping
+      $gridClasses = [
+        'pg-bigpost',
+        'pg-post post2 small', 
+        'pg-post post3 small',
+        'pg-post post4 small',
+        'pg-post post5 small', 
+        'pg-story story1',
+        'pg-story story2',
+        'pg-reel reel1',
+        'pg-reel reel2', 
+        'pg-reel reel3',
+        'pg-reel reel4'
+      ];
+      
+      foreach ($gridItems as $index => $item) {
+        $class = $gridClasses[$index] ?? 'pg-post';
+        $title = htmlspecialchars($item['brand_name'] ?? $item['title'] ?? 'Portfolio Item');
+        $thumbnail = htmlspecialchars($item['thumbnail'] ?? '');
+        
+        echo '<div class="' . $class . '">';
+        if (!empty($thumbnail)) {
+          echo '<img src="' . $thumbnail . '" alt="' . $title . '" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">';
+        } else {
+          echo $title;
+        }
+        echo '</div>';
+      }
+      
+      // Fill remaining positions if less than 11 items
+      for ($i = count($gridItems); $i < 11; $i++) {
+        $class = $gridClasses[$i] ?? 'pg-post';
+        echo '<div class="' . $class . '">Portfolio Item ' . ($i + 1) . '</div>';
+      }
+      
+    } else {
+      // Fallback: Show placeholder text
+      $gridClasses = [
+        'pg-bigpost', 'pg-post post2 small', 'pg-post post3 small',
+        'pg-post post4 small', 'pg-post post5 small', 'pg-story story1',
+        'pg-story story2', 'pg-reel reel1', 'pg-reel reel2', 
+        'pg-reel reel3', 'pg-reel reel4'
+      ];
+      
+      foreach ($gridClasses as $index => $class) {
+        echo '<div class="' . $class . '">Portfolio Item ' . ($index + 1) . '</div>';
+      }
+    }
+    ?>
   </div>
 </div>
 
