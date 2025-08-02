@@ -557,7 +557,7 @@ error_reporting(E_ALL);
              for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
                $logo = $brandLogos[$k];
                $logoPath = htmlspecialchars($logo['logo_path']);
-               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src); this.style.border=\'2px dashed #F44B12\'; this.style.padding=\'10px\'; this.alt=\'LOGO MISSING\';">';
+               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo">';
              }
              echo '</div>';
            }
@@ -574,7 +574,7 @@ error_reporting(E_ALL);
              for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
                $logo = $brandLogos[$k];
                $logoPath = htmlspecialchars($logo['logo_path']);
-               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src); this.style.border=\'2px dashed #F44B12\'; this.style.padding=\'10px\'; this.alt=\'LOGO MISSING\';">';
+               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo">';
              }
              echo '</div>';
            }
@@ -678,6 +678,14 @@ error_reporting(E_ALL);
     transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     opacity: 0;
     pointer-events: none;
+  }
+  /* Show first slide by default */
+  .featured-3d-slide:first-child {
+    opacity: 1;
+    transform: translateZ(0) scale(1.1);
+    z-index: 5;
+    pointer-events: auto;
+    box-shadow: 0 20px 50px rgba(244, 75, 18, 0.4);
   }
   .featured-3d-slide img {
     width: 100%; 
@@ -852,7 +860,7 @@ error_reporting(E_ALL);
           $img = htmlspecialchars($slide['image_path']);
           $title = htmlspecialchars($slide['title']);
           echo '<div class="featured-3d-slide" data-slide="'.$i.'">';
-            echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'<div style=\\\"display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#2a2a2a,#1f1f1f);color:#F44B12;font-size:1.2rem;font-weight:bold;text-align:center;padding:20px;\\\">'.$title.'</div>\';">';
+            echo '<img src="'.$img.'" alt="'.$title.'">';
           echo '</div>';
         }
       ?>
