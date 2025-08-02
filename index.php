@@ -526,7 +526,22 @@ error_reporting(E_ALL);
   </div>
   <div class="brands-grid">
     <?php
-    $brandLogos = getBrandLogos();
+    // Direct database query for brand logos
+    include_once 'includes/db.php';
+    $brandLogos = [];
+    
+    try {
+      $query = "SELECT brand_name, logo_path FROM brand_logos ORDER BY id";
+      $result = mysqli_query($conn, $query);
+      if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+          $brandLogos[] = $row;
+        }
+      }
+    } catch (Exception $e) {
+      error_log("Brand logos query error: " . $e->getMessage());
+    }
+    
     if (!empty($brandLogos)) {
       // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
       $desktopPattern = [3,4,3];
@@ -568,7 +583,7 @@ error_reporting(E_ALL);
       }
       echo '</div>';
     } else {
-      echo '<div style="text-align:center; color:#F44B12; padding:20px;">Loading brands...</div>';
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database.</div>';
     }
     ?>
   </div>
@@ -684,52 +699,45 @@ error_reporting(E_ALL);
     pointer-events: none; border: none; box-shadow: none;
     user-select: none;
   }
-  .featured-3d-slide--farleft {
-    opacity: 1; pointer-events: none; z-index: 1;
-    transform: translateX(-325px) scale(0.83) rotateY(55deg);
-    filter: brightness(0.65) blur(0.5px) grayscale(0.33);
-    box-shadow: 0 2px 7px #1118;
-  }
-  .featured-3d-slide--left {
-    opacity: 1; pointer-events: none; z-index: 3;
-    transform: translateX(-160px) scale(0.94) rotateY(32deg);
-    filter: brightness(0.85) blur(0.08px);
-    box-shadow: 0 4px 14px #0008;
-  }
-  .featured-3d-slide--current {
-    opacity: 1 !important; pointer-events: auto; z-index: 10;
-    transform: scale(1.18) rotateY(0deg); width: 310px; height: 470px;
-    min-width:310px; max-width:310px; min-height:470px; max-height:470px;
-    border: 3px solid var(--main-accent-light);
-    box-shadow: 0 14px 55px 0 #111d, 0 0px 12px 0 var(--main-accent), 0 0 0 7px #fff3 inset;
-    transition: box-shadow 0.2s, transform 0.2s;
-    background: linear-gradient(135deg, #232323 70%, #222 110%);
-  }
-  .featured-3d-slide--right {
-    opacity: 1; pointer-events: none; z-index: 3;
-    transform: translateX(160px) scale(0.94) rotateY(-32deg);
-    filter: brightness(0.85) blur(0.08px);
-    box-shadow: 0 4px 14px #0008;
-  }
-  .featured-3d-slide--farright {
-    opacity: 1; pointer-events: none; z-index: 1;
-    transform: translateX(325px) scale(0.83) rotateY(-55deg);
-    filter: brightness(0.65) blur(0.5px) grayscale(0.33);
-    box-shadow: 0 2px 7px #1118;
-  }
-  .featured-3d-slide--edge {
-    /* At the start/end, cards snap straight and big */
-    transform: scale(1.10) rotateY(0deg);
+  /* i.php style positioning classes with black background theme */
+  .featured-3d-slide.is-center {
+    transform: translateZ(0) scale(1.1);
+    z-index: 5;
     opacity: 1 !important;
-    pointer-events: auto !important;
-    box-shadow: 0 10px 32px var(--main-accent-dark);
+    pointer-events: auto;
+    box-shadow: 0 20px 50px rgba(244, 75, 18, 0.4);
     border: 3px solid var(--main-accent-light);
     background: linear-gradient(135deg, #232323 70%, #222 110%);
   }
-  .featured-3d-slide:not(.featured-3d-slide--farleft):not(.featured-3d-slide--left):not(.featured-3d-slide--current):not(.featured-3d-slide--right):not(.featured-3d-slide--farright):not(.featured-3d-slide--edge) {
-    opacity: 0 !important; pointer-events: none !important;
-    width: 0 !important; min-width: 0 !important; height: 0 !important; min-height:0 !important; max-height:0 !important;
+  .featured-3d-slide.is-left1 {
+    transform: translateX(-200px) translateZ(-100px) rotateY(25deg) scale(0.9);
+    z-index: 3;
+    opacity: 1;
+    pointer-events: none;
   }
+  .featured-3d-slide.is-left2 {
+    transform: translateX(-350px) translateZ(-200px) rotateY(35deg) scale(0.8);
+    z-index: 2;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .featured-3d-slide.is-right1 {
+    transform: translateX(200px) translateZ(-100px) rotateY(-25deg) scale(0.9);
+    z-index: 3;
+    opacity: 1;
+    pointer-events: none;
+  }
+  .featured-3d-slide.is-right2 {
+    transform: translateX(350px) translateZ(-200px) rotateY(-35deg) scale(0.8);
+    z-index: 2;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .featured-3d-slide.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .featured-3d-slide-title-overlay {
     position: absolute; left: 0; right: 0; bottom: 0; text-align: center;
     font-family: 'Montserrat', Arial, sans-serif; font-size: 1.13rem; font-weight: 900;
@@ -741,8 +749,7 @@ error_reporting(E_ALL);
     font-variant: small-caps;
     font-family: 'Montserrat', Arial, sans-serif;
   }
-  .featured-3d-slide--current .featured-3d-slide-title-overlay,
-  .featured-3d-slide--edge .featured-3d-slide-title-overlay { display: block; }
+
   @keyframes fadein { from { opacity: 0; transform: translateY(16px);} to { opacity: 1; transform: translateY(0);}
   }
   .featured-3d-viewall-btn {
@@ -781,8 +788,7 @@ error_reporting(E_ALL);
       width: 128px !important; max-width: 128px !important; min-width: 128px;
       height: 220px !important; min-height: 220px; max-height: 220px;
     }
-    .featured-3d-slide--current,
-    .featured-3d-slide--edge {
+    .featured-3d-slide.is-center {
       width: 196px !important; max-width: 196px !important; min-width: 196px;
       height: 330px !important; min-height: 330px; max-height: 330px;
     }
@@ -805,37 +811,45 @@ error_reporting(E_ALL);
     </div>
     <div class="featured-3d-slider-track" id="featured3dSliderTrack">
       <?php
-        // Get portfolio items from database - limit to 5 for slider
-        $portfolioItems = getPortfolioItems();
+        // Direct database query for portfolio items - limit to 5 for slider
         $slides = [];
         
-        if (!empty($portfolioItems)) {
-          // Limit to 5 items only for slider
-          $portfolioItems = array_slice($portfolioItems, 0, 5);
-          
-          foreach ($portfolioItems as $item) {
-            $slides[] = [
-              'img' => htmlspecialchars($item['thumbnail'] ?? ''),
-              'title' => htmlspecialchars($item['title'] ?? ''),
-              'brand' => htmlspecialchars($item['brand_name'] ?? ''),
-              'desc' => htmlspecialchars(mb_strimwidth(strip_tags($item['description'] ?? ''), 0, 68, '...')),
-              'url' => "portfolio-detail.php?id=".(isset($item['id']) ? intval($item['id']) : 0)
-            ];
+        try {
+          $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
+          $result = mysqli_query($conn, $query);
+          if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+              $slides[] = [
+                'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+                'title' => htmlspecialchars($row['title'] ?? ''),
+                'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+              ];
+            }
           }
+        } catch (Exception $e) {
+          error_log("Portfolio query error: " . $e->getMessage());
         }
         
-        // If no data from database, show message
+        // If no slides in database, use demo data as fallback
         if (empty($slides)) {
-          echo '<div style="color:#fff; text-align:center; padding:40px;">No portfolio items found. Please add portfolio items from admin dashboard.</div>';
-        } else {
-          $total = count($slides);
-          for ($i = 0; $i < $total; $i++) {
-            $slide = $slides[$i];
-            echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'" tabindex="0" onclick="window.location.href=\''.$slide['url'].'\'" onkeydown="if(event.key===\'Enter\'){window.location.href=\''.$slide['url'].'\'}">';
-            echo '<img src="'.$slide['img'].'" alt="'.$slide['title'].'">';
-            echo '<div class="featured-3d-slide-title-overlay" style="display:none"></div>';
-            echo '</div>';
-          }
+          $slides = [
+            [ 'image_path'=>'uploads/featured/slide1.jpg', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
+            [ 'image_path'=>'uploads/featured/slide2.jpg', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
+            [ 'image_path'=>'uploads/featured/slide3.jpg', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
+            [ 'image_path'=>'uploads/featured/slide4.jpg', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
+            [ 'image_path'=>'uploads/featured/slide5.jpg', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
+          ];
+        }
+        
+        // Render slides
+        for ($i=0; $i<count($slides); $i++) {
+          $s = $slides[$i];
+          $img = htmlspecialchars($s['image_path']);
+          $title = htmlspecialchars($s['title']);
+          echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'">';
+            // fallback gradient if image missing
+            echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.style.background=\'linear-gradient(135deg,#2a2a2a,#1f1f1f)\';">';
+          echo '</div>';
         }
       ?>
     </div>
@@ -843,136 +857,86 @@ error_reporting(E_ALL);
   </div>
 </div>
 <script>
-  const slides = Array.from(document.querySelectorAll('.featured-3d-slide'));
-  let currentIdx = 0;
-  const total = slides.length;
-  const slideData = [
-    <?php foreach ($slides as $slide) {
-      echo json_encode($slide).",";
-    } ?>
+  // ***** SLIDER DATA FROM DATABASE *****
+  const SLIDES_DATA = [
+    <?php
+      // Output the same slides data for JavaScript
+      $jsSlides = [];
+      foreach ($slides as $slide) {
+        $jsSlides[] = sprintf(
+          "{img:'%s', title:'%s', sub:'%s'}",
+          addslashes($slide['image_path']),
+          addslashes($slide['title']),
+          addslashes($slide['subtitle'])
+        );
+      }
+      echo implode(",\n    ", $jsSlides);
+    ?>
   ];
 
-  function getLoopIdx(i) {
-    return ((i % total) + total) % total;
+  const track = document.getElementById('featured3dSliderTrack');
+  const slidesEls = Array.from(track.querySelectorAll('.featured-3d-slide'));
+
+  let current = 0;
+  let autoplayTimer = null;
+  const AUTOPLAY_MS = 5000;
+
+  function relPos(i, total){
+    const rel = ((i - current) % total + total) % total;
+    const half = Math.floor(total/2);
+    return rel > half ? rel - total : rel;
   }
 
-  function update3dSlider() {
-    slides.forEach((slide, idx) => {
-      slide.classList.remove(
-        'featured-3d-slide--current',
-        'featured-3d-slide--left',
-        'featured-3d-slide--right',
-        'featured-3d-slide--farleft',
-        'featured-3d-slide--farright',
-        'featured-3d-slide--edge'
-      );
-      slide.style.opacity = "0";
-      slide.style.pointerEvents = "none";
-      slide.setAttribute('aria-current', 'false');
-      const overlay = slide.querySelector('.featured-3d-slide-title-overlay');
-      if (overlay) overlay.style.display = "none";
+  function applyPositions(){
+    const total = slidesEls.length;
+    slidesEls.forEach(el=>{
+      el.className='featured-3d-slide';
+      el.style.opacity='0';
+      el.style.pointerEvents='none';
+      el.setAttribute('aria-current','false');
     });
+    if(!total) return;
 
-    if (total > 0) {
-      // Edge logic for first, second, last, second last cards
-      if (
-        currentIdx === 0 ||
-        currentIdx === 1 ||
-        currentIdx === total - 1 ||
-        currentIdx === total - 2
-      ) {
-        slides[currentIdx].classList.add('featured-3d-slide--edge');
-        slides[currentIdx].style.opacity = "1";
-        slides[currentIdx].style.pointerEvents = "auto";
-        slides[currentIdx].setAttribute('aria-current', 'true');
-        const overlay = slides[currentIdx].querySelector('.featured-3d-slide-title-overlay');
-        if (overlay) {
-          overlay.textContent = slideData[currentIdx].title;
-          overlay.style.display = "";
-        }
-        let indexes = [];
-        if (currentIdx === 0) {
-          indexes = [currentIdx, getLoopIdx(currentIdx+1), getLoopIdx(currentIdx+2), getLoopIdx(currentIdx+3), getLoopIdx(currentIdx+4)];
-        } else if (currentIdx === 1) {
-          indexes = [getLoopIdx(currentIdx-1), currentIdx, getLoopIdx(currentIdx+1), getLoopIdx(currentIdx+2), getLoopIdx(currentIdx+3)];
-        } else if (currentIdx === total-2) {
-          indexes = [getLoopIdx(currentIdx-3), getLoopIdx(currentIdx-2), getLoopIdx(currentIdx-1), currentIdx, getLoopIdx(currentIdx+1)];
-        } else if (currentIdx === total-1) {
-          indexes = [getLoopIdx(currentIdx-4), getLoopIdx(currentIdx-3), getLoopIdx(currentIdx-2), getLoopIdx(currentIdx-1), currentIdx];
-        }
-        for (let i = 0; i < indexes.length; i++) {
-          if (indexes[i] !== currentIdx && slides[indexes[i]]) {
-            if (i === 0) slides[indexes[i]].classList.add('featured-3d-slide--farleft');
-            if (i === 1) slides[indexes[i]].classList.add('featured-3d-slide--left');
-            if (i === 2) slides[indexes[i]].classList.add('featured-3d-slide--right');
-            if (i === 3) slides[indexes[i]].classList.add('featured-3d-slide--farright');
-            slides[indexes[i]].style.opacity = "1";
-          }
-        }
+    const show = [-2,-1,0,1,2]; // five visible always
+    slidesEls.forEach((el,i)=>{
+      const d = relPos(i,total);
+      if(show.includes(d)){
+        el.style.opacity='1';
+        el.style.pointerEvents='auto';
+        if(d===0){ el.classList.add('is-center'); el.setAttribute('aria-current','true'); }
+        else if(d===-1) el.classList.add('is-left1');
+        else if(d===-2) el.classList.add('is-left2');
+        else if(d=== 1) el.classList.add('is-right1');
+        else if(d=== 2) el.classList.add('is-right2');
       } else {
-        // Normal coverflow: 5 cards
-        const farleft   = getLoopIdx(currentIdx - 2);
-        const left      = getLoopIdx(currentIdx - 1);
-        const center    = getLoopIdx(currentIdx);
-        const right     = getLoopIdx(currentIdx + 1);
-        const farright  = getLoopIdx(currentIdx + 2);
-
-        slides[farleft].classList.add('featured-3d-slide--farleft');
-        slides[farleft].style.opacity = "1";
-        slides[left].classList.add('featured-3d-slide--left');
-        slides[left].style.opacity = "1";
-        slides[center].classList.add('featured-3d-slide--current');
-        slides[center].style.opacity = "1";
-        slides[center].style.pointerEvents = "auto";
-        slides[center].setAttribute('aria-current', 'true');
-        const overlay = slides[center].querySelector('.featured-3d-slide-title-overlay');
-        if (overlay) {
-          overlay.textContent = slideData[center].title;
-          overlay.style.display = "";
-        }
-        slides[right].classList.add('featured-3d-slide--right');
-        slides[right].style.opacity = "1";
-        slides[farright].classList.add('featured-3d-slide--farright');
-        slides[farright].style.opacity = "1";
+        el.classList.add('is-hidden');
       }
-    }
+    });
   }
 
-  function featured3dPrev() {
-    currentIdx = (currentIdx - 1 + total) % total;
-    update3dSlider();
-  }
-  function featured3dNext() {
-    currentIdx = (currentIdx + 1) % total;
-    update3dSlider();
-  }
-  document.getElementById('featured3dArrowLeft').addEventListener('click', featured3dPrev);
-  document.getElementById('featured3dArrowRight').addEventListener('click', featured3dNext);
 
-  (() => {
-    let startX = 0;
-    let dragging = false;
-    const track = document.getElementById('featured3dSliderTrack');
-    if (!track) return;
-    track.addEventListener('touchstart', e => {
-      startX = e.touches[0].clientX;
-      dragging = true;
-    });
-    track.addEventListener('touchend', e => {
-      if (!dragging) return;
-      dragging = false;
-      let endX = e.changedTouches[0].clientX;
-      if (endX - startX > 30) featured3dPrev();
-      else if (startX - endX > 30) featured3dNext();
-    });
+  function next(){ current=(current+1)%slidesEls.length; applyPositions(); }
+  function prev(){ current=(current-1+slidesEls.length)%slidesEls.length; applyPositions(); }
+
+  function startAuto(){ stopAuto(); autoplayTimer=setInterval(next, AUTOPLAY_MS); }
+  function stopAuto(){ if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer=null; } }
+
+  document.getElementById('featured3dArrowRight').addEventListener('click', ()=>{ next(); startAuto(); });
+  document.getElementById('featured3dArrowLeft').addEventListener('click',  ()=>{ prev(); startAuto(); });
+
+  // keyboard
+  window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ next(); startAuto(); } if(e.key==='ArrowLeft'){ prev(); startAuto(); } });
+
+  // touch swipe
+  (function(){
+    let sx=0, sy=0, dx=0, dy=0;
+    track.addEventListener('touchstart', (e)=>{ if(!e.touches[0])return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; stopAuto(); }, {passive:true});
+    track.addEventListener('touchmove',  (e)=>{ if(!e.touches[0])return; dx=e.touches[0].clientX-sx; dy=e.touches[0].clientY-sy; }, {passive:true});
+    track.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>30 && Math.abs(dx)>Math.abs(dy)){ (dx<0)?next():prev(); } dx=dy=0; startAuto(); });
   })();
-  window.addEventListener('DOMContentLoaded', update3dSlider);
-  window.addEventListener('resize', update3dSlider);
-  window.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowLeft') featured3dPrev();
-    if (e.key === 'ArrowRight') featured3dNext();
-  });
-  setInterval(() => featured3dNext(), 5000);
+
+  window.addEventListener('load', ()=>{ applyPositions(); startAuto(); });
+  window.addEventListener('resize', applyPositions);
 </script>
 </section>
   <?php include 'includes/footer.php'; ?>
