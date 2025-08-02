@@ -22,8 +22,10 @@ body {
 
 .portfolio-header-section {
   background: #fff;
-  padding: 60px 40px;
-  margin: -40px -40px 40px -40px;
+  padding: 60px 0;
+  margin: 0 0 40px 0;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
   border-radius: 0 0 30px 30px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -252,7 +254,7 @@ body {
 @media (max-width: 768px) {
   .portfolio-header-section {
     padding: 40px 20px;
-    margin: -40px -15px 30px -15px;
+    margin: 0 0 30px 0;
     border-radius: 0 0 20px 20px;
   }
   
@@ -272,7 +274,7 @@ body {
   
   .portfolio-header-section {
     padding: 30px 15px;
-    margin: -10px -10px 20px -10px;
+    margin: 0 0 20px 0;
     border-radius: 0 0 15px 15px;
   }
   
