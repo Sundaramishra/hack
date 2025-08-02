@@ -306,4 +306,19 @@ function getHeroReel($id) {
     
     return null;
 }
+
+// Get featured slider data from portfolio (top 5 items)
+function getFeaturedSlider() {
+    global $conn;
+    $slides = [];
+    
+    $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
+    $result = runQuery($query);
+    
+    if ($result && getNumRows($result) > 0) {
+        $slides = fetchAllRows($result);
+    }
+    
+    return $slides;
+}
 ?>

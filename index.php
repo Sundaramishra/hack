@@ -526,44 +526,8 @@ error_reporting(E_ALL);
   </div>
   <div class="brands-grid">
     <?php
-    // Direct database query for brand logos
-    include_once 'includes/db.php';
-    $brandLogos = [];
-    
-    try {
-      // Debug: Check if table exists
-      $checkTable = mysqli_query($conn, "SHOW TABLES LIKE 'brand_logos'");
-      $tableExists = mysqli_num_rows($checkTable) > 0;
-      
-      if (!$tableExists) {
-        echo '<div style="color:red; text-align:center; padding:20px;">Table brand_logos does not exist!</div>';
-      } else {
-        // Debug: Check columns
-        $checkColumns = mysqli_query($conn, "SHOW COLUMNS FROM brand_logos");
-        $columns = [];
-        while ($col = mysqli_fetch_assoc($checkColumns)) {
-          $columns[] = $col['Field'];
-        }
-        
-        $query = "SELECT logo_path FROM brand_logos ORDER BY id";
-        $result = mysqli_query($conn, $query);
-        
-                 if (!$result) {
-           echo '<div style="color:red; text-align:center; padding:20px;">Query failed: ' . mysqli_error($conn) . '</div>';
-         } else {
-           $rowCount = mysqli_num_rows($result);
-           // Remove debug message after confirming it works
-           // echo '<div style="color:blue; text-align:center; padding:10px;">Table exists. Columns: ' . implode(', ', $columns) . '. Rows found: ' . $rowCount . '</div>';
-           
-           while ($row = mysqli_fetch_assoc($result)) {
-             $brandLogos[] = $row;
-           }
-         }
-      }
-    } catch (Exception $e) {
-      error_log("Brand logos query error: " . $e->getMessage());
-      echo '<div style="color:red; text-align:center; padding:20px;">Exception: ' . $e->getMessage() . '</div>';
-    }
+    // Use function to get brand logos
+    $brandLogos = getBrandLogos();
     
     if (!empty($brandLogos)) {
       // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
@@ -604,7 +568,7 @@ error_reporting(E_ALL);
          }
          echo '</div>';
     } else {
-      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database. Query: SELECT logo_path FROM brand_logos ORDER BY id</div>';
+      echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database.</div>';
     }
     ?>
   </div>
@@ -839,23 +803,17 @@ error_reporting(E_ALL);
     </div>
     <div class="featured-3d-slider-track" id="featured3dSliderTrack">
       <?php
-        // Direct database query for portfolio items - limit to 5 for slider
+        // Use function to get featured slider data
+        $portfolioItems = getFeaturedSlider();
         $slides = [];
         
-        try {
-          $query = "SELECT id, title, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
-          $result = mysqli_query($conn, $query);
-          if ($result) {
-            while ($row = mysqli_fetch_assoc($result)) {
-              $slides[] = [
-                'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
-                'title' => htmlspecialchars($row['title'] ?? ''),
-                'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
-              ];
-            }
-          }
-        } catch (Exception $e) {
-          error_log("Portfolio query error: " . $e->getMessage());
+        // Convert portfolio items to slider format
+        foreach ($portfolioItems as $row) {
+          $slides[] = [
+            'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+            'title' => htmlspecialchars($row['title'] ?? ''),
+            'subtitle' => htmlspecialchars($row['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+          ];
         }
         
         // If no slides in database, use demo data as fallback
