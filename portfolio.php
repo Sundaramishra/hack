@@ -19,35 +19,27 @@ body {
   background: #000;
   min-height: 100vh;
 }
-.portfolio-title {
+
+.portfolio-header-section {
+  background: #fff;
+  padding: 60px 40px;
+  margin: -40px -40px 40px -40px;
+  border-radius: 0 0 30px 30px;
   text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.portfolio-title {
   color: #F44B12;
   font-family: 'Montserrat',sans-serif;
   font-weight: 800;
   font-size: 2.1rem;
-  margin-top: 40px;
   margin-bottom: 5px;
   letter-spacing: .2px;
-  background: #fff;
-  padding: 20px 40px;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  display: inline-block;
-  margin-left: 50%;
-  transform: translateX(-50%);
 }
 .portfolio-sub {
-  text-align: center;
   font-size: 1.1rem;
   color: #383838;
-  margin-bottom: 30px;
-  background: #fff;
-  padding: 15px 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-  display: inline-block;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  margin-bottom: 0;
 }
 .portfolio-topflex {
   display: flex;
@@ -258,15 +250,18 @@ body {
 }
 
 @media (max-width: 768px) {
+  .portfolio-header-section {
+    padding: 40px 20px;
+    margin: -40px -15px 30px -15px;
+    border-radius: 0 0 20px 20px;
+  }
+  
   .portfolio-title {
     font-size: 1.8rem;
-    padding: 15px 25px;
-    margin-top: 30px;
   }
   
   .portfolio-sub {
     font-size: 1rem;
-    padding: 12px 20px;
   }
 }
 
@@ -275,17 +270,18 @@ body {
     padding: 0 10px 40px 10px;
   }
   
+  .portfolio-header-section {
+    padding: 30px 15px;
+    margin: -10px -10px 20px -10px;
+    border-radius: 0 0 15px 15px;
+  }
+  
   .portfolio-title {
     font-size: 1.6rem;
-    padding: 12px 20px;
-    margin-top: 20px;
-    border-radius: 12px;
   }
   
   .portfolio-sub {
     font-size: 0.9rem;
-    padding: 10px 15px;
-    border-radius: 8px;
   }
 }
   
@@ -316,8 +312,11 @@ body {
 </style>
 
 <div class="portfolio-wrap">
-  <div class="portfolio-title">Portfolio</div>
-  <div class="portfolio-sub">Vartak's Competitive Academy</div>
+  <!-- Separate White Background Section for Title & Subtitle -->
+  <section class="portfolio-header-section">
+    <div class="portfolio-title">Portfolio</div>
+    <div class="portfolio-sub">Vartak's Competitive Academy</div>
+  </section>
   
   <div class="portfolio-topflex">
     <div class="portfolio-blankbox"></div>
