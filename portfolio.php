@@ -349,55 +349,54 @@ body {
       // Take first 11 items for our grid
       $gridItems = array_slice($portfolioItems, 0, 11);
       
-      // Grid positions mapping
-      $gridClasses = [
-        'pg-bigpost',
-        'pg-post post2 small', 
-        'pg-post post3 small',
-        'pg-post post4 small',
-        'pg-post post5 small', 
-        'pg-story story1',
-        'pg-story story2',
-        'pg-reel reel1',
-        'pg-reel reel2', 
-        'pg-reel reel3',
-        'pg-reel reel4'
-      ];
-      
-      foreach ($gridItems as $index => $item) {
-        $class = $gridClasses[$index] ?? 'pg-post';
-        $title = htmlspecialchars($item['brand_name'] ?? $item['title'] ?? 'Portfolio Item');
-        $thumbnail = htmlspecialchars($item['thumbnail'] ?? '');
-        
-        echo '<div class="' . $class . '">';
-        if (!empty($thumbnail)) {
-          echo '<img src="' . $thumbnail . '" alt="' . $title . '" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">';
-        } else {
-          echo $title;
-        }
-        echo '</div>';
-      }
-      
-      // Fill remaining positions if less than 11 items
-      for ($i = count($gridItems); $i < 11; $i++) {
-        $class = $gridClasses[$i] ?? 'pg-post';
-        echo '<div class="' . $class . '">Portfolio Item ' . ($i + 1) . '</div>';
-      }
-      
-    } else {
-      // Fallback: Show placeholder text
-      $gridClasses = [
-        'pg-bigpost', 'pg-post post2 small', 'pg-post post3 small',
-        'pg-post post4 small', 'pg-post post5 small', 'pg-story story1',
-        'pg-story story2', 'pg-reel reel1', 'pg-reel reel2', 
-        'pg-reel reel3', 'pg-reel reel4'
-      ];
-      
-      foreach ($gridClasses as $index => $class) {
-        echo '<div class="' . $class . '">Portfolio Item ' . ($index + 1) . '</div>';
-      }
+      // Map to exact same structure as before
+      $item1 = $gridItems[0] ?? null;
+      $item2 = $gridItems[1] ?? null;
+      $item3 = $gridItems[2] ?? null;
+      $item4 = $gridItems[3] ?? null;
+      $item5 = $gridItems[4] ?? null;
+      $item6 = $gridItems[5] ?? null;
+      $item7 = $gridItems[6] ?? null;
+      $item8 = $gridItems[7] ?? null;
+      $item9 = $gridItems[8] ?? null;
+      $item10 = $gridItems[9] ?? null;
+      $item11 = $gridItems[10] ?? null;
     }
     ?>
+    
+    <div class="pg-bigpost">
+      <?php echo $item1 ? ((!empty($item1['thumbnail'])) ? '<img src="'.htmlspecialchars($item1['thumbnail']).'" alt="'.htmlspecialchars($item1['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item1['brand_name'] ?? 'Post')) : 'Post'; ?>
+    </div>
+    <div class="pg-post post2 small">
+      <?php echo $item2 ? ((!empty($item2['thumbnail'])) ? '<img src="'.htmlspecialchars($item2['thumbnail']).'" alt="'.htmlspecialchars($item2['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item2['brand_name'] ?? 'Post')) : 'Post'; ?>
+    </div>
+    <div class="pg-post post3 small">
+      <?php echo $item3 ? ((!empty($item3['thumbnail'])) ? '<img src="'.htmlspecialchars($item3['thumbnail']).'" alt="'.htmlspecialchars($item3['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item3['brand_name'] ?? 'Post')) : 'Post'; ?>
+    </div>
+    <div class="pg-post post4 small">
+      <?php echo $item4 ? ((!empty($item4['thumbnail'])) ? '<img src="'.htmlspecialchars($item4['thumbnail']).'" alt="'.htmlspecialchars($item4['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item4['brand_name'] ?? 'Post')) : 'Post'; ?>
+    </div>
+    <div class="pg-post post5 small">
+      <?php echo $item5 ? ((!empty($item5['thumbnail'])) ? '<img src="'.htmlspecialchars($item5['thumbnail']).'" alt="'.htmlspecialchars($item5['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item5['brand_name'] ?? 'Post')) : 'Post'; ?>
+    </div>
+    <div class="pg-story story1">
+      <?php echo $item6 ? ((!empty($item6['thumbnail'])) ? '<img src="'.htmlspecialchars($item6['thumbnail']).'" alt="'.htmlspecialchars($item6['brand_name'] ?? 'Story').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item6['brand_name'] ?? 'Story')) : 'Story'; ?>
+    </div>
+    <div class="pg-story story2">
+      <?php echo $item7 ? ((!empty($item7['thumbnail'])) ? '<img src="'.htmlspecialchars($item7['thumbnail']).'" alt="'.htmlspecialchars($item7['brand_name'] ?? 'Story').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item7['brand_name'] ?? 'Story')) : 'Story'; ?>
+    </div>
+    <div class="pg-reel reel1">
+      <?php echo $item8 ? ((!empty($item8['thumbnail'])) ? '<img src="'.htmlspecialchars($item8['thumbnail']).'" alt="'.htmlspecialchars($item8['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item8['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    </div>
+    <div class="pg-reel reel2">
+      <?php echo $item9 ? ((!empty($item9['thumbnail'])) ? '<img src="'.htmlspecialchars($item9['thumbnail']).'" alt="'.htmlspecialchars($item9['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item9['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    </div>
+    <div class="pg-reel reel3">
+      <?php echo $item10 ? ((!empty($item10['thumbnail'])) ? '<img src="'.htmlspecialchars($item10['thumbnail']).'" alt="'.htmlspecialchars($item10['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item10['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    </div>
+    <div class="pg-reel reel4">
+      <?php echo $item11 ? ((!empty($item11['thumbnail'])) ? '<img src="'.htmlspecialchars($item11['thumbnail']).'" alt="'.htmlspecialchars($item11['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item11['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    </div>
   </div>
 </div>
 
