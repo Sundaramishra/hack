@@ -581,359 +581,329 @@ error_reporting(E_ALL);
       <div class="brand-dot dot6"></div>
     </div>
   </section>
-  <!-- Responsive Featured Work Section: Modern Carousel for Web Designer/Animator -->
-  <section class="featured-section section-overlap relative" style="background:#232323; border-radius:30px; overflow:hidden; min-height:240px; margin-bottom:2.2rem;">
-    <style>
-      .featured-carousel {
-        position: relative;
-        width: 100%;
-        max-width: 1100px;
-        margin: 0 auto;
-        overflow: hidden;
-        padding: 0 0 18px 0;
+<section class="featured-section section-overlap relative">
+  <style>
+    .featured-3d-heading {
+      text-align: center;
+      padding: 40px 0 20px 0;
+    }
+    .featured-3d-heading-text {
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #F44B12;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .featured-caption {
+      text-align: center;
+      padding: 0 20px 30px 20px;
+      min-height: 80px;
+    }
+    .featured-caption__title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      transition: opacity 0.3s ease;
+    }
+    .featured-caption__sub {
+      font-size: 1.1rem;
+      color: #ccc;
+      transition: opacity 0.3s ease;
+    }
+    .fade-out { opacity: 0; }
+    .fade-in { opacity: 1; }
+    
+    .featured-3d-slider-area {
+      position: relative;
+      height: 500px;
+      overflow: visible;
+      perspective: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .featured-3d-slider {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .featured-3d-slider-track {
+      position: relative;
+      width: 300px;
+      height: 400px;
+      transform-style: preserve-3d;
+    }
+    .featured-3d-slide {
+      position: absolute;
+      width: 280px;
+      height: 380px;
+      background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      cursor: pointer;
+    }
+    .featured-3d-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+    
+    /* Positioning classes */
+    .featured-3d-slide.is-center {
+      transform: translateZ(0) scale(1.1);
+      z-index: 5;
+      box-shadow: 0 20px 50px rgba(244, 75, 18, 0.4);
+    }
+    .featured-3d-slide.is-left1 {
+      transform: translateX(-200px) translateZ(-100px) rotateY(25deg) scale(0.9);
+      z-index: 3;
+    }
+    .featured-3d-slide.is-left2 {
+      transform: translateX(-350px) translateZ(-200px) rotateY(35deg) scale(0.8);
+      z-index: 2;
+      opacity: 0.7;
+    }
+    .featured-3d-slide.is-right1 {
+      transform: translateX(200px) translateZ(-100px) rotateY(-25deg) scale(0.9);
+      z-index: 3;
+    }
+    .featured-3d-slide.is-right2 {
+      transform: translateX(350px) translateZ(-200px) rotateY(-35deg) scale(0.8);
+      z-index: 2;
+      opacity: 0.7;
+    }
+    .featured-3d-slide.is-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .featured-3d-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #F44B12, #ff8a50);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .featured-3d-arrow:hover {
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 5px 20px rgba(244, 75, 18, 0.5);
+    }
+    .featured-3d-arrow.left {
+      left: 20px;
+    }
+    .featured-3d-arrow.right {
+      right: 20px;
+    }
+    .featured-3d-arrow svg {
+      width: 24px;
+      height: 24px;
+    }
+    
+    @media (max-width: 768px) {
+      .featured-3d-slider-area {
+        height: 400px;
       }
-      .featured-carousel-track {
-        display: flex;
-        transition: transform 0.6s cubic-bezier(.62,1.7,.36,1);
-        will-change: transform;
+      .featured-3d-slider-track {
+        width: 250px;
+        height: 320px;
       }
-      .featured-carousel-card {
-        width: 320px;
-        min-width: 320px;
-        max-width: 92vw;
-        margin: 0 10px;
-        background: linear-gradient(135deg,rgba(255,255,255,0.10) 60%,rgba(255,110,42,0.13) 100%);
-        border: 2px solid rgba(255,255,255,0.13);
-        border-radius: 18px;
-        box-shadow: 0 4px 18px 0 rgba(44,44,44,0.13), 0 0 0 0 #F44B12;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        cursor: pointer;
-        transition: box-shadow 0.25s, border 0.18s, transform 0.2s;
-        z-index: 2;
+      .featured-3d-slide {
+        width: 230px;
+        height: 300px;
       }
-      .featured-carousel-card img {
-        width: 100%;
-        aspect-ratio: 4/5;
-        object-fit: cover;
-        border-radius: 12px 12px 0 0;
-        background: #262626;
-        display: block;
-        margin: 0;
-        min-height: 0;
+      .featured-3d-slide.is-left1, .featured-3d-slide.is-right1 {
+        transform: translateX(-150px) translateZ(-80px) rotateY(25deg) scale(0.85);
       }
-      @media (max-width: 900px) {
-        .featured-carousel-card {
-          width: 82vw;
-          min-width: 82vw;
-          max-width: 94vw;
-          border-radius: 13px;
-          margin: 0 5px;
-        }
+      .featured-3d-slide.is-left2, .featured-3d-slide.is-right2 {
+        transform: translateX(-250px) translateZ(-150px) rotateY(35deg) scale(0.75);
       }
-      @media (max-width: 600px) {
-        .featured-carousel-card {
-          width: 96vw;
-          min-width: 96vw;
-          max-width: 99vw;
-          border-radius: 8px;
-          margin: 0 2vw;
-        }
-        .featured-carousel-card img {
-          border-radius: 6px 6px 0 0;
-        }
+      .featured-3d-slide.is-right1 {
+        transform: translateX(150px) translateZ(-80px) rotateY(-25deg) scale(0.85);
       }
-      @media (max-width: 420px) {
-        .featured-carousel-card {
-          width: 99vw;
-          min-width: 99vw;
-          max-width: 100vw;
-          border-radius: 5px;
-          margin: 0;
-        }
-        .featured-carousel-card img {
-          border-radius: 4px 4px 0 0;
-        }
+      .featured-3d-slide.is-right2 {
+        transform: translateX(250px) translateZ(-150px) rotateY(-35deg) scale(0.75);
       }
-      .featured-carousel-info {
-        padding: 12px 12px 0 12px;
-        color: #fff;
-        font-size: 1.04rem;
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-      }
-      .featured-carousel-title {
-        font-size: 1.11rem;
-        font-weight: bold;
-        margin-bottom: 0.2em;
-        color: #ffb067;
-      }
-      .featured-carousel-brand {
-        font-size: .96rem;
-        color: #ffd8b1;
-        margin-bottom: 0.2em;
-      }
-      .featured-carousel-desc {
-        font-size: .97rem;
-        color: #ededed;
-        margin-bottom: 0.35em;
-        flex: 1 1 auto;
-      }
-      .featured-card-cta {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 8px 16px;
-        background: linear-gradient(90deg,#ffb067 0%,#ff6e2a 100%);
-        color: #fff;
-        font-weight: 700;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 0.98rem;
-        box-shadow: 0 2px 8px 0 #F44B1240;
-        transition: background 0.2s, color 0.2s, transform 0.18s;
-        letter-spacing: 0.01em;
-        opacity: 0.97;
-      }
-      .featured-view-all-btn {
-        display: block;
-        margin: 28px auto 0 auto;
-        padding: 13px 36px;
-        background: linear-gradient(90deg,#ffb067 0%,#F44B12 100%);
-        color: #fff;
-        border: none;
-        border-radius: 33px;
-        font-size: 1.08rem;
-        font-weight: 700;
-        box-shadow: 0 2px 14px 0 #F44B1240;
-        text-decoration: none;
-        transition: background 0.2s, color 0.2s, transform 0.18s;
-        cursor: pointer;
-        letter-spacing: 0.01em;
-        opacity: 0.97;
-      }
-      .featured-view-all-btn:hover {
-        background: linear-gradient(90deg,#F44B12 0%,#ffb067 100%);
-        color: #fff;
-        transform: scale(1.04);
-      }
-      .featured-carousel-arrow {
-        background: linear-gradient(135deg, #F44B12 60%, #ffb067 100%);
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        width: 44px;
-        height: 44px;
-        font-size: 1.7rem;
-        cursor: pointer;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%) scale(1);
-        z-index: 10;
-        transition: 
-          box-shadow 0.18s,
-          background 0.18s,
-          color 0.18s,
-          transform 0.15s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px 0 #F44B1240, 0 0 0 2px #fff2 inset;
-        opacity: 0.95;
-        outline: none;
-        border: 2px solid #fff8;
-      }
-      .featured-carousel-arrow.left { left: 12px; }
-      .featured-carousel-arrow.right { right: 12px; }
-      .featured-carousel-arrow:active,
-      .featured-carousel-arrow:focus,
-      .featured-carousel-arrow:hover {
-        background: linear-gradient(135deg, #ffb067 0%, #F44B12 100%);
-        color: #fff;
-        transform: translateY(-50%) scale(1.08);
-        box-shadow: 0 4px 16px 0 #F44B1280;
-        border-color: #F44B12;
-      }
-      .featured-carousel-arrow svg {
-        width: 1.4em;
-        height: 1.4em;
-        display: inline-block;
-        vertical-align: middle;
-        pointer-events: none;
-      }
-      .featured-carousel-dots {
-        text-align: center;
-        margin-top: 6px;
-        min-height: 18px;
-      }
-      .featured-carousel-dot {
-        display: inline-block;
-        width: 9px; height: 9px;
-        border-radius: 50%;
-        background: #444;
-        margin: 0 3px;
-        cursor: pointer;
-        opacity: 0.5;
-        border: 1.5px solid #ffb067;
-        transition: background .18s, opacity .18s;
-      }
-      .featured-carousel-dot.active {
-        background: #ffb067;
-        opacity: 1;
-        border-color: #ffb067;
-      }
-      @media (max-width: 900px) {
-        .featured-carousel-arrow {
-          width: 38px;
-          height: 38px;
-          font-size: 1.3rem;
-        }
-      }
-      @media (max-width: 600px) {
-        .featured-carousel-arrow {
-          width: 28px;
-          height: 28px;
-          font-size: 1.1rem;
-        }
-        .featured-carousel-dot {
-          width: 7px; height: 7px;
-          margin: 0 2px;
-        }
-      }
-      @media (max-width: 420px) {
-        .featured-carousel-card {
-          width: 99vw;
-          min-width: 99vw;
-          max-width: 100vw;
-          border-radius: 5px;
-          margin: 0;
-        }
-      }
-    </style>
-    <div style="text-align:center;padding-top:18px;">
-    <div class="featured-heading" style="font-family:'Montserrat', Arial, sans-serif;">Featured Work</div>
-    </div>
-    <div class="featured-carousel">
-      <button class="featured-carousel-arrow left" type="button" onclick="featuredPrev()" aria-label="Previous">
+    }
+  </style>
+
+  <div class="featured-3d-heading">
+    <span class="featured-3d-heading-text">Featured Work</span>
+  </div>
+
+  <!-- Center caption that updates with current slide -->
+  <div class="featured-caption" aria-live="polite" aria-atomic="true">
+    <h2 class="featured-caption__title"></h2>
+    <p class="featured-caption__sub"></p>
+  </div>
+
+  <div class="featured-3d-slider-area">
+    <div class="featured-3d-slider">
+      <button class="featured-3d-arrow left" type="button" id="featured3dArrowLeft" aria-label="Previous">
         <svg viewBox="0 0 24 24" fill="none"><path d="M15.5 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <div class="featured-carousel-track" id="featuredCarouselTrack">
+      <button class="featured-3d-arrow right" type="button" id="featured3dArrowRight" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="featured-3d-slider-track" id="featured3dSliderTrack">
         <?php
+          // Get top 5 portfolio items from database
           $portfolioItems = getPortfolioItems();
-          $count = count($portfolioItems);
-          if ($count > 0) {
-            $displayItems = [];
-            // Duplicate last and first for infinite loop
-            $displayItems[] = $portfolioItems[$count-1];
-            foreach ($portfolioItems as $item) $displayItems[] = $item;
-            $displayItems[] = $portfolioItems[0];
-            foreach ($displayItems as $i => $item) {
-              $thumb = isset($item['thumbnail']) ? htmlspecialchars($item['thumbnail']) : '';
-              $alt = isset($item['brand_name']) && $item['brand_name'] !== null ? htmlspecialchars($item['brand_name']) : '';
-              $title = isset($item['title']) && $item['title'] !== null ? htmlspecialchars($item['title']) : '';
-              $desc = isset($item['description']) && $item['description'] !== null ? $item['description'] : '';
-              $badge = !empty($item['badge']) ? htmlspecialchars($item['badge']) : ($i === 1 ? 'Top Project' : '');
-              $icon = !empty($item['icon']) ? $item['icon'] : '';
-              $id = isset($item['id']) ? intval($item['id']) : 0;
-              echo '<div class="featured-carousel-card">';
-              if ($badge) echo '<div class="badge">'.$badge.'</div>';
-              if ($icon) echo '<div class="icon">'.$icon.'</div>';
-              echo '<span class="shine"></span>';
-              echo '<span class="glow"></span>';
-              echo '<img src="'.$thumb.'" alt="'.$alt.'">';
-              echo '<div class="featured-carousel-info">';
-              echo '<div class="featured-carousel-title">'.$title.'</div>';
-              echo '<div class="featured-carousel-brand">'.$alt.'</div>';
-              echo '<div class="featured-carousel-desc">'.mb_strimwidth(strip_tags($desc),0,80,'...').'</div>';
-              echo '<a href="portfolio-detail.php?id='.$id.'" class="featured-card-cta">View Details</a>';
-              echo '</div>';
-              echo '</div>';
+          $slides = [];
+          
+          // If portfolio items exist, use them (limit to 5)
+          if (!empty($portfolioItems)) {
+            $portfolioItems = array_slice($portfolioItems, 0, 5);
+            foreach ($portfolioItems as $item) {
+              $slides[] = [
+                'image_path' => htmlspecialchars($item['thumbnail'] ?? ''),
+                'title' => htmlspecialchars($item['title'] ?? ''),
+                'subtitle' => htmlspecialchars($item['brand_name'] ?? '') . ' • ' . htmlspecialchars(mb_strimwidth(strip_tags($item['description'] ?? ''), 0, 50, '...'))
+              ];
             }
+          }
+          
+          // If no slides in database, use demo data as fallback
+          if (empty($slides)) {
+            $slides = [
+              [ 'image_path'=>'uploads/featured/slide1.jpg', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
+              [ 'image_path'=>'uploads/featured/slide2.jpg', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
+              [ 'image_path'=>'uploads/featured/slide3.jpg', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
+              [ 'image_path'=>'uploads/featured/slide4.jpg', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
+              [ 'image_path'=>'uploads/featured/slide5.jpg', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
+            ];
+          }
+          
+          // Render slides
+          for ($i=0; $i<count($slides); $i++) {
+            $s = $slides[$i];
+            $img = htmlspecialchars($s['image_path']);
+            $title = htmlspecialchars($s['title']);
+            echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'">';
+              // fallback gradient if image missing
+              echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.style.background=\'linear-gradient(135deg,#2a2a2a,#1f1f1f)\';">';
+            echo '</div>';
           }
         ?>
       </div>
-      <button class="featured-carousel-arrow right" type="button" onclick="featuredNext()" aria-label="Next">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <div class="featured-carousel-dots" id="featuredCarouselDots"></div>
     </div>
-    <a href="portfolio.php" class="featured-view-all-btn">View All Projects</a>
-    <script>
-      // Centered infinite carousel logic
-      let featuredIndex = 1;
-      const track = document.getElementById('featuredCarouselTrack');
-      const dotsContainer = document.getElementById('featuredCarouselDots');
-      function getCardWidth() {
-        if (!track.children.length) return 0;
-        return track.children[0].offsetWidth;
-      }
-      function updateFeaturedCarousel(jump=false) {
-        if (!track || !track.children.length) return;
-        const cards = track.children;
-        const cardWidth = getCardWidth();
-        const container = track.parentElement;
-        const containerWidth = container.offsetWidth;
-        // Center the card (no empty space on any screen!)
-        const offset = (containerWidth - cardWidth) / 2;
-        track.style.transition = jump ? 'none' : 'transform 0.6s cubic-bezier(.62,1.7,.36,1)';
-        track.style.transform = translateX(${offset - featuredIndex * cardWidth}px);
-        // Dots (skip duplicated first/last)
-        if (dotsContainer) {
-          dotsContainer.innerHTML = '';
-          for (let i = 1; i < cards.length-1; i++) {
-            const dot = document.createElement('div');
-            dot.className = 'featured-carousel-dot' + (i === featuredIndex ? ' active' : '');
-            dot.onclick = () => { featuredIndex = i; updateFeaturedCarousel(); };
-            dotsContainer.appendChild(dot);
-          }
+  </div>
+
+  <script>
+    // ***** SLIDER DATA FROM DATABASE *****
+    const SLIDES_DATA = [
+      <?php
+        // Output the same slides data for JavaScript
+        $jsSlides = [];
+        foreach ($slides as $slide) {
+          $jsSlides[] = sprintf(
+            "{img:'%s', title:'%s', sub:'%s'}",
+            addslashes($slide['image_path']),
+            addslashes($slide['title']),
+            addslashes($slide['subtitle'])
+          );
         }
-        for (let i = 0; i < cards.length; i++) {
-          cards[i].style.zIndex = i === featuredIndex ? 5 : 2;
-          cards[i].style.filter = i === featuredIndex ? 'drop-shadow(0 8px 32px #F44B12AA)' : 'none';
-          cards[i].style.opacity = i === featuredIndex ? '1' : '0.7';
-          cards[i].style.transform = i === featuredIndex ? 'scale(1.04) translateY(-8px) rotate(-1deg)' : '';
-        }
-      }
-      function featuredPrev() {
-        const cards = track.children;
-        featuredIndex--;
-        updateFeaturedCarousel();
-        if (featuredIndex === 0) {
-          setTimeout(() => {
-            featuredIndex = cards.length - 2;
-            updateFeaturedCarousel(true);
-          }, 600);
-        }
-      }
-      function featuredNext() {
-        const cards = track.children;
-        featuredIndex++;
-        updateFeaturedCarousel();
-        if (featuredIndex === cards.length - 1) {
-          setTimeout(() => {
-            featuredIndex = 1;
-            updateFeaturedCarousel(true);
-          }, 600);
-        }
-      }
-      window.addEventListener('resize', ()=>updateFeaturedCarousel(true));
-      window.addEventListener('DOMContentLoaded', ()=>updateFeaturedCarousel(true));
-      setInterval(() => { featuredNext(); }, 5000);
-      let startX = 0;
-      track && track.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX;
+        echo implode(",\n      ", $jsSlides);
+      ?>
+    ];
+
+    const track = document.getElementById('featured3dSliderTrack');
+    const slidesEls = Array.from(track.querySelectorAll('.featured-3d-slide'));
+    const captionTitle = document.querySelector('.featured-caption__title');
+    const captionSub   = document.querySelector('.featured-caption__sub');
+
+    let current = 0;
+    let autoplayTimer = null;
+    const AUTOPLAY_MS = 5000;
+
+    function relPos(i, total){
+      const rel = ((i - current) % total + total) % total;
+      const half = Math.floor(total/2);
+      return rel > half ? rel - total : rel;
+    }
+
+    function applyPositions(){
+      const total = slidesEls.length;
+      slidesEls.forEach(el=>{
+        el.className='featured-3d-slide';
+        el.style.opacity='0';
+        el.style.pointerEvents='none';
+        el.setAttribute('aria-current','false');
       });
-      track && track.addEventListener('touchend', e => {
-        let endX = e.changedTouches[0].clientX;
-        if (endX - startX > 30) featuredPrev();
-        else if (startX - endX > 30) featuredNext();
+      if(!total) return;
+
+      const show = [-2,-1,0,1,2]; // five visible always
+      slidesEls.forEach((el,i)=>{
+        const d = relPos(i,total);
+        if(show.includes(d)){
+          el.style.opacity='1';
+          el.style.pointerEvents='auto';
+          if(d===0){ el.classList.add('is-center'); el.setAttribute('aria-current','true'); }
+          else if(d===-1) el.classList.add('is-left1');
+          else if(d===-2) el.classList.add('is-left2');
+          else if(d=== 1) el.classList.add('is-right1');
+          else if(d=== 2) el.classList.add('is-right2');
+        } else {
+          el.classList.add('is-hidden');
+        }
       });
-    </script>
-  </section>
+
+      const data = SLIDES_DATA[current] || {title:'', sub:''};
+      updateCaption(data.title, data.sub);
+    }
+
+    function updateCaption(title, sub){
+      captionTitle.classList.add('fade-out'); captionSub.classList.add('fade-out');
+      setTimeout(()=>{
+        captionTitle.textContent = title || '';
+        captionSub.textContent   = sub || '';
+        captionTitle.classList.remove('fade-out'); captionSub.classList.remove('fade-in');
+        captionTitle.classList.add('fade-in'); captionSub.classList.add('fade-in');
+        setTimeout(()=>{ captionTitle.classList.remove('fade-in'); captionSub.classList.remove('fade-in'); }, 320);
+      }, 120);
+    }
+
+    function next(){ current=(current+1)%slidesEls.length; applyPositions(); }
+    function prev(){ current=(current-1+slidesEls.length)%slidesEls.length; applyPositions(); }
+
+    function startAuto(){ stopAuto(); autoplayTimer=setInterval(next, AUTOPLAY_MS); }
+    function stopAuto(){ if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer=null; } }
+
+    document.getElementById('featured3dArrowRight').addEventListener('click', ()=>{ next(); startAuto(); });
+    document.getElementById('featured3dArrowLeft').addEventListener('click',  ()=>{ prev(); startAuto(); });
+
+    // keyboard
+    window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ next(); startAuto(); } if(e.key==='ArrowLeft'){ prev(); startAuto(); } });
+
+    // touch swipe
+    (function(){
+      let sx=0, sy=0, dx=0, dy=0;
+      track.addEventListener('touchstart', (e)=>{ if(!e.touches[0])return; sx=e.touches[0].clientX; sy=e.touches[0].clientY; stopAuto(); }, {passive:true});
+      track.addEventListener('touchmove',  (e)=>{ if(!e.touches[0])return; dx=e.touches[0].clientX-sx; dy=e.touches[0].clientY-sy; }, {passive:true});
+      track.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>30 && Math.abs(dx)>Math.abs(dy)){ (dx<0)?next():prev(); } dx=dy=0; startAuto(); });
+    })();
+
+    window.addEventListener('load', ()=>{ applyPositions(); startAuto(); });
+    window.addEventListener('resize', applyPositions);
+  </script>
+</section>
   <?php include 'includes/footer.php'; ?>
 
   <!-- Remove navbar logo glow -->
