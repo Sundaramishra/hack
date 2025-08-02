@@ -548,16 +548,17 @@ error_reporting(E_ALL);
         $query = "SELECT logo_path FROM brand_logos ORDER BY id";
         $result = mysqli_query($conn, $query);
         
-        if (!$result) {
-          echo '<div style="color:red; text-align:center; padding:20px;">Query failed: ' . mysqli_error($conn) . '</div>';
-        } else {
-          $rowCount = mysqli_num_rows($result);
-          echo '<div style="color:blue; text-align:center; padding:10px;">Table exists. Columns: ' . implode(', ', $columns) . '. Rows found: ' . $rowCount . '</div>';
-          
-          while ($row = mysqli_fetch_assoc($result)) {
-            $brandLogos[] = $row;
-          }
-        }
+                 if (!$result) {
+           echo '<div style="color:red; text-align:center; padding:20px;">Query failed: ' . mysqli_error($conn) . '</div>';
+         } else {
+           $rowCount = mysqli_num_rows($result);
+           // Remove debug message after confirming it works
+           // echo '<div style="color:blue; text-align:center; padding:10px;">Table exists. Columns: ' . implode(', ', $columns) . '. Rows found: ' . $rowCount . '</div>';
+           
+           while ($row = mysqli_fetch_assoc($result)) {
+             $brandLogos[] = $row;
+           }
+         }
       }
     } catch (Exception $e) {
       error_log("Brand logos query error: " . $e->getMessage());
@@ -570,38 +571,38 @@ error_reporting(E_ALL);
       $mobilePattern = [2,2,2];
       $k = 0;
       
-              // Desktop layout
-        echo '<div class="brands-desktop">';
-        while ($k < count($brandLogos)) {
-          foreach($desktopPattern as $row) {
-            if ($k >= count($brandLogos)) break;
-            echo '<div class="brands-row">';
-            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-              $logo = $brandLogos[$k];
-              $logoPath = htmlspecialchars($logo['logo_path']);
-              echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
-            }
-            echo '</div>';
-          }
-        }
-        echo '</div>';
+                             // Desktop layout
+         echo '<div class="brands-desktop">';
+         while ($k < count($brandLogos)) {
+           foreach($desktopPattern as $row) {
+             if ($k >= count($brandLogos)) break;
+             echo '<div class="brands-row">';
+             for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+               $logo = $brandLogos[$k];
+               $logoPath = htmlspecialchars($logo['logo_path']);
+               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src); this.style.border=\'2px dashed #F44B12\'; this.style.padding=\'10px\'; this.alt=\'LOGO MISSING\';">';
+             }
+             echo '</div>';
+           }
+         }
+         echo '</div>';
       
-              // Mobile layout
-        $k = 0;
-        echo '<div class="brands-mobile">';
-        while ($k < count($brandLogos)) {
-          foreach($mobilePattern as $row) {
-            if ($k >= count($brandLogos)) break;
-            echo '<div class="brands-row">';
-            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-              $logo = $brandLogos[$k];
-              $logoPath = htmlspecialchars($logo['logo_path']);
-              echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src);">';
-            }
-            echo '</div>';
-          }
-        }
-        echo '</div>';
+                             // Mobile layout
+         $k = 0;
+         echo '<div class="brands-mobile">';
+         while ($k < count($brandLogos)) {
+           foreach($mobilePattern as $row) {
+             if ($k >= count($brandLogos)) break;
+             echo '<div class="brands-row">';
+             for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+               $logo = $brandLogos[$k];
+               $logoPath = htmlspecialchars($logo['logo_path']);
+               echo '<img src="'.$logoPath.'" alt="Brand Logo" class="brands-logo" onerror="console.log(\'Failed to load:\', this.src); this.style.border=\'2px dashed #F44B12\'; this.style.padding=\'10px\'; this.alt=\'LOGO MISSING\';">';
+             }
+             echo '</div>';
+           }
+         }
+         echo '</div>';
     } else {
       echo '<div style="text-align:center; color:#F44B12; padding:20px;">No brand logos found in database. Query: SELECT logo_path FROM brand_logos ORDER BY id</div>';
     }
@@ -873,7 +874,7 @@ error_reporting(E_ALL);
           $img = htmlspecialchars($slide['image_path']);
           $title = htmlspecialchars($slide['title']);
           echo '<div class="featured-3d-slide" data-slide="'.$i.'">';
-            echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.style.background=\'linear-gradient(135deg,#2a2a2a,#1f1f1f)\';">';
+            echo '<img src="'.$img.'" alt="'.$title.'" onerror="this.style.display=\'none\'; this.parentElement.innerHTML=\'<div style=\\\"display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#2a2a2a,#1f1f1f);color:#F44B12;font-size:1.2rem;font-weight:bold;text-align:center;padding:20px;\\\">'.$title.'</div>\';">';
           echo '</div>';
         }
       ?>
