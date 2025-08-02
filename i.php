@@ -487,6 +487,8 @@ error_reporting(E_ALL);
       .brand-dot.dot4 { left: 40vw; top: 18vh; background: #F44B12; animation-delay: 1.5s, 3s;}
       .brand-dot.dot5 { left: 80vw; top: 29vh; background: #FFB067; animation-delay: 2.1s, 5.5s;}
       .brand-dot.dot6 { left: 10vw; top: 31vh; background: #F88F54; animation-delay: 1.8s, 6.1s;}
+      .brands-mobile { display: none; }
+      .brands-desktop { display: block; }
       @media (max-width: 900px) {
         .brands-logo { max-width: 70px; max-height: 50px; }
         .brands-row { gap: 2vw; }
@@ -494,6 +496,8 @@ error_reporting(E_ALL);
       @media (max-width: 600px) {
         .brands-section { border-radius: 12px; padding: 1.2rem 0.2rem;}
         .brands-heading { font-size: 1.05rem; padding: 6px 4vw;}
+        .brands-mobile { display: block; }
+        .brands-desktop { display: none; }
         .brands-row {
           gap: 2vw;
           flex-wrap: wrap;
@@ -528,19 +532,44 @@ error_reporting(E_ALL);
     <div class="brands-grid">
       <?php
       $brandLogos = getBrandLogos();
-      // Arrange as 4-3-4-3 pattern
-      $pattern = [4,3,4,3];
-      $k = 0;
-      while ($k < count($brandLogos)) {
-        foreach($pattern as $row) {
-          if ($k >= count($brandLogos)) break;
-          echo '<div class="brands-row">';
-          for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
-            $logo = $brandLogos[$k];
-            echo '<img src="'.htmlspecialchars($logo['logo_path']).'" alt="'.htmlspecialchars($logo['brand_name']).'" class="brands-logo">';
+      if (!empty($brandLogos)) {
+        // Desktop: 3-4-3 pattern, Mobile: 2-2-2 pattern
+        $desktopPattern = [3,4,3];
+        $mobilePattern = [2,2,2];
+        $k = 0;
+        
+        // Desktop layout
+        echo '<div class="brands-desktop">';
+        while ($k < count($brandLogos)) {
+          foreach($desktopPattern as $row) {
+            if ($k >= count($brandLogos)) break;
+            echo '<div class="brands-row">';
+            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+              $logo = $brandLogos[$k];
+              echo '<img src="'.htmlspecialchars($logo['logo_path']).'" alt="'.htmlspecialchars($logo['brand_name']).'" class="brands-logo">';
+            }
+            echo '</div>';
           }
-          echo '</div>';
         }
+        echo '</div>';
+        
+        // Mobile layout
+        $k = 0;
+        echo '<div class="brands-mobile">';
+        while ($k < count($brandLogos)) {
+          foreach($mobilePattern as $row) {
+            if ($k >= count($brandLogos)) break;
+            echo '<div class="brands-row">';
+            for ($j = 0; $j < $row && $k < count($brandLogos); $j++, $k++) {
+              $logo = $brandLogos[$k];
+              echo '<img src="'.htmlspecialchars($logo['logo_path']).'" alt="'.htmlspecialchars($logo['brand_name']).'" class="brands-logo">';
+            }
+            echo '</div>';
+          }
+        }
+        echo '</div>';
+      } else {
+        echo '<div style="color:#666; text-align:center; padding:40px;">No brand logos found. Please add brand logos from admin dashboard.</div>';
       }
       ?>
       <!-- Multi Dot Animation -->
