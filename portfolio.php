@@ -118,8 +118,8 @@ body {
 .portfolio-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 200px 200px 200px 400px;
-  gap: 20px;
+  grid-template-rows: 240px 240px 240px 480px;
+  gap: 15px;
   max-width: 100%;
   position: relative;
   z-index: 1;
@@ -132,7 +132,7 @@ body {
   grid-column: 1/-1;
   grid-row: 4;
   width: 100%;
-  height: 400px;
+  height: 480px;
   background: radial-gradient(circle, #f44b124c 34%, transparent 85%);
   filter: blur(6px);
   z-index: 0;
@@ -175,69 +175,82 @@ body {
   grid-row: 1/3;
   font-size: 3rem;
   border-radius: 20px;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: #fff;
+  border: 4px solid;
+  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  padding: 8px;
 }
 
 /* Post2 - Column 3, Row 1 - Instagram Post Style */
 .pg-post2 {
   grid-column: 3;
   grid-row: 1;
-  font-size: 2rem;
+  font-size: 1.8rem;
   border-radius: 16px;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: #fff;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  padding: 6px;
 }
 
 /* Post3 - Column 4, Row 1 - Instagram Post Style */
 .pg-post3 {
   grid-column: 4;
   grid-row: 1;
-  font-size: 2rem;
+  font-size: 1.8rem;
   border-radius: 16px;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: #fff;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  padding: 6px;
 }
 
-/* Story1 - Column 3, Row 2 - Instagram Story Style (Vertical like Reel) */
+/* Story1 - Column 3, Row 2 - Instagram Story Style (Bigger Size) */
 .pg-story1 {
   grid-column: 3;
   grid-row: 2;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   border-radius: 20px;
-  background: linear-gradient(45deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-  border: 3px solid #e1306c;
+  background: #fff;
+  border: 4px solid;
+  border-image: linear-gradient(45deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%) 1;
   position: relative;
+  padding: 8px;
 }
 
 .pg-story1::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  border: 2px solid rgba(255,255,255,0.3);
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  border: 2px solid rgba(131,58,180,0.3);
   border-radius: 16px;
   pointer-events: none;
 }
 
-/* Story2 - Column 4, Row 2 - Instagram Story Style (Vertical like Reel) */
+/* Story2 - Column 4, Row 2 - Instagram Story Style (Bigger Size) */
 .pg-story2 {
   grid-column: 4;
   grid-row: 2;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   border-radius: 20px;
-  background: linear-gradient(45deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
-  border: 3px solid #e1306c;
+  background: #fff;
+  border: 4px solid;
+  border-image: linear-gradient(45deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%) 1;
   position: relative;
+  padding: 8px;
 }
 
 .pg-story2::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  border: 2px solid rgba(255,255,255,0.3);
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  border: 2px solid rgba(131,58,180,0.3);
   border-radius: 16px;
   pointer-events: none;
 }
@@ -246,18 +259,24 @@ body {
 .pg-post4 {
   grid-column: 1;
   grid-row: 3;
-  font-size: 2rem;
+  font-size: 1.8rem;
   border-radius: 16px;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: #fff;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  padding: 6px;
 }
 
 /* Post5 - Column 2, Row 3 - Instagram Post Style */
 .pg-post5 {
   grid-column: 2;
   grid-row: 3;
-  font-size: 2rem;
+  font-size: 1.8rem;
   border-radius: 16px;
-  background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+  background: #fff;
+  border: 3px solid;
+  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  padding: 6px;
 }
 
 /* Reel1 - Column 1, Row 4 - Instagram Reel Style (Big Post Height) */
@@ -266,9 +285,10 @@ body {
   grid-row: 4;
   font-size: 1.8rem;
   border-radius: 24px;
-  background: linear-gradient(45deg, #000000 0%, #434343 100%);
-  border: 3px solid #ff3040;
+  background: #fff;
+  border: 4px solid #ff3040;
   position: relative;
+  padding: 8px;
 }
 
 .pg-reel1::after {
@@ -278,8 +298,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  color: #ff3040;
+  text-shadow: 0 0 10px rgba(255,48,64,0.3);
   pointer-events: none;
 }
 
@@ -289,9 +309,10 @@ body {
   grid-row: 4;
   font-size: 1.8rem;
   border-radius: 24px;
-  background: linear-gradient(45deg, #000000 0%, #434343 100%);
-  border: 3px solid #ff3040;
+  background: #fff;
+  border: 4px solid #ff3040;
   position: relative;
+  padding: 8px;
 }
 
 .pg-reel2::after {
@@ -301,8 +322,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  color: #ff3040;
+  text-shadow: 0 0 10px rgba(255,48,64,0.3);
   pointer-events: none;
 }
 
@@ -312,9 +333,10 @@ body {
   grid-row: 4;
   font-size: 1.8rem;
   border-radius: 24px;
-  background: linear-gradient(45deg, #000000 0%, #434343 100%);
-  border: 3px solid #ff3040;
+  background: #fff;
+  border: 4px solid #ff3040;
   position: relative;
+  padding: 8px;
 }
 
 .pg-reel3::after {
@@ -324,8 +346,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  color: #ff3040;
+  text-shadow: 0 0 10px rgba(255,48,64,0.3);
   pointer-events: none;
 }
 
@@ -335,9 +357,10 @@ body {
   grid-row: 4;
   font-size: 1.8rem;
   border-radius: 24px;
-  background: linear-gradient(45deg, #000000 0%, #434343 100%);
-  border: 3px solid #ff3040;
+  background: #fff;
+  border: 4px solid #ff3040;
   position: relative;
+  padding: 8px;
 }
 
 .pg-reel4::after {
@@ -347,8 +370,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+  color: #ff3040;
+  text-shadow: 0 0 10px rgba(255,48,64,0.3);
   pointer-events: none;
 }
 
