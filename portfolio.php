@@ -1,5 +1,6 @@
 <?php include 'includes/header.php'; ?>
 
+<!-- PORTFOLIO LAYOUT UPDATED - TEST MARKER -->
 <!-- Montserrat font for perfect match -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 
@@ -392,7 +393,8 @@ body {
     </div>
   </div>
 
-  <!-- GRID -->
+  <!-- GRID - LAYOUT UPDATED -->
+  <div style="color:red;text-align:center;padding:10px;background:yellow;">LAYOUT UPDATED - 4x4 GRID</div>
   <div class="portfolio-grid">
     <?php
     // Get portfolio items from database
