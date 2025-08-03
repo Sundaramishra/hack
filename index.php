@@ -264,6 +264,50 @@ error_reporting(E_ALL);
     .featured-3d-slide{width:180px;height:270px}
     .featured-3d-slider-track{height:55vh}
   }
+
+  /* =============== PORTFOLIO BUTTON =============== */
+  .portfolio-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-deep) 100%);
+    color: #fff;
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 32px;
+    border-radius: 50px;
+    border: 2px solid var(--orange-deep);
+    box-shadow: 0 8px 25px rgba(244, 75, 18, 0.3), 0 0 20px rgba(244, 75, 18, 0.1) inset;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .portfolio-btn:hover {
+    background: linear-gradient(135deg, var(--orange-deep) 0%, var(--orange-heat) 100%);
+    border-color: #fff;
+    box-shadow: 0 12px 35px rgba(244, 75, 18, 0.4), 0 0 30px rgba(255, 255, 255, 0.2) inset;
+    transform: translateY(-2px);
+    color: #fff;
+  }
+
+  .portfolio-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 20px rgba(244, 75, 18, 0.3);
+  }
+
+  /* Mobile responsive button */
+  @media (max-width: 700px) {
+    .portfolio-btn {
+      font-size: 1rem;
+      padding: 14px 28px;
+    }
+    .portfolio-button-wrapper {
+      padding: 30px 0 15px !important;
+    }
+  }
 </style>
 
 <!-- ==================== HERO ==================== -->
@@ -518,6 +562,11 @@ error_reporting(E_ALL);
     window.addEventListener('load', ()=>{ applyPositions(); startAuto(); });
     window.addEventListener('resize', applyPositions);
   </script>
+
+  <!-- View All Portfolio Button -->
+  <div class="portfolio-button-wrapper" style="position:relative;z-index:3;text-align:center;padding:40px 0 20px;">
+    <a href="portfolio.php" class="portfolio-btn">View All Portfolio</a>
+  </div>
 </section>
 
 <?php include 'includes/footer.php'; ?>
