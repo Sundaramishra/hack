@@ -1,4 +1,8 @@
-<?php include 'includes/header.php'; ?>
+<?php 
+// Include functions first
+require_once 'includes/functions.php';
+include 'includes/header.php'; 
+?>
 
 <!-- Portfolio Hero Section as per Image 2 -->
 <section class="relative pt-24 pb-12 bg-white overflow-hidden" style="border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;">
@@ -25,6 +29,10 @@
     <div class="container mx-auto px-4 pt-0 pb-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-10">
             <?php
+            // Enable error reporting for debugging
+            ini_set('display_errors', 1);
+            error_reporting(E_ALL);
+            
             // Get and sort portfolio items as before (descending, newest first)
             $portfolioItems = getPortfolioItems();
             if (!empty($portfolioItems)) {
