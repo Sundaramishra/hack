@@ -202,11 +202,11 @@ body {
   padding: 6px;
 }
 
-/* Story1 - Column 3, Row 2 - Instagram Story Style */
+/* Story1 - Column 3, Row 2-3 - Instagram Story Style (Big Size) */
 .pg-story1 {
   grid-column: 3;
-  grid-row: 2;
-  font-size: 1.8rem;
+  grid-row: 2/4;
+  font-size: 2rem;
   border-radius: 20px;
   background: #fff;
   border: 4px solid #833ab4;
@@ -226,11 +226,11 @@ body {
   pointer-events: none;
 }
 
-/* Story2 - Column 4, Row 2 - Instagram Story Style */
+/* Story2 - Column 4, Row 2-3 - Instagram Story Style (Big Size) */
 .pg-story2 {
   grid-column: 4;
-  grid-row: 2;
-  font-size: 1.8rem;
+  grid-row: 2/4;
+  font-size: 2rem;
   border-radius: 20px;
   background: #fff;
   border: 4px solid #833ab4;
