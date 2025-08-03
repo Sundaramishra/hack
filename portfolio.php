@@ -176,8 +176,7 @@ body {
   font-size: 3rem;
   border-radius: 20px;
   background: #fff;
-  border: 4px solid;
-  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  border: 4px solid #e1306c;
   padding: 8px;
 }
 
@@ -188,8 +187,7 @@ body {
   font-size: 1.8rem;
   border-radius: 16px;
   background: #fff;
-  border: 3px solid;
-  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  border: 3px solid #e1306c;
   padding: 6px;
 }
 
@@ -200,8 +198,7 @@ body {
   font-size: 1.8rem;
   border-radius: 16px;
   background: #fff;
-  border: 3px solid;
-  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
+  border: 3px solid #e1306c;
   padding: 6px;
 }
 
@@ -212,8 +209,7 @@ body {
   font-size: 2rem;
   border-radius: 20px;
   background: #fff;
-  border: 4px solid;
-  border-image: linear-gradient(45deg, #833ab4 0%, #c13584 50%, #fcb045 100%) 1;
+  border: 4px solid #833ab4;
   position: relative;
   padding: 8px;
 }
@@ -237,8 +233,7 @@ body {
   font-size: 2rem;
   border-radius: 20px;
   background: #fff;
-  border: 4px solid;
-  border-image: linear-gradient(45deg, #833ab4 0%, #c13584 50%, #fcb045 100%) 1;
+  border: 4px solid #833ab4;
   position: relative;
   padding: 8px;
 }
@@ -255,38 +250,36 @@ body {
   pointer-events: none;
 }
 
-/* Post4 - Column 1, Row 3 - Instagram Post Style */
+/* Post4 - Column 1, Row 4 - Instagram Post Style */
 .pg-post4 {
-  grid-column: 1;
-  grid-row: 3;
-  font-size: 1.8rem;
-  border-radius: 16px;
-  background: #fff;
-  border: 3px solid;
-  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
-  padding: 6px;
-}
-
-/* Post5 - Column 2, Row 3 - Instagram Post Style */
-.pg-post5 {
-  grid-column: 2;
-  grid-row: 3;
-  font-size: 1.8rem;
-  border-radius: 16px;
-  background: #fff;
-  border: 3px solid;
-  border-image: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) 1;
-  padding: 6px;
-}
-
-/* Reel1 - Column 1, Row 4 - Instagram Reel Style (Big Post Height) */
-.pg-reel1 {
   grid-column: 1;
   grid-row: 4;
   font-size: 1.8rem;
+  border-radius: 16px;
+  background: #fff;
+  border: 3px solid #e1306c;
+  padding: 6px;
+}
+
+/* Post5 - Column 2, Row 4 - Instagram Post Style */
+.pg-post5 {
+  grid-column: 2;
+  grid-row: 4;
+  font-size: 1.8rem;
+  border-radius: 16px;
+  background: #fff;
+  border: 3px solid #e1306c;
+  padding: 6px;
+}
+
+/* Reel1 - Column 3, Row 5 - Instagram Reel Style (Big Post Height) */
+.pg-reel1 {
+  grid-column: 3;
+  grid-row: 5;
+  font-size: 1.8rem;
   border-radius: 24px;
   background: #fff;
-  border: 4px solid #ff3040;
+  border: 4px solid #000;
   position: relative;
   padding: 8px;
 }
@@ -298,19 +291,19 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #ff3040;
-  text-shadow: 0 0 10px rgba(255,48,64,0.3);
+  color: #000;
+  text-shadow: 0 0 10px rgba(0,0,0,0.3);
   pointer-events: none;
 }
 
-/* Reel2 - Column 2, Row 4 - Instagram Reel Style (Big Post Height) */
+/* Reel2 - Column 4, Row 5 - Instagram Reel Style (Big Post Height) */
 .pg-reel2 {
-  grid-column: 2;
-  grid-row: 4;
+  grid-column: 4;
+  grid-row: 5;
   font-size: 1.8rem;
   border-radius: 24px;
   background: #fff;
-  border: 4px solid #ff3040;
+  border: 4px solid #000;
   position: relative;
   padding: 8px;
 }
@@ -322,19 +315,19 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #ff3040;
-  text-shadow: 0 0 10px rgba(255,48,64,0.3);
+  color: #000;
+  text-shadow: 0 0 10px rgba(0,0,0,0.3);
   pointer-events: none;
 }
 
-/* Reel3 - Column 3, Row 4 - Instagram Reel Style (Big Post Height) */
+/* Reel3 - Column 1, Row 5 - Instagram Reel Style (Big Post Height) */
 .pg-reel3 {
-  grid-column: 3;
-  grid-row: 4;
+  grid-column: 1;
+  grid-row: 5;
   font-size: 1.8rem;
   border-radius: 24px;
   background: #fff;
-  border: 4px solid #ff3040;
+  border: 4px solid #000;
   position: relative;
   padding: 8px;
 }
@@ -346,19 +339,19 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #ff3040;
-  text-shadow: 0 0 10px rgba(255,48,64,0.3);
+  color: #000;
+  text-shadow: 0 0 10px rgba(0,0,0,0.3);
   pointer-events: none;
 }
 
-/* Reel4 - Column 4, Row 4 - Instagram Reel Style (Big Post Height) */
+/* Reel4 - Column 2, Row 5 - Instagram Reel Style (Big Post Height) */
 .pg-reel4 {
-  grid-column: 4;
-  grid-row: 4;
+  grid-column: 2;
+  grid-row: 5;
   font-size: 1.8rem;
   border-radius: 24px;
   background: #fff;
-  border: 4px solid #ff3040;
+  border: 4px solid #000;
   position: relative;
   padding: 8px;
 }
@@ -370,8 +363,8 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 3rem;
-  color: #ff3040;
-  text-shadow: 0 0 10px rgba(255,48,64,0.3);
+  color: #000;
+  text-shadow: 0 0 10px rgba(0,0,0,0.3);
   pointer-events: none;
 }
 
