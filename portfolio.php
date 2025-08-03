@@ -1,4 +1,7 @@
 <?php 
+// Include database connection first
+require_once 'includes/db.php';
+
 // Include functions first
 require_once 'includes/functions.php';
 include 'includes/header.php'; 

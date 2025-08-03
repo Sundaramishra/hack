@@ -8,6 +8,9 @@ function safe($arr, $key, $default = '') {
     return (isset($arr[$key]) && $arr[$key] !== null && trim($arr[$key]) !== '') ? trim($arr[$key]) : $default;
 }
 
+// Include database connection first
+require_once 'includes/db.php';
+
 // Include functions first (without any output)
 require_once 'includes/functions.php';
 
