@@ -1,10 +1,11 @@
-<?php include 'includes/header.php'; ?>
-
 <?php
 // Safe getter (handles empty string and null, trims input)
 function safe($arr, $key, $default = '') {
     return (isset($arr[$key]) && $arr[$key] !== null && trim($arr[$key]) !== '') ? trim($arr[$key]) : $default;
 }
+
+// Include functions first (without any output)
+require_once 'includes/functions.php';
 
 $portfolioId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $portfolio = getPortfolioItem($portfolioId);
@@ -59,6 +60,9 @@ function countMedia($slots) {
     }
     return $count;
 }
+
+// Now include header after redirect check
+include 'includes/header.php';
 ?>
 
 <!-- Montserrat font -->
