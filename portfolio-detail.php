@@ -1,5 +1,66 @@
 <?php include 'includes/header.php'; ?>
 
+<?php
+// Safe getter (handles empty string and null, trims input)
+function safe($arr, $key, $default = '') {
+    return (isset($arr[$key]) && $arr[$key] !== null && trim($arr[$key]) !== '') ? trim($arr[$key]) : $default;
+}
+
+$portfolioId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$portfolio = getPortfolioItem($portfolioId);
+
+if (!$portfolio) {
+    header("Location: portfolio.php");
+    exit;
+}
+
+// Get all fields
+$title = safe($portfolio, 'title', 'Client Name');
+$thumbnail = safe($portfolio, 'thumbnail');
+$description = safe($portfolio, 'description');
+$role = safe($portfolio, 'services_provided');
+$timeline = safe($portfolio, 'timeline');
+$big_post = safe($portfolio, 'photo1');
+$small_posts = [
+    safe($portfolio, 'photo2'),
+    safe($portfolio, 'photo3'),
+    safe($portfolio, 'photo4'),
+];
+$stories = [
+    safe($portfolio, 'video_story1'),
+    safe($portfolio, 'video_story2'),
+];
+$reels = [
+    safe($portfolio, 'reel1'),
+    safe($portfolio, 'reel2'),
+    safe($portfolio, 'reel3'),
+    safe($portfolio, 'reel4'),
+];
+
+// Prepare grid slots
+$grid_slots = [
+    ['type' => 'img', 'src' => $big_post,      'class' => 'pg-bigpost',    'alt' => 'Portfolio Main Post'],
+    ['type' => 'img', 'src' => $small_posts[0],'class' => 'pg-post2', 'alt' => 'Portfolio Image'],
+    ['type' => 'img', 'src' => $small_posts[1],'class' => 'pg-post3', 'alt' => 'Portfolio Image'],
+    ['type' => 'img', 'src' => $small_posts[2],'class' => 'pg-post4', 'alt' => 'Portfolio Image'],
+    ['type' => 'video', 'src' => $stories[0],  'class' => 'pg-story1',      'alt' => 'Portfolio Story'],
+    ['type' => 'video', 'src' => $stories[1],  'class' => 'pg-story2',      'alt' => 'Portfolio Story'],
+    ['type' => 'img', 'src' => $small_posts[0],'class' => 'pg-post5', 'alt' => 'Portfolio Image'],
+    ['type' => 'video', 'src' => $reels[0],    'class' => 'pg-reel1',       'alt' => 'Portfolio Reel'],
+    ['type' => 'video', 'src' => $reels[1],    'class' => 'pg-reel2',       'alt' => 'Portfolio Reel'],
+    ['type' => 'video', 'src' => $reels[2],    'class' => 'pg-reel3',       'alt' => 'Portfolio Reel'],
+    ['type' => 'video', 'src' => $reels[3],    'class' => 'pg-reel4',       'alt' => 'Portfolio Reel'],
+];
+
+function countMedia($slots) {
+    $count = 0;
+    foreach ($slots as $slot) {
+        if ($slot['src']) $count++;
+    }
+    return $count;
+}
+?>
+
 <!-- Montserrat font -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 
@@ -446,143 +507,71 @@ body {
   <!-- White Header Section -->
   <section class="portfolio-header-section">
     <div class="portfolio-title">Portfolio</div>
-    <div class="portfolio-sub">Vartak's Competitive Academy</div>
+    <div class="portfolio-sub"><?php echo htmlspecialchars($title); ?></div>
   </section>
   
   <!-- Client Info Section -->
   <div class="portfolio-topflex">
-    <div class="portfolio-blankbox"></div>
+    <div class="portfolio-blankbox">
+      <?php if ($thumbnail): ?>
+        <img src="<?php echo htmlspecialchars($thumbnail); ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 13px;" />
+      <?php endif; ?>
+    </div>
     <div class="portfolio-clientinfo">
       <div class="client-label">Client</div>
-      <div class="client-title">VARTAK'S COMPETITIVE ACADEMY</div>
+      <div class="client-title"><?php echo htmlspecialchars($title); ?></div>
+      <?php if ($description): ?>
+      <div style="color: #e0e0e0; font-size: 1rem; margin-bottom: 18px; font-family: 'Montserrat', sans-serif;">
+        <?php echo nl2br(htmlspecialchars($description)); ?>
+      </div>
+      <?php endif; ?>
       <div style="margin-bottom:6px;">
         <span class="portfolio-role-label">Our Role</span>
         <div class="portfolio-role-list" style="margin-top:4px;">
-          <span>SOCIAL MEDIA MANAGEMENT</span>
-          <span>DESIGNING</span>
-          <span>INSTITUTE AWARENESS THROUGH ADS</span>
+          <?php
+          $services = array_filter(array_map('trim', explode(',', $role)));
+          foreach ($services as $service) {
+              echo '<span>' . htmlspecialchars($service) . '</span>';
+          }
+          ?>
         </div>
       </div>
+      <?php if ($timeline): ?>
+      <div style="color: #bdbdbd; font-size: .98rem; margin-top: 8px;">
+        Timeline:<span style="color: #fff; font-weight: 600; margin-left: 4px;"> <?php echo htmlspecialchars($timeline); ?></span>
+      </div>
+      <?php endif; ?>
     </div>
   </div>
 
-  <!-- 4x4 GRID -->
-  <div class="portfolio-grid">
-    <?php
-    // Safe getter function (same as portfolio-detail.php)
-    function safe($arr, $key, $default = '') {
-        return (isset($arr[$key]) && $arr[$key] !== null && trim($arr[$key]) !== '') ? trim($arr[$key]) : $default;
-    }
-    
-    // Get portfolio items from database
-    $portfolioItems = getPortfolioItems();
-    if (!empty($portfolioItems)) {
-      // Sort descending by id (newest first)
-      usort($portfolioItems, function($a, $b) {
-        return $b['id'] <=> $a['id'];
-      });
-      
-      // Take first 11 items for our grid
-      $gridItems = array_slice($portfolioItems, 0, 11);
-    } else {
-      $gridItems = [];
-    }
-    
-    // Create grid slots with proper media types (same logic as portfolio-detail.php)
-    $grid_slots = [];
-    foreach ($gridItems as $index => $item) {
-      if (!$item) continue;
-      
-      switch($index) {
-        case 0: // Big Post
-          $media_src = safe($item, 'photo1') ?: safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => 'img', 'src' => $media_src, 'class' => 'pg-bigpost', 'alt' => 'Portfolio Main Post'];
-          break;
-        case 1: // Post2
-          $media_src = safe($item, 'photo2') ?: safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => 'img', 'src' => $media_src, 'class' => 'pg-post2', 'alt' => 'Portfolio Image'];
-          break;
-        case 2: // Post3
-          $media_src = safe($item, 'photo3') ?: safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => 'img', 'src' => $media_src, 'class' => 'pg-post3', 'alt' => 'Portfolio Image'];
-          break;
-        case 3: // Story1
-          $media_src = safe($item, 'video_story1');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-story1', 'alt' => 'Portfolio Story'];
-          break;
-        case 4: // Story2
-          $media_src = safe($item, 'video_story2');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-story2', 'alt' => 'Portfolio Story'];
-          break;
-        case 5: // Post4
-          $media_src = safe($item, 'photo4') ?: safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => 'img', 'src' => $media_src, 'class' => 'pg-post4', 'alt' => 'Portfolio Image'];
-          break;
-        case 6: // Post5 (using photo1 from next item or thumbnail)
-          $media_src = safe($item, 'photo1') ?: safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => 'img', 'src' => $media_src, 'class' => 'pg-post5', 'alt' => 'Portfolio Image'];
-          break;
-        case 7: // Reel1
-          $media_src = safe($item, 'reel1');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-reel1', 'alt' => 'Portfolio Reel'];
-          break;
-        case 8: // Reel2
-          $media_src = safe($item, 'reel2');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-reel2', 'alt' => 'Portfolio Reel'];
-          break;
-        case 9: // Reel3
-          $media_src = safe($item, 'reel3');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-reel3', 'alt' => 'Portfolio Reel'];
-          break;
-        case 10: // Reel4
-          $media_src = safe($item, 'reel4');
-          $media_type = $media_src ? 'video' : 'img';
-          if (!$media_src) $media_src = safe($item, 'thumbnail');
-          $grid_slots[] = ['type' => $media_type, 'src' => $media_src, 'class' => 'pg-reel4', 'alt' => 'Portfolio Reel'];
-          break;
+      <!-- 4x4 GRID -->
+    <div class="portfolio-grid">
+      <?php
+      // Render grid slots using new logic
+      foreach ($grid_slots as $slot) {
+        if (!$slot['src']) continue;
+        
+        $src = htmlspecialchars($slot['src']);
+        $class = htmlspecialchars($slot['class']);
+        $alt = htmlspecialchars($slot['alt']);
+        
+        echo '<div class="pg-item ' . $class . '">';
+        if ($slot['type'] === 'img') {
+          echo '<img src="' . $src . '" alt="' . $alt . '" loading="lazy" />';
+        } elseif ($slot['type'] === 'video') {
+          echo '<video autoplay muted loop playsinline preload="metadata" aria-label="' . $alt . '">';
+          echo '<source src="' . $src . '" type="video/mp4">';
+          echo '</video>';
+        }
+        echo '</div>';
       }
-    }
-    
-    // Render grid slots
-    foreach ($grid_slots as $slot) {
-      if (!$slot['src']) continue;
       
-      $src = htmlspecialchars($slot['src']);
-      $class = htmlspecialchars($slot['class']);
-      $alt = htmlspecialchars($slot['alt']);
-      
-      echo '<div class="pg-item ' . $class . '">';
-      if ($slot['type'] === 'img') {
-        echo '<img src="' . $src . '" alt="' . $alt . '" loading="lazy" />';
-      } elseif ($slot['type'] === 'video') {
-        echo '<video autoplay muted loop playsinline preload="metadata" aria-label="' . $alt . '">';
-        echo '<source src="' . $src . '" type="video/mp4">';
-        echo '</video>';
+      // Check if no media to display
+      if (countMedia($grid_slots) === 0) {
+        echo '<div style="color: #fff; background: rgba(44,44,44,0.18); border-radius: 14px; padding: 32px 8px; text-align: center; font-size: 1.14rem; grid-column: 1/-1; margin: 14px 0 0 0;">No media to display for this project.</div>';
       }
-      echo '</div>';
-    }
-    
-    // Fill remaining slots if less than 11 items
-    $remaining_slots = 11 - count($grid_slots);
-    $slot_classes = ['pg-bigpost', 'pg-post2', 'pg-post3', 'pg-story1', 'pg-story2', 'pg-post4', 'pg-post5', 'pg-reel1', 'pg-reel2', 'pg-reel3', 'pg-reel4'];
-    
-    for ($i = count($grid_slots); $i < 11; $i++) {
-      echo '<div class="pg-item ' . $slot_classes[$i] . '">';
-      echo '<div style="color: #666; font-size: 1rem;">No Media</div>';
-      echo '</div>';
-    }
-    ?>
-  </div>
+      ?>
+    </div>
 </div>
 
 <?php include 'includes/footer.php'; ?>
