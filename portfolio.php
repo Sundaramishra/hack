@@ -1,6 +1,6 @@
 <?php include 'includes/header.php'; ?>
 
-<!-- Montserrat font for perfect match -->
+<!-- Montserrat font -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -13,13 +13,14 @@ body {
 .portfolio-wrap {
   width: 100%;
   max-width: 1400px;
-  margin: 0 auto 0 auto;
+  margin: 0 auto;
   padding: 0 40px 40px 40px;
   font-family: 'Montserrat',sans-serif;
   background: #000;
   min-height: 100vh;
 }
 
+/* WHITE HEADER SECTION */
 .portfolio-header-section {
   background: #fff;
   padding: 60px 0;
@@ -30,6 +31,7 @@ body {
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
+
 .portfolio-title {
   color: #F44B12;
   font-family: 'Montserrat',sans-serif;
@@ -38,11 +40,14 @@ body {
   margin-bottom: 5px;
   letter-spacing: .2px;
 }
+
 .portfolio-sub {
   font-size: 1.1rem;
   color: #383838;
   margin-bottom: 0;
 }
+
+/* CLIENT INFO SECTION */
 .portfolio-topflex {
   display: flex;
   min-height: 40vh;
@@ -55,6 +60,7 @@ body {
   align-items: stretch;
   gap: 0;
 }
+
 .portfolio-blankbox {
   flex: 0 0 30%;
   min-width: 120px;
@@ -66,6 +72,7 @@ body {
   min-height: 140px;
   max-width: 230px;
 }
+
 .portfolio-clientinfo {
   flex: 1 1 0;
   padding: 32px 18px 10px 36px;
@@ -73,12 +80,14 @@ body {
   flex-direction: column;
   justify-content: center;
 }
+
 .portfolio-clientinfo .client-label {
   color: #F44B12;
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 0px;
 }
+
 .portfolio-clientinfo .client-title {
   color: #fff;
   font-size: 1.16rem;
@@ -86,56 +95,52 @@ body {
   letter-spacing: .6px;
   margin-bottom: 8px;
 }
+
 .portfolio-clientinfo .portfolio-role-label {
   color: #F44B12;
   font-weight: bold;
 }
+
 .portfolio-clientinfo .portfolio-role-list {
   display: flex;
   flex-wrap: wrap;
   gap: 23px;
   margin-top: 4px;
 }
+
 .portfolio-clientinfo .portfolio-role-list span {
   font-size: .97rem;
   color: #fff;
   font-weight: 600;
 }
 
-/* PORTFOLIO GRID - EXACT LAYOUT AS REQUESTED */
+/* 4x4 GRID LAYOUT */
 .portfolio-grid {
-  margin: 0 auto;
-  max-width: 100%;
-  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 200px 200px 200px 200px;
-  gap: 18px;
+  gap: 20px;
+  max-width: 100%;
   position: relative;
   z-index: 1;
-  min-height: 80vh;
 }
 
-/* Orange glow effect behind grid */
+/* Orange glow effect */
 .portfolio-grid::after {
   content: '';
-  display: block;
-  grid-column: 1/-1;
-  grid-row: 1/-1;
   position: absolute;
-  left: 0; 
-  right: 0; 
-  bottom: 0; 
-  z-index: 0;
-  width: 100%; 
-  height: 100%;
-  background: radial-gradient(circle at 80% 80%, #f44b124c 20%, transparent 70%);
+  grid-column: 1/-1;
+  grid-row: 4;
+  width: 100%;
+  height: 200px;
+  background: radial-gradient(circle, #f44b124c 34%, transparent 85%);
   filter: blur(6px);
+  z-index: 0;
   pointer-events: none;
 }
 
-/* Grid Items Base Styles */
-.pg-bigpost, .pg-post, .pg-story, .pg-reel {
+/* Base styles for all grid items */
+.pg-item {
   background: #fff;
   color: #222;
   font-weight: 900;
@@ -147,170 +152,107 @@ body {
   z-index: 2;
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
 }
 
-.pg-bigpost:hover, .pg-post:hover, .pg-story:hover, .pg-reel:hover {
+.pg-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(244, 75, 18, 0.15);
 }
 
-/* EXACT LAYOUT POSITIONING AS PER YOUR DIAGRAM */
+.pg-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
 
-/* Big Post - Columns 1-2, Rows 1-2 (spans 2x2) */
+/* EXACT GRID POSITIONING */
+/* Big Post - spans 2x2 (columns 1-2, rows 1-2) */
 .pg-bigpost {
-  font-size: 3rem;
-  letter-spacing: 1.5px;
   grid-column: 1/3;
   grid-row: 1/3;
+  font-size: 3rem;
 }
 
 /* Post2 - Column 3, Row 1 */
-.pg-post.post2 {
-  font-size: 2rem;
+.pg-post2 {
   grid-column: 3;
   grid-row: 1;
+  font-size: 2rem;
 }
 
 /* Post3 - Column 4, Row 1 */
-.pg-post.post3 {
-  font-size: 2rem;
+.pg-post3 {
   grid-column: 4;
   grid-row: 1;
+  font-size: 2rem;
 }
 
 /* Story1 - Column 3, Row 2 */
-.pg-story.story1 {
-  font-size: 1.8rem;
+.pg-story1 {
   grid-column: 3;
   grid-row: 2;
+  font-size: 1.8rem;
 }
 
-/* Story2 - Column 4, Row 2 */  
-.pg-story.story2 {
-  font-size: 1.8rem;
+/* Story2 - Column 4, Row 2 */
+.pg-story2 {
   grid-column: 4;
   grid-row: 2;
+  font-size: 1.8rem;
 }
 
-/* Post4 - Column 1, Row 3 (below Big Post) */
-.pg-post.post4 {
-  font-size: 2rem;
+/* Post4 - Column 1, Row 3 */
+.pg-post4 {
   grid-column: 1;
   grid-row: 3;
+  font-size: 2rem;
 }
 
-/* Post5 - Column 2, Row 3 (below Big Post) */
-.pg-post.post5 {
-  font-size: 2rem;
+/* Post5 - Column 2, Row 3 */
+.pg-post5 {
   grid-column: 2;
   grid-row: 3;
+  font-size: 2rem;
 }
 
 /* Reel1 - Column 1, Row 4 */
-.pg-reel.reel1 {
-  font-size: 1.8rem;
+.pg-reel1 {
   grid-column: 1;
   grid-row: 4;
+  font-size: 1.8rem;
 }
 
 /* Reel2 - Column 2, Row 4 */
-.pg-reel.reel2 {
-  font-size: 1.8rem;
+.pg-reel2 {
   grid-column: 2;
   grid-row: 4;
+  font-size: 1.8rem;
 }
 
 /* Reel3 - Column 3, Row 4 */
-.pg-reel.reel3 {
-  font-size: 1.8rem;
+.pg-reel3 {
   grid-column: 3;
   grid-row: 4;
+  font-size: 1.8rem;
 }
 
 /* Reel4 - Column 4, Row 4 */
-.pg-reel.reel4 {
-  font-size: 1.8rem;
+.pg-reel4 {
   grid-column: 4;
   grid-row: 4;
+  font-size: 1.8rem;
 }
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  .portfolio-topflex { 
-    flex-direction: column; 
-    min-height: unset; 
-    border-radius: 22px; 
-  }
-  .portfolio-blankbox {
-    margin: 22px auto 12px auto;
-  }
-  .portfolio-clientinfo {
-    padding: 8px 9px;
-  }
-  .portfolio-grid { 
-    max-width: 99vw;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 160px 160px 160px 160px 160px;
-    gap: 12px;
-    min-height: auto;
-  }
-  
-  /* Show all items in tablet view */
-  .pg-reel.reel3, .pg-reel.reel4 {
-    display: flex;
-  }
-  
-  /* Tablet layout positioning */
-  .pg-bigpost { grid-column: 1/3; grid-row: 1; }
-  .pg-post.post2 { grid-column: 1; grid-row: 2; }
-  .pg-post.post3 { grid-column: 2; grid-row: 2; }
-  .pg-story.story1 { grid-column: 1; grid-row: 3; }
-  .pg-story.story2 { grid-column: 2; grid-row: 3; }
-  .pg-post.post4 { grid-column: 1; grid-row: 4; }
-  .pg-post.post5 { grid-column: 2; grid-row: 4; }
-  .pg-reel.reel1 { grid-column: 1; grid-row: 5; }
-  .pg-reel.reel2 { grid-column: 2; grid-row: 5; }
-  .pg-reel.reel3 { grid-column: 1; grid-row: 6; }
-  .pg-reel.reel4 { grid-column: 2; grid-row: 6; }
-}
-
-@media (max-width: 670px) {
   .portfolio-wrap {
     padding: 0 15px 40px 15px;
-    max-width: 100%;
   }
   
-  .portfolio-grid { 
-    grid-template-columns: 1fr 1fr 1fr; 
-    grid-template-rows: repeat(4, 120px);
-    gap: 10px;
-    max-width: 100%;
-    min-height: auto;
-  }
-  
-  /* Mobile Layout - All Same Size, 11 Total Items (3x4 grid = 12 spaces, 11 items) */
-  .pg-bigpost { grid-row: 1; grid-column: 1; font-size: 1.2rem; }
-  .pg-post.post2 { grid-row: 1; grid-column: 2; font-size: 1.2rem; }
-  .pg-post.post3 { grid-row: 1; grid-column: 3; font-size: 1.2rem; }
-  .pg-post.post4 { grid-row: 2; grid-column: 1; font-size: 1.2rem; }
-  .pg-post.post5 { grid-row: 2; grid-column: 2; font-size: 1.2rem; }
-  .pg-story.story1 { grid-row: 2; grid-column: 3; font-size: 1.2rem; }
-  .pg-story.story2 { grid-row: 3; grid-column: 1; font-size: 1.2rem; display: block; }
-  .pg-reel.reel1 { grid-row: 3; grid-column: 2; font-size: 1.2rem; }
-  .pg-reel.reel2 { grid-row: 3; grid-column: 3; font-size: 1.2rem; }
-  .pg-reel.reel3 { grid-row: 4; grid-column: 1; font-size: 1.2rem; display: block; }
-  .pg-reel.reel4 { grid-row: 4; grid-column: 2; font-size: 1.2rem; display: block; }
-  /* 11th position (4,3) will be empty - that's fine for 11 items */
-  
-  .portfolio-grid::after {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
   .portfolio-header-section {
     padding: 40px 20px;
-    margin: 0 0 30px 0;
     border-radius: 0 0 20px 20px;
   }
   
@@ -321,16 +263,48 @@ body {
   .portfolio-sub {
     font-size: 1rem;
   }
+  
+  .portfolio-topflex {
+    flex-direction: column;
+    min-height: unset;
+    border-radius: 22px;
+  }
+  
+  .portfolio-blankbox {
+    margin: 22px auto 12px auto;
+  }
+  
+  .portfolio-clientinfo {
+    padding: 8px 9px;
+  }
+  
+  .portfolio-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(6, 150px);
+    gap: 12px;
+  }
+  
+  /* Mobile positioning */
+  .pg-bigpost { grid-column: 1/3; grid-row: 1; font-size: 1.5rem; }
+  .pg-post2 { grid-column: 1; grid-row: 2; font-size: 1.2rem; }
+  .pg-post3 { grid-column: 2; grid-row: 2; font-size: 1.2rem; }
+  .pg-story1 { grid-column: 1; grid-row: 3; font-size: 1.2rem; }
+  .pg-story2 { grid-column: 2; grid-row: 3; font-size: 1.2rem; }
+  .pg-post4 { grid-column: 1; grid-row: 4; font-size: 1.2rem; }
+  .pg-post5 { grid-column: 2; grid-row: 4; font-size: 1.2rem; }
+  .pg-reel1 { grid-column: 1; grid-row: 5; font-size: 1.2rem; }
+  .pg-reel2 { grid-column: 2; grid-row: 5; font-size: 1.2rem; }
+  .pg-reel3 { grid-column: 1; grid-row: 6; font-size: 1.2rem; }
+  .pg-reel4 { grid-column: 2; grid-row: 6; font-size: 1.2rem; }
+  
+  .portfolio-grid::after {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
-  .portfolio-wrap {
-    padding: 0 10px 40px 10px;
-  }
-  
   .portfolio-header-section {
     padding: 30px 15px;
-    margin: 0 0 20px 0;
     border-radius: 0 0 15px 15px;
   }
   
@@ -342,40 +316,16 @@ body {
     font-size: 0.9rem;
   }
 }
-  
-  .portfolio-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: 200px 120px 120px 120px 120px 140px;
-    gap: 10px;
-  }
-  
-  /* Single Column Layout */
-  .pg-bigpost { grid-row: 1; grid-column: 1; }
-  .pg-post.post2 { grid-row: 2; grid-column: 1; }
-  .pg-post.post3 { grid-row: 3; grid-column: 1; }
-  .pg-post.post4 { grid-row: 4; grid-column: 1; }
-  .pg-post.post5 { grid-row: 5; grid-column: 1; }
-  .pg-story.story1 { grid-row: 6; grid-column: 1; }
-  .pg-story.story2 { display: none; }
-  .pg-reel.reel1, .pg-reel.reel2, .pg-reel.reel3, .pg-reel.reel4 { display: none; }
-  
-  /* Remove glow on mobile */
-  .portfolio-grid::after { display: none; }
-  
-  .pg-bigpost { font-size: 2rem; }
-  .pg-post { font-size: 1.5rem; }
-  .pg-post.small { font-size: 1.1rem; }
-  .pg-story { font-size: 1.5rem; }
-}
 </style>
 
 <div class="portfolio-wrap">
-  <!-- Separate White Background Section for Title & Subtitle -->
+  <!-- White Header Section -->
   <section class="portfolio-header-section">
     <div class="portfolio-title">Portfolio</div>
     <div class="portfolio-sub">Vartak's Competitive Academy</div>
   </section>
   
+  <!-- Client Info Section -->
   <div class="portfolio-topflex">
     <div class="portfolio-blankbox"></div>
     <div class="portfolio-clientinfo">
@@ -392,7 +342,7 @@ body {
     </div>
   </div>
 
-  <!-- GRID -->
+  <!-- 4x4 GRID -->
   <div class="portfolio-grid">
     <?php
     // Get portfolio items from database
@@ -405,54 +355,75 @@ body {
       
       // Take first 11 items for our grid
       $gridItems = array_slice($portfolioItems, 0, 11);
-      
-      // Map to exact same structure as before
-      $item1 = $gridItems[0] ?? null;
-      $item2 = $gridItems[1] ?? null;
-      $item3 = $gridItems[2] ?? null;
-      $item4 = $gridItems[3] ?? null;
-      $item5 = $gridItems[4] ?? null;
-      $item6 = $gridItems[5] ?? null;
-      $item7 = $gridItems[6] ?? null;
-      $item8 = $gridItems[7] ?? null;
-      $item9 = $gridItems[8] ?? null;
-      $item10 = $gridItems[9] ?? null;
-      $item11 = $gridItems[10] ?? null;
+    } else {
+      $gridItems = [];
+    }
+    
+    // Helper function to render item
+    function renderItem($item, $fallback) {
+      if ($item && !empty($item['thumbnail'])) {
+        return '<img src="'.htmlspecialchars($item['thumbnail']).'" alt="'.htmlspecialchars($item['brand_name'] ?? $fallback).'">';
+      } elseif ($item && !empty($item['brand_name'])) {
+        return htmlspecialchars($item['brand_name']);
+      } else {
+        return $fallback;
+      }
     }
     ?>
     
-    <div class="pg-bigpost">
-      <?php echo $item1 ? ((!empty($item1['thumbnail'])) ? '<img src="'.htmlspecialchars($item1['thumbnail']).'" alt="'.htmlspecialchars($item1['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item1['brand_name'] ?? 'Post')) : 'Post'; ?>
+    <!-- Big Post (spans 2x2) -->
+    <div class="pg-item pg-bigpost">
+      <?php echo renderItem($gridItems[0] ?? null, 'Big Post'); ?>
     </div>
-    <div class="pg-post post2 small">
-      <?php echo $item2 ? ((!empty($item2['thumbnail'])) ? '<img src="'.htmlspecialchars($item2['thumbnail']).'" alt="'.htmlspecialchars($item2['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item2['brand_name'] ?? 'Post')) : 'Post'; ?>
+    
+    <!-- Post2 -->
+    <div class="pg-item pg-post2">
+      <?php echo renderItem($gridItems[1] ?? null, 'Post'); ?>
     </div>
-    <div class="pg-post post3 small">
-      <?php echo $item3 ? ((!empty($item3['thumbnail'])) ? '<img src="'.htmlspecialchars($item3['thumbnail']).'" alt="'.htmlspecialchars($item3['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item3['brand_name'] ?? 'Post')) : 'Post'; ?>
+    
+    <!-- Post3 -->
+    <div class="pg-item pg-post3">
+      <?php echo renderItem($gridItems[2] ?? null, 'Post'); ?>
     </div>
-    <div class="pg-post post4 small">
-      <?php echo $item4 ? ((!empty($item4['thumbnail'])) ? '<img src="'.htmlspecialchars($item4['thumbnail']).'" alt="'.htmlspecialchars($item4['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item4['brand_name'] ?? 'Post')) : 'Post'; ?>
+    
+    <!-- Story1 -->
+    <div class="pg-item pg-story1">
+      <?php echo renderItem($gridItems[3] ?? null, 'Story'); ?>
     </div>
-    <div class="pg-post post5 small">
-      <?php echo $item5 ? ((!empty($item5['thumbnail'])) ? '<img src="'.htmlspecialchars($item5['thumbnail']).'" alt="'.htmlspecialchars($item5['brand_name'] ?? 'Post').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item5['brand_name'] ?? 'Post')) : 'Post'; ?>
+    
+    <!-- Story2 -->
+    <div class="pg-item pg-story2">
+      <?php echo renderItem($gridItems[4] ?? null, 'Story'); ?>
     </div>
-    <div class="pg-story story1">
-      <?php echo $item6 ? ((!empty($item6['thumbnail'])) ? '<img src="'.htmlspecialchars($item6['thumbnail']).'" alt="'.htmlspecialchars($item6['brand_name'] ?? 'Story').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item6['brand_name'] ?? 'Story')) : 'Story'; ?>
+    
+    <!-- Post4 -->
+    <div class="pg-item pg-post4">
+      <?php echo renderItem($gridItems[5] ?? null, 'Post'); ?>
     </div>
-    <div class="pg-story story2">
-      <?php echo $item7 ? ((!empty($item7['thumbnail'])) ? '<img src="'.htmlspecialchars($item7['thumbnail']).'" alt="'.htmlspecialchars($item7['brand_name'] ?? 'Story').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item7['brand_name'] ?? 'Story')) : 'Story'; ?>
+    
+    <!-- Post5 -->
+    <div class="pg-item pg-post5">
+      <?php echo renderItem($gridItems[6] ?? null, 'Post'); ?>
     </div>
-    <div class="pg-reel reel1">
-      <?php echo $item8 ? ((!empty($item8['thumbnail'])) ? '<img src="'.htmlspecialchars($item8['thumbnail']).'" alt="'.htmlspecialchars($item8['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item8['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    
+    <!-- Reel1 -->
+    <div class="pg-item pg-reel1">
+      <?php echo renderItem($gridItems[7] ?? null, 'Reel'); ?>
     </div>
-    <div class="pg-reel reel2">
-      <?php echo $item9 ? ((!empty($item9['thumbnail'])) ? '<img src="'.htmlspecialchars($item9['thumbnail']).'" alt="'.htmlspecialchars($item9['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item9['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    
+    <!-- Reel2 -->
+    <div class="pg-item pg-reel2">
+      <?php echo renderItem($gridItems[8] ?? null, 'Reel'); ?>
     </div>
-    <div class="pg-reel reel3">
-      <?php echo $item10 ? ((!empty($item10['thumbnail'])) ? '<img src="'.htmlspecialchars($item10['thumbnail']).'" alt="'.htmlspecialchars($item10['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item10['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    
+    <!-- Reel3 -->
+    <div class="pg-item pg-reel3">
+      <?php echo renderItem($gridItems[9] ?? null, 'Reel'); ?>
     </div>
-    <div class="pg-reel reel4">
-      <?php echo $item11 ? ((!empty($item11['thumbnail'])) ? '<img src="'.htmlspecialchars($item11['thumbnail']).'" alt="'.htmlspecialchars($item11['brand_name'] ?? 'Reel').'" style="width:100%;height:100%;object-fit:cover;border-radius:16px;">' : htmlspecialchars($item11['brand_name'] ?? 'Reel')) : 'Reel'; ?>
+    
+    <!-- Reel4 -->
+    <div class="pg-item pg-reel4">
+      <?php echo renderItem($gridItems[10] ?? null, 'Reel'); ?>
     </div>
   </div>
 </div>
