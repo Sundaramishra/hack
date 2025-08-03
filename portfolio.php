@@ -178,18 +178,18 @@ body {
   grid-row: 1;
 }
 
-/* Story1 - Column 3, spans Row 1-2 (from R1 to R2) */
+/* Story1 - Column 3, Row 2 */
 .pg-story.story1 {
   font-size: 1.8rem;
   grid-column: 3;
-  grid-row: 1/3;
+  grid-row: 2;
 }
 
-/* Story2 - Column 4, spans Row 1-2 (from R1 to R2) */  
+/* Story2 - Column 4, Row 2 */  
 .pg-story.story2 {
   font-size: 1.8rem;
   grid-column: 4;
-  grid-row: 1/3;
+  grid-row: 2;
 }
 
 /* Post4 - Column 1, Row 3 (below Big Post) */
