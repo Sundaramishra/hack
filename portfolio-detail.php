@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Safe getter (handles empty string and null, trims input)
 function safe($arr, $key, $default = '') {
     return (isset($arr[$key]) && $arr[$key] !== null && trim($arr[$key]) !== '') ? trim($arr[$key]) : $default;
@@ -8,10 +12,22 @@ function safe($arr, $key, $default = '') {
 require_once 'includes/functions.php';
 
 $portfolioId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+// Debug: Check if function exists
+if (!function_exists('getPortfolioItem')) {
+    die('Error: getPortfolioItem function not found in functions.php');
+}
+
 $portfolio = getPortfolioItem($portfolioId);
 
+// Debug: Check what we got
 if (!$portfolio) {
-    header("Location: portfolio.php");
+    // Show debug info instead of redirect for now
+    echo "Debug Info:<br>";
+    echo "Portfolio ID: " . $portfolioId . "<br>";
+    echo "Portfolio data: ";
+    var_dump($portfolio);
+    echo "<br><a href='portfolio.php'>Go back to Portfolio</a>";
     exit;
 }
 
