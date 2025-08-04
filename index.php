@@ -465,7 +465,7 @@ if (function_exists('getPortfolioItems')) {
       
       <div class="featured-3d-slider-track" id="featured3dSliderTrack">
         <?php foreach ($slides as $i => $s): ?>
-          <div class="featured-3d-slide" data-slide-idx="<?= $i ?>">
+          <div class="featured-3d-slide" data-slide-idx="<?= $i ?>" data-portfolio-id="<?= $s['id'] ?>" style="cursor: pointer;">
             <img src="<?= $s['image_path'] ?>" alt="<?= $s['title'] ?>">
           </div>
         <?php endforeach; ?>
@@ -564,6 +564,18 @@ if (function_exists('getPortfolioItems')) {
     
     document.getElementById('featured3dArrowRight').addEventListener('click', ()=>{ next(); startAuto(); });
     document.getElementById('featured3dArrowLeft').addEventListener('click',  ()=>{ prev(); startAuto(); });
+    
+    // Click on slide to open portfolio detail
+    slidesEls.forEach(slide => {
+      slide.addEventListener('click', (e) => {
+        const portfolioId = slide.getAttribute('data-portfolio-id');
+        if (portfolioId && portfolioId > 0) {
+          window.location.href = 'portfolio-detail.php?id=' + portfolioId;
+        } else {
+          window.location.href = 'portfolio.php'; // fallback
+        }
+      });
+    });
     
     // keyboard
     window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ next(); startAuto(); } if(e.key==='ArrowLeft'){ prev(); startAuto(); } });
