@@ -3,7 +3,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 ?>
-<?php include 'includes/header.php'; ?>
+<?php 
+// Include database connection first
+require_once 'includes/db.php';
+// Include functions first
+require_once 'includes/functions.php';
+include 'includes/header.php'; 
+?>
 
 <!-- FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -348,12 +354,13 @@ error_reporting(E_ALL);
       } else {
         echo '<div style="color:#fff;text-align:center;width:100%;font-size:1.15rem;">No expertise/services found.</div>';
       }
-    ?>
+    ?> 
   </div>
+  <br>
 </section>
 
 <!-- ==================== BRANDS (4-3-4 desktop, 2-2-2-2-2 mobile) ==================== -->
-<section class="brands-section section-overlap my-8" style="position:relative; margin-top:-3.8rem; z-index:11;">
+<section class="brands-section section-overlap my-8" style="position:relative; margin-top:-6rem; z-index:11;">
   <div class="text-center mb-8">
     <div class="brands-heading">Brands We've <span style="font-weight:900;">Worked With</span></div>
   </div>
@@ -396,18 +403,57 @@ error_reporting(E_ALL);
   </div>
 </section>
 
-<!-- ==================== FEATURED (5 demo slides + center caption) ==================== -->
-<section class="featured-section section-overlap relative">
+<!-- ==================== FEATURED (All portfolio items + center caption) ==================== -->
+<?php
+// Get ALL portfolio items (no limit)
+if (function_exists('getPortfolioItems')) {
+    $portfolioItems = getPortfolioItems(); // No limit - get all items
+    $slides = [];
+    foreach ($portfolioItems as $row) {
+        $slides[] = [
+            'id' => isset($row['id']) ? (int)$row['id'] : 0,
+            'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+            'title' => htmlspecialchars($row['brand_name'] ?? ''),
+            'subtitle' => htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+        ];
+    }
+} else {
+    // Inline query fallback if getPortfolioItems() doesn't exist - GET ALL ITEMS
+    $slides = [];
+    $query = "SELECT id, brand_name, description, thumbnail FROM portfolio ORDER BY id DESC";
+    $result = mysqli_query($conn, $query);
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $slides[] = [
+                'id' => (int)$row['id'],
+                'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
+                'title' => htmlspecialchars($row['brand_name'] ?? ''),
+                'subtitle' => htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
+            ];
+        }
+    } else {
+        // Demo fallback if DB is empty
+        $slides = [
+            [ 'id'=>0, 'image_path'=>'uploads/portfolio/thumbnails/project1.webp', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
+            [ 'id'=>0, 'image_path'=>'uploads/portfolio/thumbnails/project2.webp', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
+            [ 'id'=>0, 'image_path'=>'uploads/portfolio/thumbnails/project3.webp', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
+            [ 'id'=>0, 'image_path'=>'uploads/portfolio/thumbnails/project4.webp', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
+            [ 'id'=>0, 'image_path'=>'uploads/portfolio/thumbnails/project5.webp', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
+        ];
+    }
+}
+?>
+<section class="featured-section section-overlap relative" style="position:relative; margin-top:-5rem; z-index:11;">
   <div class="featured-3d-heading">
     <span class="featured-3d-heading-text">Featured Work</span>
   </div>
-
+  
   <!-- Center caption that updates with current slide -->
   <div class="featured-caption" aria-live="polite" aria-atomic="true">
     <h2 class="featured-caption__title"></h2>
     <p class="featured-caption__sub"></p>
   </div>
-
+  
   <div class="featured-3d-slider-area">
     <div class="featured-3d-slider">
       <button class="featured-3d-arrow left" type="button" id="featured3dArrowLeft" aria-label="Previous">
@@ -416,88 +462,49 @@ error_reporting(E_ALL);
       <button class="featured-3d-arrow right" type="button" id="featured3dArrowRight" aria-label="Next">
         <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-
+      
       <div class="featured-3d-slider-track" id="featured3dSliderTrack">
-        <?php
-          // Manual database query for portfolio items - CORRECT COLUMNS
-          $slides = [];
-          
-          try {
-            // Portfolio table has: id, brand_name, description, categories, services_provided, timeline, brand_essence, brand_agenda, thumbnail, video_path
-            $query = "SELECT id, brand_name, description, thumbnail FROM portfolio ORDER BY id LIMIT 5";
-            $result = mysqli_query($conn, $query);
-            if ($result) {
-              while ($row = mysqli_fetch_assoc($result)) {
-                $slides[] = [
-                  'image_path' => htmlspecialchars($row['thumbnail'] ?? ''),
-                  'title' => htmlspecialchars($row['brand_name'] ?? ''), // Use brand_name as title
-                  'subtitle' => htmlspecialchars(mb_strimwidth(strip_tags($row['description'] ?? ''), 0, 50, '...'))
-                ];
-              }
-            }
-          } catch (Exception $e) {
-            error_log("Portfolio query error: " . $e->getMessage());
-          }
-          
-          // If no slides in database, use demo data as fallback
-          if (empty($slides)) {
-            $slides = [
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project1.webp', 'title'=>'Bold Brand Reveal',    'subtitle'=>'Launch Teaser • Motion + Sound Design' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project2.webp', 'title'=>'Summer Drop Film',     'subtitle'=>'Fashion Promo • Color‑graded & Cutdowns' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project3.webp', 'title'=>'App Intro Sequence',   'subtitle'=>'UI Animations • 3D Transitions' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project4.webp', 'title'=>'Product Hero Loop',    'subtitle'=>'CGI Packshot • Realistic Lighting' ],
-              [ 'image_path'=>'uploads/portfolio/thumbnails/project5.webp', 'title'=>'Festival Opener',      'subtitle'=>'Kinetic Type • Beat‑Synced Edits' ],
-            ];
-          }
-          
-          // Render slides
-          for ($i=0; $i<count($slides); $i++) {
-            $s = $slides[$i];
-            $img = htmlspecialchars($s['image_path']);
-            $title = htmlspecialchars($s['title']);
-            echo '<div class="featured-3d-slide" data-slide-idx="'.$i.'">';
-              // fallback gradient if image missing
-              echo '<img src="'.$img.'" alt="'.$title.'">';
-            echo '</div>';
-          }
-        ?>
+        <?php foreach ($slides as $i => $s): ?>
+          <div class="featured-3d-slide" data-slide-idx="<?= $i ?>">
+            <img src="<?= $s['image_path'] ?>" alt="<?= $s['title'] ?>">
+          </div>
+        <?php endforeach; ?>
       </div>
     </div>
   </div>
-
+  
   <script>
     // ***** SLIDER DATA FROM DATABASE *****
     const SLIDES_DATA = [
       <?php
-        // Output the same slides data for JavaScript
         $jsSlides = [];
         foreach ($slides as $slide) {
-          $jsSlides[] = sprintf(
-            "{img:'%s', title:'%s', sub:'%s'}",
-            addslashes($slide['image_path']),
-            addslashes($slide['title']),
-            addslashes($slide['subtitle'])
-          );
+          $jsSlides[] = json_encode([
+            'id' => $slide['id'],
+            'img' => $slide['image_path'],
+            'title' => $slide['title'],
+            'sub' => $slide['subtitle']
+          ]);
         }
         echo implode(",\n      ", $jsSlides);
       ?>
     ];
-
+    
     const track = document.getElementById('featured3dSliderTrack');
     const slidesEls = Array.from(track.querySelectorAll('.featured-3d-slide'));
     const captionTitle = document.querySelector('.featured-caption__title');
     const captionSub   = document.querySelector('.featured-caption__sub');
-
+    
     let current = 0;
     let autoplayTimer = null;
     const AUTOPLAY_MS = 5000;
-
+    
     function relPos(i, total){
       const rel = ((i - current) % total + total) % total;
       const half = Math.floor(total/2);
       return rel > half ? rel - total : rel;
     }
-
+    
     function applyPositions(){
       const total = slidesEls.length;
       slidesEls.forEach(el=>{
@@ -507,7 +514,7 @@ error_reporting(E_ALL);
         el.setAttribute('aria-current','false');
       });
       if(!total) return;
-
+      
       const show = [-2,-1,0,1,2]; // five visible always
       slidesEls.forEach((el,i)=>{
         const d = relPos(i,total);
@@ -523,11 +530,12 @@ error_reporting(E_ALL);
           el.classList.add('is-hidden');
         }
       });
-
-      const data = SLIDES_DATA[current] || {title:'', sub:''};
+      
+      const data = SLIDES_DATA[current] || {id:0, title:'', sub:''};
       updateCaption(data.title, data.sub);
+      updatePortfolioButton(data.id);
     }
-
+    
     function updateCaption(title, sub){
       captionTitle.classList.add('fade-out'); captionSub.classList.add('fade-out');
       setTimeout(()=>{
@@ -538,19 +546,28 @@ error_reporting(E_ALL);
         setTimeout(()=>{ captionTitle.classList.remove('fade-in'); captionSub.classList.remove('fade-in'); }, 320);
       }, 120);
     }
-
+    
+    function updatePortfolioButton(portfolioId) {
+      const portfolioBtn = document.getElementById('portfolioBtn');
+      if (portfolioBtn && portfolioId > 0) {
+        portfolioBtn.href = 'portfolio-detail.php?id=' + portfolioId;
+      } else if (portfolioBtn) {
+        portfolioBtn.href = 'portfolio.php'; // fallback to portfolio list
+      }
+    }
+    
     function next(){ current=(current+1)%slidesEls.length; applyPositions(); }
     function prev(){ current=(current-1+slidesEls.length)%slidesEls.length; applyPositions(); }
-
+    
     function startAuto(){ stopAuto(); autoplayTimer=setInterval(next, AUTOPLAY_MS); }
     function stopAuto(){ if(autoplayTimer){ clearInterval(autoplayTimer); autoplayTimer=null; } }
-
+    
     document.getElementById('featured3dArrowRight').addEventListener('click', ()=>{ next(); startAuto(); });
     document.getElementById('featured3dArrowLeft').addEventListener('click',  ()=>{ prev(); startAuto(); });
-
+    
     // keyboard
     window.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ next(); startAuto(); } if(e.key==='ArrowLeft'){ prev(); startAuto(); } });
-
+    
     // touch swipe
     (function(){
       let sx=0, sy=0, dx=0, dy=0;
@@ -558,14 +575,14 @@ error_reporting(E_ALL);
       track.addEventListener('touchmove',  (e)=>{ if(!e.touches[0])return; dx=e.touches[0].clientX-sx; dy=e.touches[0].clientY-sy; }, {passive:true});
       track.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>30 && Math.abs(dx)>Math.abs(dy)){ (dx<0)?next():prev(); } dx=dy=0; startAuto(); });
     })();
-
+    
     window.addEventListener('load', ()=>{ applyPositions(); startAuto(); });
     window.addEventListener('resize', applyPositions);
   </script>
-
-  <!-- View All Portfolio Button -->
+  
+  <!-- View Portfolio Detail Button (Dynamic URL) -->
   <div class="portfolio-button-wrapper" style="position:relative;z-index:3;text-align:center;padding:40px 0 20px;">
-    <a href="portfolio.php" class="portfolio-btn">View All Portfolio</a>
+    <a href="portfolio.php" id="portfolioBtn" class="portfolio-btn">View Portfolio Detail</a>
   </div>
 </section>
 
